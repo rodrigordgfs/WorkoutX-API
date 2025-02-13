@@ -12,3 +12,31 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Workout {
+  id        String     @id @default(uuid())
+  userId    String
+  name      String
+  exercises Exercise[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("workouts")
+}
+
+model Exercise {
+  id           String   @id @default(uuid())
+  workoutId    String
+  name         String
+  series       String
+  repetitions  String
+  weight       Int
+  restTime     Int
+  videoUrl     String
+  instructions String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  workout      Workout  @relation(fields: [workoutId], references: [id])
+
+  @@map("exercises")
+}

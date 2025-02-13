@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: shinodalabs
+      POSTGRES_PASSWORD: shinodalabs
+      POSTGRES_DB: workoutx
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - workoutxNetwork
+
+networks:
+  workoutxNetwork:
+    driver: bridge
+
+volumes:
+  pgdata:

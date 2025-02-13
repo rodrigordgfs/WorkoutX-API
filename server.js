@@ -1,11 +1,11 @@
 import fastify from "fastify";
 import cors from "@fastify/cors";
-// import environment from "./config/envs.js";
-// import routes from "./routes/index.js";
+import routes from "./src/routes/index.js";
+import environment from "./src/config/envs.js";
 // import redisCache from './libs/redis.js'
 
 const app = fastify({
-  logger: true,
+  // logger: true,
   pluginTimeout: 60000
 });
 
@@ -13,7 +13,7 @@ const app = fastify({
 app.register(cors, {
   origin: "*",
 });
-// app.register(routes);
+app.register(routes);
 
 app
   .listen({ port: environment.port, host: "0.0.0.0" })
