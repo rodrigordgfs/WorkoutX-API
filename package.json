@@ -1,0 +1,26 @@
+{
+  "name": "api-workoutx",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@fastify/cors": "^10.0.2",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.3.1"
+  },
+  "dependencies": {
+    "@fastify/caching": "^9.0.3",
+    "@prisma/client": "^6.3.1",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "http-status-code": "^2.1.0",
+    "zod": "^3.24.2"
+  }
+}
