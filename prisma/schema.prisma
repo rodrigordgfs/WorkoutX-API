@@ -13,6 +13,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Goal {
+  WEIGHT_LOSS
+  MUSCLE_GAIN
+  MAINTENANCE
+  ENDURANCE
+  GENERAL_FITNESS
+  REHABILITATION
+  ATHLETIC_PERFORMANCE
+  STRESS_RELIEF
+  PERFORMANCE
+  MOBILITY
+  COMPETITION
+  ENERGY_BOOST
+  STRENGTH
+  MUSCLE_DEFINITION
+  OUTDOOR_PREP
+  MENTAL_HEALTH
+}
+
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  PROFESSIONAL
+  ATHLETE
+  CASUAL
+  REHABILITATION
+  SENIOR
+}
+
 model Workout {
   id        String     @id @default(uuid())
   userId    String
@@ -20,6 +50,7 @@ model Workout {
   exercises Exercise[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  User      User       @relation(fields: [userId], references: [id])
 
   @@map("workouts")
 }
@@ -39,4 +70,21 @@ model Exercise {
   workout      Workout  @relation(fields: [workoutId], references: [id])
 
   @@map("exercises")
+}
+
+model User {
+  id            String           @id
+  email         String           @unique
+  name          String
+  avatar        String
+  height        Float?
+  weight        Float?
+  goal          Goal?
+  experience    ExperienceLevel?
+  publicProfile Boolean          @default(false)
+  workouts      Workout[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@map("users")
 }
