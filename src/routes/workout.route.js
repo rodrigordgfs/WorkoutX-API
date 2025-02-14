@@ -1,7 +1,8 @@
-import workouteController from '../controllers/workout.controller.js';
+import workouteController from "../controllers/workout.controller.js";
 
 const workout = async (fastify) => {
-    fastify.post('/workout', workouteController.postWorkout);
+  fastify.post("/workout", workouteController.postWorkout);
+  fastify.get("/workout", workouteController.getWorkouts);
 };
 
-export default workout; 
+export default workout;

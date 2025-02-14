@@ -30,8 +30,8 @@ model Exercise {
   name         String
   series       String
   repetitions  String
-  weight       Int
-  restTime     Int
+  weight       String
+  restTime     String
   videoUrl     String
   instructions String
   createdAt    DateTime @default(now())

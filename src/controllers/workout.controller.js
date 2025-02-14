@@ -30,33 +30,38 @@ const postWorkout = async (request, reply) => {
       name: z
         .string({ required_error: "O nome do treino é obrigatório" })
         .min(3, { message: "O nome do treino deve ter no mínimo 3 caracteres" })
-        .max(255, { message: "O nome do treino deve ter no máximo 255 caracteres" }),
-      userId: z
-        .string({ required_error: "O ID do usuário é obrigatório" }),
+        .max(255, {
+          message: "O nome do treino deve ter no máximo 255 caracteres",
+        }),
+      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       exercises: z
         .array(
           z.object({
             name: z
               .string({ required_error: "O nome do exercício é obrigatório" })
-              .min(3, { message: "O nome do exercício deve ter no mínimo 3 caracteres" }),
+              .min(3, {
+                message: "O nome do exercício deve ter no mínimo 3 caracteres",
+              }),
             series: z
               .string({ required_error: "O número de séries é obrigatório" })
-              .regex(/^\d+$/, { message: "O número de séries deve ser um número inteiro" }),
-            repetitions: z
-              .string({ required_error: "O número de repetições é obrigatório" }),
-            weight: z
-              .number({ required_error: "O peso é obrigatório" })
-              .min(0, { message: "O peso deve ser maior ou igual a 0" }),
-            restTime: z
-              .number({ required_error: "O tempo de descanso é obrigatório" })
-              .int()
-              .min(0, { message: "O tempo de descanso deve ser um inteiro positivo" }),
+              .regex(/^\d+$/, {
+                message: "O número de séries deve ser um número inteiro",
+              }),
+            repetitions: z.string({
+              required_error: "O número de repetições é obrigatório",
+            }),
+            weight: z.string({ required_error: "O peso é obrigatório" }),
+            restTime: z.string({
+              required_error: "O tempo de descanso é obrigatório",
+            }),
             videoUrl: z
               .string({ required_error: "A URL do vídeo é obrigatória" })
               .url({ message: "A URL do vídeo deve ser válida" }),
             instructions: z
               .string({ required_error: "As instruções são obrigatórias" })
-              .min(3, { message: "As instruções devem ter pelo menos 3 caracteres" }),
+              .min(3, {
+                message: "As instruções devem ter pelo menos 3 caracteres",
+              }),
           })
         )
         .min(1, { message: "A lista de exercícios não pode estar vazia" })
@@ -81,4 +86,22 @@ const postWorkout = async (request, reply) => {
   }
 };
 
-export default { postWorkout };
+const getWorkouts = async (request, reply) => {
+  try {
+    const schemaQuery = z.object({
+      userId: z.string().optional(),
+    });
+
+    const validation = schemaQuery.safeParse(request.query);
+
+    const { userId } = validation.data;
+
+    const workouts = await workoutService.getWorkouts(userId);
+
+    reply.send(workouts);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+export default { postWorkout, getWorkouts };

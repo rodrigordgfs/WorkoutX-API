@@ -26,19 +26,20 @@ const postWorkout = async (userId, name, exercises) => {
       select: {
         id: true,
         name: true,
+        userId: true,
         exercises: {
-            select: {
-                id: true,
-                name: true,
-                series: true,
-                repetitions: true,
-                weight: true,
-                restTime: true,
-                videoUrl: true,
-                instructions: true,
-            }
-        }
-      }
+          select: {
+            id: true,
+            name: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            videoUrl: true,
+            instructions: true,
+          },
+        },
+      },
     });
 
     return workout;
@@ -47,6 +48,36 @@ const postWorkout = async (userId, name, exercises) => {
   }
 };
 
+const getWorkouts = async (userId) => {
+  try {
+    const workouts = await prisma.workout.findMany({
+      where: userId ? { userId } : {},
+      select: {
+        id: true,
+        name: true,
+        userId: true,
+        exercises: {
+          select: {
+            id: true,
+            name: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            videoUrl: true,
+            instructions: true,
+          },
+        },
+      },
+    });
+
+    return workouts;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   postWorkout,
+  getWorkouts,
 };

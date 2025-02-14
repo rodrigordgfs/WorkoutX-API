@@ -8,7 +8,7 @@
     "docker-down": "docker-compose down -v",
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "seed": "npx prisma migrate reset && node prisma/seed.js",
+    "seed": "npx prisma migrate reset --force && node prisma/seed.js",
     "new-route": "node newRoute.js",
     "migrate": "npx prisma migrate dev"
   },
