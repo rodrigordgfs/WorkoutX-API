@@ -29,5 +29,8 @@
     "fastify": "^5.2.1",
     "http-status-codes": "^2.1.0",
     "zod": "^3.24.2"
+  },
+  "prisma": {
+    "schema": "./prisma/schema.prisma"
   }
 }
