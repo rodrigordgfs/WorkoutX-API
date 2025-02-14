@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { StatusCodes } from "http-status-codes";
 import workoutService from "../services/workout.service.js";
+import { Visibility } from "@prisma/client";
 
 const handleErrorResponse = (error, reply) => {
   if (error instanceof z.ZodError) {
@@ -33,6 +34,7 @@ const postWorkout = async (request, reply) => {
         .max(255, {
           message: "O nome do treino deve ter no máximo 255 caracteres",
         }),
+      visibility: z.nativeEnum(visibility).default(visibility.PUBLIC),
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       exercises: z
         .array(
@@ -76,9 +78,9 @@ const postWorkout = async (request, reply) => {
       throw validation.error;
     }
 
-    const { userId, name, exercises } = validation.data;
+    const { userId, name, exercises, visibility } = validation.data;
 
-    const workout = await workoutService.postWorkout(userId, name, exercises);
+    const workout = await workoutService.postWorkout(userId, name, visibility, exercises);
 
     reply.code(StatusCodes.CREATED).send(workout);
   } catch (error) {
@@ -90,13 +92,14 @@ const getWorkouts = async (request, reply) => {
   try {
     const schemaQuery = z.object({
       userId: z.string().optional(),
+      visibility: z.nativeEnum(Visibility).optional(),
     });
 
     const validation = schemaQuery.safeParse(request.query);
 
-    const { userId } = validation.data;
+    const { userId, visibility } = validation.data;
 
-    const workouts = await workoutService.getWorkouts(userId);
+    const workouts = await workoutService.getWorkouts(userId, visibility);
 
     reply.send(workouts);
   } catch (error) {

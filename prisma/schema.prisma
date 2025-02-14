@@ -43,16 +43,35 @@ enum ExperienceLevel {
   SENIOR
 }
 
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
 model Workout {
-  id        String     @id @default(uuid())
-  userId    String
-  name      String
-  exercises Exercise[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  User      User       @relation(fields: [userId], references: [id])
+  id         String         @id @default(uuid())
+  userId     String
+  name       String
+  visibility Visibility     @default(PUBLIC)
+  exercises  Exercise[]
+  likes      WorkoutLikes[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  user       User           @relation(fields: [userId], references: [id])
 
   @@map("workouts")
+}
+
+model WorkoutLikes {
+  id        String   @id @default(uuid())
+  workoutId String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  workout   Workout  @relation(fields: [workoutId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("workout_likes")
 }
 
 model Exercise {
@@ -85,6 +104,7 @@ model User {
   workouts      Workout[]
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
+  WorkoutLikes  WorkoutLikes[]
 
   @@map("users")
 }

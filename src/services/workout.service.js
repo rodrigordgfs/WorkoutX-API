@@ -1,11 +1,12 @@
 import workoutRepository from "../repositories/workout.repository.js";
 import AppError from "../utils/error.js";
 
-const postWorkout = async (userId, name, exercises) => {
+const postWorkout = async (userId, name, visibility, exercises) => {
   try {
     const workout = await workoutRepository.postWorkout(
       userId,
       name,
+      visibility,
       exercises
     );
     return workout;
@@ -14,9 +15,9 @@ const postWorkout = async (userId, name, exercises) => {
   }
 };
 
-const getWorkouts = async (userId) => {
+const getWorkouts = async (userId, visibility) => {
   try {
-    const workouts = await workoutRepository.getWorkouts(userId);
+    const workouts = await workoutRepository.getWorkouts(userId, visibility);
     return workouts;
   } catch (error) {
     throw new AppError(error.message);

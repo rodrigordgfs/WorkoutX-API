@@ -5,12 +5,13 @@ const logError = (error) => {
   throw new Error("An unexpected error occurred. Please try again.");
 };
 
-const postWorkout = async (userId, name, exercises) => {
+const postWorkout = async (userId, name, visibility, exercises) => {
   try {
     const workout = await prisma.workout.create({
       data: {
         userId,
         name,
+        visibility,
         exercises: {
           create: exercises.map((exercise) => ({
             name: exercise.name,
@@ -26,6 +27,7 @@ const postWorkout = async (userId, name, exercises) => {
       select: {
         id: true,
         name: true,
+        visibility: true,
         userId: true,
         exercises: {
           select: {
@@ -48,14 +50,29 @@ const postWorkout = async (userId, name, exercises) => {
   }
 };
 
-const getWorkouts = async (userId) => {
+const getWorkouts = async (userId, visibility) => {
   try {
     const workouts = await prisma.workout.findMany({
-      where: userId ? { userId } : {},
+      where: {
+        ...(userId ? { userId } : {}),
+        ...(visibility ? { visibility } : {}),
+      },
       select: {
         id: true,
         name: true,
-        userId: true,
+        visibility: true,
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
         exercises: {
           select: {
             id: true,
