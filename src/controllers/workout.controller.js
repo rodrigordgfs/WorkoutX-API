@@ -80,7 +80,82 @@ const postWorkout = async (request, reply) => {
 
     const { userId, name, exercises, visibility } = validation.data;
 
-    const workout = await workoutService.postWorkout(userId, name, visibility, exercises);
+    const workout = await workoutService.postWorkout(
+      userId,
+      name,
+      visibility,
+      exercises
+    );
+
+    reply.code(StatusCodes.CREATED).send(workout);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const postWorkoutAI = async (request, reply) => {
+  try {
+    const schemaBody = z.object({
+      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+      objective: z.string({ required_error: "O objetivo é obrigatório" }),
+      trainingTime: z.string({
+        required_error: "O tempo de treino é obrigatório",
+      }),
+      experienceLevel: z.string({
+        required_error: "O nível de experiência é obrigatório",
+      }),
+      frequency: z.string({ required_error: "A frequência é obrigatória" }),
+      duration: z.string({ required_error: "A duração é obrigatória" }),
+      location: z.string({ required_error: "O local é obrigatório" }),
+      equipments: z.array(z.string()).default([]),
+      hasPhysicalLimitations: z.boolean().default(false),
+      limitationDescription: z.string().optional(),
+      preferredTrainingStyle: z.string({
+        required_error: "O estilo de treino é obrigatório",
+      }),
+      nutrition: z.string({ required_error: "A nutrição é obrigatória" }),
+      sleepQuality: z.string({
+        required_error: "A qualidade do sono é obrigatória",
+      }),
+    });
+
+    const validation = schemaBody.safeParse(request.body);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const {
+      userId,
+      objective,
+      trainingTime,
+      experienceLevel,
+      frequency,
+      duration,
+      location,
+      equipments,
+      hasPhysicalLimitations,
+      limitationDescription,
+      preferredTrainingStyle,
+      nutrition,
+      sleepQuality,
+    } = validation.data;
+
+    const workout = await workoutService.postWorkoutAI(
+      userId,
+      objective,
+      trainingTime,
+      experienceLevel,
+      frequency,
+      duration,
+      location,
+      equipments,
+      hasPhysicalLimitations,
+      limitationDescription,
+      preferredTrainingStyle,
+      nutrition,
+      sleepQuality
+    );
 
     reply.code(StatusCodes.CREATED).send(workout);
   } catch (error) {
@@ -107,4 +182,4 @@ const getWorkouts = async (request, reply) => {
   }
 };
 
-export default { postWorkout, getWorkouts };
+export default { postWorkout, getWorkouts, postWorkoutAI };

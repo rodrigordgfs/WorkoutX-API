@@ -50,6 +50,34 @@ const postWorkout = async (userId, name, visibility, exercises) => {
   }
 };
 
+const postWorkoutAI = async (userId, workouts) => {
+  try {
+    for (const workout of workouts) {
+      await prisma.workout.create({
+        data: {
+          userId,
+          name: workout.name,
+          exercises: {
+            create: workout.exercises.map((exercise) => ({
+              name: exercise.name,
+              series: exercise.series,
+              repetitions: exercise.repetitions,
+              weight: exercise.weight,
+              restTime: exercise.restTime,
+              videoUrl: exercise.videoUrl,
+              instructions: exercise.instructions,
+            })),
+          },
+        },
+      });
+    }
+
+    return workouts;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 const getWorkouts = async (userId, visibility) => {
   try {
     const workouts = await prisma.workout.findMany({
@@ -96,5 +124,6 @@ const getWorkouts = async (userId, visibility) => {
 
 export default {
   postWorkout,
+  postWorkoutAI,
   getWorkouts,
 };
