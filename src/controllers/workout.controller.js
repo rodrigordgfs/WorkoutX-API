@@ -34,7 +34,7 @@ const postWorkout = async (request, reply) => {
         .max(255, {
           message: "O nome do treino deve ter no máximo 255 caracteres",
         }),
-      visibility: z.nativeEnum(visibility).default(visibility.PUBLIC),
+      visibility: z.nativeEnum(Visibility).default(Visibility.PUBLIC),
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       exercises: z
         .array(
@@ -163,6 +163,29 @@ const postWorkoutAI = async (request, reply) => {
   }
 };
 
+const postLikeWorkout = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      idWorkout: z.string({ required_error: "O ID do treino é obrigatório" }),
+      idUser: z.string({ required_error: "O ID do usuário é obrigatório" }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { idUser, idWorkout } = validation.data;
+
+    const like = await workoutService.postLikeWorkout(idWorkout, idUser);
+
+    reply.send(like);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 const getWorkouts = async (request, reply) => {
   try {
     const schemaQuery = z.object({
@@ -182,4 +205,4 @@ const getWorkouts = async (request, reply) => {
   }
 };
 
-export default { postWorkout, getWorkouts, postWorkoutAI };
+export default { postWorkout, getWorkouts, postWorkoutAI, postLikeWorkout };

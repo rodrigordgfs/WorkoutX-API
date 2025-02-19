@@ -1,8 +1,8 @@
 import axios from "axios";
 import workoutRepository from "../repositories/workout.repository.js";
+import authRepository from "../repositories/auth.repository.js";
 import AppError from "../utils/error.js";
 import openai from "../libs/openai.js";
-import { Visibility } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 const postWorkout = async (userId, name, visibility, exercises) => {
@@ -38,71 +38,71 @@ const generatePrompt = (
     : "Nenhum";
 
   const prompt = `
-    Gere um treino personalizado com base nas informações abaixo:
+    Gere um treino personalizado em português (Brasil) com base nas informações abaixo:
   
-  - **Objetivo:** ${objective}
-  - **Tempo disponível para treino:** ${trainingTime}
-  - **Nível de experiência:** ${experienceLevel}
-  - **Frequência semanal:** ${frequency}
-  - **Duração do treino:** ${duration}
-  - **Local de treino:** ${location}
-  - **Equipamentos disponíveis:** ${formattedEquipments}
-  - **Possui limitações físicas:** ${hasPhysicalLimitations ? "Sim" : "Não"}
-  - **Descrição das limitações físicas:** ${limitationDescription}
-  - **Estilo de treino preferido:** ${preferredTrainingStyle}
-  - **Nutrição:** ${nutrition}
-  - **Qualidade do sono:** ${sleepQuality}
-
-  1. **Nome do treino**  
-  2. **Divisão semanal** (Ex: ABC, ABCD, ABCDE)  
-  3. **Exercícios para cada dia**, incluindo:
-     - Nome do exercício  
-     - Instruções em formato de texto
-     - Peso
-     - Repetições
-     - Series
-     - Tempo de descanso entre as séries // Em segundos ex: 90s
-
-   **Formato de resposta esperado:**  
-   [
-    {
-      "name": "",
-      "exercises": [
-        {
-          "name": "",
-          "series": "",
-          "repetitions": "",
-          "weight": "",
-          "restTime": "",
-          "videoUrl": "",
-          "instructions": ""
-        },
-        {
+    **Dados do usuário:**
+    - Objetivo: ${objective}
+    - Tempo disponível para treino: ${trainingTime}
+    - Nível de experiência: ${experienceLevel}
+    - Frequência semanal: ${frequency}
+    - Duração do treino: ${duration}
+    - Local de treino: ${location}
+    - Equipamentos disponíveis: ${formattedEquipments}
+    - Possui limitações físicas: ${hasPhysicalLimitations ? "Sim" : "Não"}
+    - Descrição das limitações físicas: ${limitationDescription}
+    - Estilo de treino preferido: ${preferredTrainingStyle}
+    - Nutrição: ${nutrition}
+    - Qualidade do sono: ${sleepQuality}
+  
+    **Geração do treino:**
+    - Crie um nome para o treino, adequado ao objetivo e perfil do usuário.
+    - Inclua pelo menos 8 exercícios no treino.
+    - Para cada exercício, forneça:
+      - Nome do exercício
+      - Instruções detalhadas (em texto)
+      - Peso sugerido (se aplicável)
+      - Número de repetições
+      - Número de séries
+      - Tempo de descanso entre séries (em segundos, ex: 90)
+      - Link para vídeo demonstrativo (se disponível)
+  
+    **Formato esperado da resposta (JSON):**
+    [
+      {
+        "id": "", // deixar o id vazio ("") para que seja gerado automaticamente
+        "name": "Nome do treino",
+        "exercises": [
+          {
+            "id": "", // deixar o id vazio ("") para que seja gerado automaticamente
+            "name": "Nome do exercício",
+            "instructions": "Descrição detalhada",
+            "weight": "Peso recomendado",
+            "repetitions": "Número de repetições",
+            "series": "Número de séries",
+            "restTime": "Tempo de descanso em segundos",
+            "videoUrl": "URL do vídeo demonstrativo"
+          },
           ...
-        }
-      ]
-    }
-  ]
+        ]
+      }
+    ]
   `;
 
   return prompt;
 };
 
-const buscVideoYoutube = async (exerciseName) => {
+const buscaVideoYoutube = async (exerciseName) => {
   try {
-    const response = await axios.get(
-      "https://www.googleapis.com/youtube/v3/search",
-      {
-        params: {
-          part: "snippet",
-          q: `Como fazer o exercício ${exerciseName} - academia`,
-          maxResults: 1,
-          key: process.env.YOUTUBE_API_KEY,
-          type: "video",
-          videDuration: "medium",
-        },
-      }
-    );
+    const response = await axios.get(process.env.YOUTUBE_BASE_URL, {
+      params: {
+        part: "snippet",
+        q: `Como fazer o exercício ${exerciseName} - academia`,
+        maxResults: 1,
+        key: process.env.YOUTUBE_API_KEY,
+        type: "video",
+        videDuration: "medium",
+      },
+    });
 
     const video = response.data.items[0];
     return video ? `https://www.youtube.com/watch?v=${video.id.videoId}` : null;
@@ -157,28 +157,21 @@ const postWorkoutAI = async (
           content: prompt,
         },
       ],
-      temperature: 0.7,
     });
 
-    let workouts = JSON.parse(response.choices[0].message.content);
+    let workout = JSON.parse(response.choices[0].message.content);
 
-    for (const workout in workouts) {
-      workouts[workout].id = uuidv4();
-      workouts[workout].userId = userId;
+    workout.id = uuidv4();
+    workout.userId = userId;
 
-      const exercices = workouts[workout].exercises;
-
-      for (const exercise in exercices) {
-        exercices[exercise].id = uuidv4();
-        exercices[exercise].videoUrl = await buscVideoYoutube(
-          exercices[exercise].name
-        );
-      }
+    for (const exercise of workout.exercises) {
+      exercise.id = uuidv4();
+      exercise.videoUrl = await buscaVideoYoutube(exercise.name);
     }
 
-    await workoutRepository.postWorkoutAI(userId, workouts);
+    await workoutRepository.postWorkoutAI(userId, workout);
 
-    return workouts;
+    return workout;
   } catch (error) {
     console.error("Erro ao chamar Mistral AI:", error);
     throw new AppError(error.message);
@@ -194,8 +187,40 @@ const getWorkouts = async (userId, visibility) => {
   }
 };
 
+const postLikeWorkout = async (idWorkout, idUser) => {
+  try {
+    const workout = await workoutRepository.getWorkoutByID(idWorkout);
+
+    if (!workout) {
+      throw new AppError("Treino não encontrado", 404);
+    }
+
+    const user = await authRepository.getUserByID(idUser);
+
+    if (!user) {
+      throw new AppError("Usuário não encontrado", 404);
+    }
+
+    const like = await workoutRepository.getWorkoutLikedByUser(
+      idWorkout,
+      idUser
+    );
+
+    if (like) {
+      await workoutRepository.postUnlikeWorkout(idWorkout, idUser);
+      return { message: "Descurtido com sucesso" };
+    }
+
+    await workoutRepository.postLikeWorkout(idWorkout, idUser);
+    return { message: "Curtido com sucesso" };
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
   getWorkouts,
+  postLikeWorkout,
 };
