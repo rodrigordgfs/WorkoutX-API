@@ -232,10 +232,37 @@ const deleteExercise = async (id) => {
   }
 };
 
+const copyWorkout = async (id, newUserId) => {
+  try {
+    const workout = await workoutRepository.getWorkoutByID(id);
+
+    if (!workout) {
+      throw new AppError("Treino não encontrado", 404);
+    }
+
+    const exercises = workout.exercises.map((exercise) => ({
+      ...exercise,
+      id: uuidv4(),
+    }));
+
+    const copiedWorkout = await workoutRepository.postWorkout(
+      newUserId,
+      workout.name,
+      workout.visibility,
+      exercises
+    );
+
+    return copiedWorkout;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
   getWorkouts,
   postLikeWorkout,
   deleteExercise,
+  copyWorkout,
 };

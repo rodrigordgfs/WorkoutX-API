@@ -227,10 +227,43 @@ const deleteExercise = async (request, reply) => {
   }
 };
 
+const copyWorkout = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const schemaBody = z.object({
+      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+    });
+
+    const validationParams = schemaParams.safeParse(request.params);
+    const validationBody = schemaBody.safeParse(request.body);
+
+    if (!validationParams.success) {
+      throw validationParams.error;
+    }
+
+    if (!validationBody.success) {
+      throw validationBody.error;
+    }
+
+    const { id } = validationParams.data;
+    const { userId } = validationBody.data;
+
+    const workout = await workoutService.copyWorkout(id, userId);
+
+    reply.code(StatusCodes.CREATED).send(workout);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
   postWorkoutAI,
   postLikeWorkout,
   deleteExercise,
+  copyWorkout,
 };
