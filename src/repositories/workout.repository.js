@@ -252,6 +252,20 @@ const deleteExercise = async (exerciseId) => {
   }
 };
 
+const deleteWorkout = async (workoutId) => {
+  try {
+    await prisma.workout.delete({
+      where: {
+        id: workoutId,
+      },
+    });
+
+    return;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -262,4 +276,5 @@ export default {
   postUnlikeWorkout,
   getExerciseByID,
   deleteExercise,
+  deleteWorkout,
 };

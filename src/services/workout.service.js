@@ -164,12 +164,12 @@ const postWorkoutAI = async (
     const keys = Object.keys(workout);
     if (keys.length === 1) {
       workout = workout[keys[0]][0];
-    } 
+    }
 
     workout.id = uuidv4();
     workout.userId = userId;
 
-    const exercises = workout.exercises
+    const exercises = workout.exercises;
 
     for (const exercise of exercises) {
       exercise.id = uuidv4();
@@ -265,6 +265,20 @@ const copyWorkout = async (id, newUserId) => {
   }
 };
 
+const deleteWorkout = async (id) => {
+  try {
+    const workout = await workoutRepository.getWorkoutByID(id);
+
+    if (!workout) {
+      throw new AppError("Treino não encontrado", 404);
+    }
+
+    await workoutRepository.deleteWorkout(id);
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -272,4 +286,5 @@ export default {
   postLikeWorkout,
   deleteExercise,
   copyWorkout,
+  deleteWorkout,
 };

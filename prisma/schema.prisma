@@ -57,7 +57,7 @@ model Workout {
   likes      WorkoutLikes[]
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
-  user       User           @relation(fields: [userId], references: [id])
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("workouts")
 }
@@ -68,8 +68,8 @@ model WorkoutLikes {
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  workout   Workout  @relation(fields: [workoutId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  workout   Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("workout_likes")
 }
@@ -86,7 +86,7 @@ model Exercise {
   instructions String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  workout      Workout  @relation(fields: [workoutId], references: [id])
+  workout      Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
   @@map("exercises")
 }

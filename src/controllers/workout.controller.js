@@ -259,6 +259,28 @@ const copyWorkout = async (request, reply) => {
   }
 };
 
+const deleteWorkout = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { id } = validation.data;
+
+    await workoutService.deleteWorkout(id);
+
+    reply.code(StatusCodes.NO_CONTENT).send();
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
@@ -266,4 +288,5 @@ export default {
   postLikeWorkout,
   deleteExercise,
   copyWorkout,
+  deleteWorkout,
 };

@@ -7,6 +7,7 @@ const workout = async (fastify) => {
   fastify.get("/workout", workouteController.getWorkouts);
   fastify.delete("/workout/exercise/:id", workouteController.deleteExercise);
   fastify.post("/workout/:id/copy", workouteController.copyWorkout);
+  fastify.delete("/workout/:id", workouteController.deleteWorkout);
 };
 
 export default workout;
