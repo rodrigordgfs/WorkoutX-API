@@ -224,6 +224,34 @@ const getWorkoutLikedByUser = async (workoutId, userId) => {
   }
 };
 
+const getExerciseByID = async (exerciseId) => {
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: {
+        id: exerciseId,
+      },
+    });
+
+    return exercise;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const deleteExercise = async (exerciseId) => {
+  try {
+    await prisma.exercise.delete({
+      where: {
+        id: exerciseId,
+      },
+    });
+
+    return;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -232,4 +260,6 @@ export default {
   postLikeWorkout,
   getWorkoutLikedByUser,
   postUnlikeWorkout,
+  getExerciseByID,
+  deleteExercise,
 };
