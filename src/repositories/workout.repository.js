@@ -55,16 +55,16 @@ const postWorkoutAI = async (userId, workout) => {
     return await prisma.workout.create({
       data: {
         userId,
-        name: workout.name,
+        name: String(workout.name),
         exercises: {
           create: workout.exercises.map((exercise) => ({
-            name: exercise.name,
-            series: exercise.series,
-            repetitions: exercise.repetitions,
-            weight: exercise.weight,
-            restTime: exercise.restTime,
-            videoUrl: exercise.videoUrl,
-            instructions: exercise.instructions,
+            name: String(exercise.name),
+            series: String(exercise.series),
+            repetitions: String(exercise.repetitions),
+            weight: String(exercise.weight),
+            restTime: String(exercise.restTime),
+            videoUrl: String(exercise.videoUrl),
+            instructions: String(exercise.instructions),
           })),
         },
       },

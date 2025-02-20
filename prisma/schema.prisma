@@ -82,7 +82,7 @@ model Exercise {
   repetitions  String
   weight       String
   restTime     String
-  videoUrl     String
+  videoUrl     String?
   instructions String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

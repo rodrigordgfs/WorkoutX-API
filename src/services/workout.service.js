@@ -105,7 +105,7 @@ const buscaVideoYoutube = async (exerciseName) => {
     });
 
     const video = response.data.items[0];
-    return video ? `https://www.youtube.com/watch?v=${video.id.videoId}` : null;
+    return video ? `https://www.youtube.com/watch?v=${video.id.videoId}` : "";
   } catch (error) {
     console.error(`Erro ao buscar vídeo para ${exerciseName}:`, error);
     return null;
@@ -161,10 +161,17 @@ const postWorkoutAI = async (
 
     let workout = JSON.parse(response.choices[0].message.content);
 
+    const keys = Object.keys(workout);
+    if (keys.length === 1) {
+      workout = workout[keys[0]][0];
+    } 
+
     workout.id = uuidv4();
     workout.userId = userId;
 
-    for (const exercise of workout.exercises) {
+    const exercises = workout.exercises
+
+    for (const exercise of exercises) {
       exercise.id = uuidv4();
       exercise.videoUrl = await buscaVideoYoutube(exercise.name);
     }
