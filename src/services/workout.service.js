@@ -279,6 +279,96 @@ const deleteWorkout = async (id) => {
   }
 };
 
+const getWorkoutSession = async (sessionId) => {
+  try {
+    const session = await workoutRepository.getWorkoutSessionByID(sessionId);
+
+    if (!session) {
+      throw new AppError("Sessão de treino não encontrada", 404);
+    }
+
+    return session;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const postWorkoutSession = async (userId, workoutId) => {
+  try {
+    const user = await authRepository.getUserByID(userId);
+
+    if (!user) {
+      throw new AppError("Usuário não encontrado", 404);
+    }
+
+    const workout = await workoutRepository.getWorkoutByID(workoutId);
+
+    if (!workout) {
+      throw new AppError("Treino não encontrado", 404);
+    }
+
+    const exercises = await workoutRepository.getWorkoutExercises(workoutId);
+
+    const workoutSessionsNotCompleted =
+      await workoutRepository.getWorkoutSessionNotCompleted(userId);
+
+    if (workoutSessionsNotCompleted.length > 0) {
+      throw new AppError(
+        "Você já possui uma sessão de treino em andamento",
+        400
+      );
+    }
+
+    const session = await workoutRepository.postWorkoutSession(
+      userId,
+      workoutId,
+      exercises
+    );
+
+    return session;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const patchWorkoutSessionExercise = async (
+  sessionId,
+  exerciseId,
+  completed,
+  weight,
+  repetitions,
+  series
+) => {
+  try {
+    const session = await workoutRepository.getWorkoutSessionByID(sessionId);
+
+    if (!session) {
+      throw new AppError("Sessão de treino não encontrada", 404);
+    }
+
+    const exercise = await workoutRepository.getWorkoutSessionExerciseById(
+      exerciseId
+    );
+
+    if (!exercise) {
+      throw new AppError("Exercício não encontrado", 404);
+    }
+
+    const workoutSession = await workoutRepository.patchWorkoutSessionExercise(
+      sessionId,
+      exerciseId,
+      completed,
+      weight,
+      repetitions,
+      series
+    );
+
+    return workoutSession;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -287,4 +377,7 @@ export default {
   deleteExercise,
   copyWorkout,
   deleteWorkout,
+  postWorkoutSession,
+  patchWorkoutSessionExercise,
+  getWorkoutSession,
 };

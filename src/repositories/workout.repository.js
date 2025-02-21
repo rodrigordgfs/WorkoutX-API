@@ -266,6 +266,220 @@ const deleteWorkout = async (workoutId) => {
   }
 };
 
+const getWorkoutExercises = async (workoutId) => {
+  try {
+    const exercises = await prisma.exercise.findMany({
+      where: {
+        workoutId,
+      },
+    });
+
+    return exercises;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const postWorkoutSession = async (userId, workoutId, exercises) => {
+  try {
+    const workoutSession = await prisma.workoutSession.create({
+      data: {
+        userId,
+        workoutId,
+        exercises: {
+          create: exercises.map((exercise) => ({
+            exerciseId: exercise.id,
+            series: exercise.series,
+            repetitions: exercise.repetitions,
+            weight: exercise.weight,
+            restTime: exercise.restTime,
+          })),
+        },
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return workoutSession;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionNotCompleted = async (userId) => {
+  try {
+    const session = await prisma.workoutSession.findFirst({
+      where: {
+        userId,
+        endedAt: null,
+      },
+    });
+
+    return session;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionByID = async (sessionId) => {
+  try {
+    const session = await prisma.workoutSession.findUnique({
+      where: {
+        id: sessionId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return session;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionExerciseById = async (exerciseId) => {
+  try {
+    const exercise = await prisma.workoutSessionExercise.findUnique({
+      where: {
+        id: exerciseId,
+      },
+    });
+
+    return exercise;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const patchWorkoutSessionExercise = async (
+  sessionId,
+  exerciseId,
+  completed,
+  weight,
+  repetitions,
+  series
+) => {
+  try {
+    await prisma.workoutSessionExercise.update({
+      where: {
+        id: exerciseId,
+      },
+      data: {
+        completed,
+        weight,
+        repetitions,
+        series,
+        updatedAt: new Date(),
+      },
+    });
+
+    const workoutSession = await prisma.workoutSession.findUnique({
+      where: {
+        id: sessionId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return workoutSession;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -277,4 +491,10 @@ export default {
   getExerciseByID,
   deleteExercise,
   deleteWorkout,
+  getWorkoutExercises,
+  postWorkoutSession,
+  patchWorkoutSessionExercise,
+  getWorkoutSessionByID,
+  getWorkoutSessionExerciseById,
+  getWorkoutSessionNotCompleted,
 };

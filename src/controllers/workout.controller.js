@@ -281,6 +281,107 @@ const deleteWorkout = async (request, reply) => {
   }
 };
 
+const getWorkoutSession = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      sessionId: z.string({
+        required_error: "O ID da sessão de treino é obrigatório",
+      }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { sessionId } = validation.data;
+
+    const workoutSession = await workoutService.getWorkoutSession(sessionId);
+
+    reply.send(workoutSession);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const postWorkoutSession = async (request, reply) => {
+  try {
+    const schemaBody = z.object({
+      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+      workoutId: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const validation = schemaBody.safeParse(request.body);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { userId, workoutId } = validation.data;
+
+    const workoutSession = await workoutService.postWorkoutSession(
+      userId,
+      workoutId
+    );
+
+    reply.code(StatusCodes.CREATED).send(workoutSession);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const patchWorkoutSessionExercise = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      sessionId: z.string({
+        required_error: "O ID da sessão de treino é obrigatório",
+      }),
+      exerciseId: z.string({
+        required_error: "O ID do exercício é obrigatório",
+      }),
+    });
+
+    const schemaBody = z.object({
+      completed: z.boolean({
+        required_error: "O campo completed é obrigatório",
+      }),
+      weight: z.string({ required_error: "O campo weight é obrigatório" }),
+      repetitions: z.string({
+        required_error: "O campo repetitions é obrigatório",
+      }),
+      series: z.string({ required_error: "O campo series é obrigatório" }),
+    });
+
+    const validationParams = schemaParams.safeParse(request.params);
+    const validationBody = schemaBody.safeParse(request.body);
+
+    if (!validationParams.success) {
+      throw validationParams.error;
+    }
+
+    if (!validationBody.success) {
+      throw validationBody.error;
+    }
+
+    const { sessionId, exerciseId } = validationParams.data;
+    const { completed, weight, repetitions, series } = validationBody.data;
+
+    const workoutSession = await workoutService.patchWorkoutSessionExercise(
+      sessionId,
+      exerciseId,
+      completed,
+      weight,
+      repetitions,
+      series
+    );
+
+    reply.send(workoutSession);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
@@ -289,4 +390,7 @@ export default {
   deleteExercise,
   copyWorkout,
   deleteWorkout,
+  postWorkoutSession,
+  patchWorkoutSessionExercise,
+  getWorkoutSession,
 };
