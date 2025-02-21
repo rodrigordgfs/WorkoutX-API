@@ -480,6 +480,109 @@ const patchWorkoutSessionExercise = async (
   }
 };
 
+const getWorkoutSessionByWorkoutID = async (workoutId) => {
+  try {
+    const session = await prisma.workoutSession.findFirst({
+      where: {
+        workoutId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return session;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const postCompleteWorkoutSession = async (sessionId) => {
+  try {
+    await prisma.workoutSession.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        endedAt: new Date(),
+      },
+    });
+
+    const workoutSession = await prisma.workoutSession.findUnique({
+      where: {
+        id: sessionId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return workoutSession;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -497,4 +600,6 @@ export default {
   getWorkoutSessionByID,
   getWorkoutSessionExerciseById,
   getWorkoutSessionNotCompleted,
+  getWorkoutSessionByWorkoutID,
+  postCompleteWorkoutSession,
 };

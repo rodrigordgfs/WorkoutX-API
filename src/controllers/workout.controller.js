@@ -382,6 +382,56 @@ const patchWorkoutSessionExercise = async (request, reply) => {
   }
 };
 
+const getWorkoutSessionByWorkoutID = async (request, reply) => {
+  try {
+    const schemaQuery = z.object({
+      workoutId: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const validation = schemaQuery.safeParse(request.query);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { workoutId } = validation.data;
+
+    const workoutSession = await workoutService.getWorkoutSessionByWorkoutID(
+      workoutId
+    );
+
+    reply.send(workoutSession);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const postCompleteWorkoutSession = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      sessionId: z.string({
+        required_error: "O ID da sessão de treino é obrigatório",
+      }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { sessionId } = validation.data;
+
+    const workoutSession = await workoutService.postCompleteWorkoutSession(
+      sessionId
+    );
+
+    reply.send(workoutSession);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
@@ -393,4 +443,6 @@ export default {
   postWorkoutSession,
   patchWorkoutSessionExercise,
   getWorkoutSession,
+  getWorkoutSessionByWorkoutID,
+  postCompleteWorkoutSession,
 };

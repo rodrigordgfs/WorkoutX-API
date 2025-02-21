@@ -371,14 +371,14 @@ async function main() {
       name: "Treino E - Costas, Tríceps e Abdômen",
       exercises: [
         {
-          name: "Barra Fixa",
+          name: "Remada Alta na Polia",
           series: "4",
           repetitions: "8 - 12",
-          weight: "Corporal",
+          weight: "40",
           restTime: "90",
-          videoUrl: "https://www.youtube.com/watch?v=thg6cGXSlvY",
+          videoUrl: "https://www.youtube.com/watch?v=LVQq6ZnM97U",
           instructions:
-            "Segure a barra com pegada pronada e as mãos afastadas na largura dos ombros. Puxe o corpo para cima até o queixo ultrapassar a barra e retorne lentamente.",
+            "Ajuste a polia baixa, segure a barra com pegada na largura dos ombros e mantenha a postura reta. Puxe a barra até a altura do peito, mantendo os cotovelos mais altos que as mãos. Retorne lentamente à posição inicial, controlando o movimento.",
         },
         {
           name: "Remada Baixa na Polia",
@@ -431,14 +431,24 @@ async function main() {
             "Segure um halter com ambas as mãos acima da cabeça, flexione os cotovelos até que o peso fique atrás da cabeça e retorne à posição inicial.",
         },
         {
-          name: "Abdominal Infra na Paralela",
+          name: "Mountain climber",
           series: "4",
-          repetitions: "15",
+          repetitions: "60s",
           weight: "Corporal",
-          restTime: "45",
-          videoUrl: "https://www.youtube.com/watch?v=xPV1lIF75FI",
+          restTime: "60",
+          videoUrl: "https://www.youtube.com/watch?v=8wuUiihTbdw",
           instructions:
-            "Apoie os cotovelos na paralela e eleve os joelhos em direção ao peito. Retorne lentamente sem balançar o corpo.",
+            "Fique em posição de prancha, com mãos no chão alinhadas aos ombros e corpo reto. Traga os joelhos alternadamente em direção ao peito, mantendo o core contraído. Execute o movimento em ritmo moderado ou acelerado, sem elevar o quadril.",
+        },
+        {
+          name: "Abdominal Infra com Elevação de Pernas",
+          series: "4",
+          repetitions: "60s",
+          weight: "Corporal",
+          restTime: "60",
+          videoUrl: "https://www.youtube.com/watch?v=lsfYFbfE45o",
+          instructions:
+            "Deite-se no chão com as mãos ao lado do corpo ou sob o quadril para apoio. Eleve as pernas retas até a posição vertical e desça lentamente sem tocar o chão. Mantenha o core contraído e controle o movimento para máxima ativação do abdômen.",
         },
         {
           name: "Prancha Isométrica",

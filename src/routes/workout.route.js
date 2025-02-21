@@ -8,9 +8,11 @@ const workout = async (fastify) => {
   fastify.delete("/workout/exercise/:id", workoutController.deleteExercise);
   fastify.post("/workout/:id/copy", workoutController.copyWorkout);
   fastify.delete("/workout/:id", workoutController.deleteWorkout);
+  fastify.get("/workout/session", workoutController.getWorkoutSessionByWorkoutID);
   fastify.get("/workout/session/:sessionId", workoutController.getWorkoutSession);
   fastify.post("/workout/session", workoutController.postWorkoutSession);
-  fastify.patch("/workout/session/:sessionId/exercises/:exerciseId", workoutController.patchWorkoutSessionExercise);
+  fastify.post("/workout/session/:sessionId/complete", workoutController.postCompleteWorkoutSession);
+  fastify.patch("/workout/session/:sessionId/exercise/:exerciseId/complete", workoutController.patchWorkoutSessionExercise);
 };
 
 export default workout;

@@ -312,7 +312,7 @@ const postWorkoutSession = async (userId, workoutId) => {
     const workoutSessionsNotCompleted =
       await workoutRepository.getWorkoutSessionNotCompleted(userId);
 
-    if (workoutSessionsNotCompleted.length > 0) {
+    if (workoutSessionsNotCompleted?.length > 0) {
       throw new AppError(
         "Você já possui uma sessão de treino em andamento",
         400
@@ -369,6 +369,46 @@ const patchWorkoutSessionExercise = async (
   }
 };
 
+const getWorkoutSessionByWorkoutID = async (workoutId) => {
+  try {
+    const workout = await workoutRepository.getWorkoutByID(workoutId);
+
+    if (!workout) {
+      throw new AppError("Treino não encontrado", 404);
+    }
+
+    const session = await workoutRepository.getWorkoutSessionByWorkoutID(
+      workoutId
+    );
+
+    return session;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const postCompleteWorkoutSession = async (sessionId) => {
+  try {
+    const session = await workoutRepository.getWorkoutSessionByID(sessionId);
+
+    if (!session) {
+      throw new AppError("Sessão de treino não encontrada", 404);
+    }
+
+    if (session.endedAt !== null) {
+      throw new AppError("Sessão de treino já finalizada", 400);
+    }
+
+    const workoutSession = await workoutRepository.postCompleteWorkoutSession(
+      sessionId
+    );
+
+    return workoutSession;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -380,4 +420,6 @@ export default {
   postWorkoutSession,
   patchWorkoutSessionExercise,
   getWorkoutSession,
+  getWorkoutSessionByWorkoutID,
+  postCompleteWorkoutSession,
 };
