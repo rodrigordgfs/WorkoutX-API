@@ -583,6 +583,50 @@ const postCompleteWorkoutSession = async (sessionId) => {
   }
 };
 
+const getWorkoutHistory = async (userId) => {
+  try {
+    const workoutHistory = await prisma.workoutSession.findMany({
+      where: {
+        userId: userId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        workout: {
+          select: {
+            name: true,
+            visibility: true,
+            createdAt: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        endedAt: "desc",
+      },
+    });
+
+    return workoutHistory;
+  } catch (error) {
+    logError(error);
+  }
+}
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -602,4 +646,5 @@ export default {
   getWorkoutSessionNotCompleted,
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
+  getWorkoutHistory
 };

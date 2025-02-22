@@ -409,6 +409,65 @@ const postCompleteWorkoutSession = async (sessionId) => {
   }
 };
 
+const getWorkoutHistory = async (userId) => {
+  try {
+    const user = await authRepository.getUserByID(userId);
+
+    if (!user) {
+      throw new AppError("Usuário não encontrado", 404);
+    }
+
+    const workoutHistory = await workoutRepository.getWorkoutHistory(userId);
+
+    const formattedHistory = workoutHistory.map((session) => {
+      const duration =
+        session.endedAt && session.startedAt
+          ? Math.round(
+              (new Date(session.endedAt).getTime() -
+                new Date(session.startedAt).getTime()) /
+                60000
+            )
+          : "Em andamento";
+
+      const completedExercises = session.exercises.filter((ex) => ex.completed)
+        .length;
+      const totalExercises = session.exercises.length;
+      const completionRate =
+        totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
+
+      return {
+        id: session.id,
+        startedAt: session.startedAt,
+        endedAt: session.endedAt,
+        duration: duration,
+        workout: {
+          name: session.workout.name,
+          visibility: session.workout.visibility,
+          createdAt: session.workout.createdAt,
+        },
+        exercises: session.exercises.map((ex) => ({
+          id: ex.id,
+          name: ex.exercise.name,
+          series: ex.series,
+          repetitions: ex.repetitions,
+          weight: ex.weight,
+          restTime: ex.restTime,
+          completed: ex.completed,
+        })),
+        stats: {
+          totalExercises,
+          completedExercises,
+          completionRate: `${completionRate}%`,
+        },
+      };
+    });
+
+    return formattedHistory;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -422,4 +481,5 @@ export default {
   getWorkoutSession,
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
+  getWorkoutHistory
 };
