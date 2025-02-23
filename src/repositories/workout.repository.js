@@ -357,6 +357,7 @@ const getWorkoutSessionByID = async (sessionId) => {
     const session = await prisma.workoutSession.findUnique({
       where: {
         id: sessionId,
+        endedAt: null,
       },
       select: {
         id: true,
