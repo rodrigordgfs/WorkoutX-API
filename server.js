@@ -2,14 +2,14 @@ import fastify from "fastify";
 import cors from "@fastify/cors";
 import routes from "./src/routes/index.js";
 import environment from "./src/config/envs.js";
-// import redisCache from './libs/redis.js'
+import { startJobs } from "./src/jobs/index.js";
+
+startJobs();
 
 const app = fastify({
-  // logger: true,
   pluginTimeout: 60000
 });
 
-// app.register(redisCache);
 app.register(cors, {
   origin: "*",
 });
