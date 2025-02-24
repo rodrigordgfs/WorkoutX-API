@@ -369,6 +369,20 @@ const patchWorkoutSessionExercise = async (
   }
 };
 
+const deleteWorkoutSession = async (sessionId) => {
+  try {
+    const session = await workoutRepository.getWorkoutSessionByID(sessionId);
+
+    if (!session) {
+      throw new AppError("Sessão de treino não encontrada", 404);
+    }
+
+    await workoutRepository.deleteWorkoutSession(sessionId);
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+}
+
 const getWorkoutSessionByWorkoutID = async (workoutId) => {
   try {
     const workout = await workoutRepository.getWorkoutByID(workoutId);
@@ -481,5 +495,6 @@ export default {
   getWorkoutSession,
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
-  getWorkoutHistory
+  getWorkoutHistory,
+  deleteWorkoutSession
 };

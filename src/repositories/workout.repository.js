@@ -584,6 +584,20 @@ const postCompleteWorkoutSession = async (sessionId) => {
   }
 };
 
+const deleteWorkoutSession = async (sessionId) => {
+  try {
+    await prisma.workoutSession.delete({
+      where: {
+        id: sessionId,
+      },
+    });
+
+    return;
+  } catch (error) {
+    logError(error);
+  }
+}
+
 const getWorkoutHistory = async (userId) => {
   try {
     const workoutHistory = await prisma.workoutSession.findMany({
@@ -647,5 +661,6 @@ export default {
   getWorkoutSessionNotCompleted,
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
-  getWorkoutHistory
+  getWorkoutHistory,
+  deleteWorkoutSession
 };

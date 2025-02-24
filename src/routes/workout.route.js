@@ -11,6 +11,7 @@ const workout = async (fastify) => {
   fastify.get("/workout/session", workoutController.getWorkoutSessionByWorkoutID);
   fastify.get("/workout/session/:sessionId", workoutController.getWorkoutSession);
   fastify.post("/workout/session", workoutController.postWorkoutSession);
+  fastify.delete("/workout/session/:sessionId", workoutController.deleteWorkoutSession);
   fastify.post("/workout/session/:sessionId/complete", workoutController.postCompleteWorkoutSession);
   fastify.patch("/workout/session/:sessionId/exercise/:exerciseId/complete", workoutController.patchWorkoutSessionExercise);
   fastify.get("/workout/history", workoutController.getWorkoutHistory);

@@ -432,6 +432,30 @@ const postCompleteWorkoutSession = async (request, reply) => {
   }
 };
 
+const deleteWorkoutSession = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      sessionId: z.string({
+        required_error: "O ID da sessão de treino é obrigatório",
+      }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { sessionId } = validation.data;
+
+    await workoutService.deleteWorkoutSession(sessionId);
+
+    reply.code(StatusCodes.NO_CONTENT).send();
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+}
+
 const getWorkoutHistory = async (request, reply) => {
   try {
     const schemaQuery = z.object({
@@ -467,5 +491,6 @@ export default {
   getWorkoutSession,
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
-  getWorkoutHistory
+  getWorkoutHistory,
+  deleteWorkoutSession
 };
