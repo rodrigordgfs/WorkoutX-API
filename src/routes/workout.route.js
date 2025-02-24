@@ -15,6 +15,7 @@ const workout = async (fastify) => {
   fastify.post("/workout/session/:sessionId/complete", workoutController.postCompleteWorkoutSession);
   fastify.patch("/workout/session/:sessionId/exercise/:exerciseId/complete", workoutController.patchWorkoutSessionExercise);
   fastify.get("/workout/history", workoutController.getWorkoutHistory);
+  fastify.get("/workout/dashboard", workoutController.getWorkoutDashboard);
 };
 
 export default workout;

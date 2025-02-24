@@ -4,6 +4,12 @@ import authRepository from "../repositories/auth.repository.js";
 import AppError from "../utils/error.js";
 import openai from "../libs/openai.js";
 import { v4 as uuidv4 } from "uuid";
+import {
+  isSameDay,
+  subDays,
+  differenceInMinutes,
+  differenceInSeconds,
+} from "date-fns";
 
 const postWorkout = async (userId, name, visibility, exercises) => {
   try {
@@ -381,7 +387,7 @@ const deleteWorkoutSession = async (sessionId) => {
   } catch (error) {
     throw new AppError(error.message);
   }
-}
+};
 
 const getWorkoutSessionByWorkoutID = async (workoutId) => {
   try {
@@ -443,11 +449,14 @@ const getWorkoutHistory = async (userId) => {
             )
           : "Em andamento";
 
-      const completedExercises = session.exercises.filter((ex) => ex.completed)
-        .length;
+      const completedExercises = session.exercises.filter(
+        (ex) => ex.completed
+      ).length;
       const totalExercises = session.exercises.length;
       const completionRate =
-        totalExercises > 0 ? Math.round((completedExercises / totalExercises) * 100) : 0;
+        totalExercises > 0
+          ? Math.round((completedExercises / totalExercises) * 100)
+          : 0;
 
       return {
         id: session.id,
@@ -482,6 +491,191 @@ const getWorkoutHistory = async (userId) => {
   }
 };
 
+const getAllWorkoutSessionExercises = async (userId) => {
+  try {
+    const workoutSessions = await workoutRepository.getWorkoutSessions(userId);
+
+    if (workoutSessions.length === 0) {
+      return [];
+    }
+
+    const exercises = workoutSessions
+      .map((session) => session.exercises)
+      .flat();
+
+    if (exercises.length === 0) {
+      return [];
+    }
+
+    const exerciseCount = exercises.reduce((acc, sessionExercise) => {
+      const exerciseId = sessionExercise.exercise.id;
+      if (acc[exerciseId]) {
+        acc[exerciseId].count += 1;
+      } else {
+        acc[exerciseId] = {
+          exercise: sessionExercise.exercise,
+          count: 1,
+        };
+      }
+      return acc;
+    }, {});
+
+    const mostPerformedExercises = Object.values(exerciseCount);
+
+    mostPerformedExercises.sort((a, b) => b.count - a.count);
+
+    // Retorna apenas os 10 mais realizados
+    return mostPerformedExercises.slice(0, 10);
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const calculatePercentageDifference = (
+  currentMonthWorkouts,
+  lastMonthWorkouts
+) => {
+  if (lastMonthWorkouts === 0) {
+    return currentMonthWorkouts === 0 ? 0 : 100;
+  }
+  const difference =
+    ((currentMonthWorkouts - lastMonthWorkouts) / lastMonthWorkouts) * 100;
+  return difference === 0 ? 0 : difference.toFixed(2);
+};
+
+const getConsecutiveWorkoutDays = async (userId) => {
+  const workoutSessions = await workoutRepository.getWorkoutSessions(userId);
+
+  if (workoutSessions.length === 0) {
+    return 0;
+  }
+
+  let maxConsecutiveDays = 1;
+  let currentConsecutiveDays = 1;
+
+  for (let i = 1; i < workoutSessions.length; i++) {
+    const previousSessionDate = workoutSessions[i - 1].startedAt;
+    const currentSessionDate = workoutSessions[i].startedAt;
+
+    if (isSameDay(subDays(currentSessionDate, 1), previousSessionDate)) {
+      currentConsecutiveDays++;
+    } else {
+      maxConsecutiveDays = Math.max(maxConsecutiveDays, currentConsecutiveDays);
+      currentConsecutiveDays = 1;
+    }
+  }
+
+  maxConsecutiveDays = Math.max(maxConsecutiveDays, currentConsecutiveDays);
+
+  return maxConsecutiveDays;
+};
+
+const getAverageWorkoutDuration = async (userId) => {
+  const workoutSessions = await workoutRepository.getWorkoutSessionsEnded(
+    userId
+  );
+
+  if (workoutSessions.length === 0) {
+    return 0;
+  }
+
+  let totalDuration = 0;
+  workoutSessions.forEach((session) => {
+    totalDuration += differenceInMinutes(session.endedAt, session.startedAt);
+  });
+
+  const averageDuration = totalDuration / workoutSessions.length;
+
+  return averageDuration;
+};
+
+const getCompletionRate = async (userId) => {
+  const workoutSessions = await workoutRepository.getWorkoutSessions(userId);
+
+  const totalSessions = workoutSessions.length;
+
+  if (totalSessions === 0) {
+    return 0;
+  }
+
+  const completedSessions = workoutSessions.filter(
+    (session) => session.endedAt !== null
+  ).length;
+
+  const completionRate = (completedSessions / totalSessions) * 100;
+
+  return completionRate.toFixed(2);
+};
+
+const getRecentActivities = async (userId) => {
+  const workoutSessions = await workoutRepository.getRecentsWorkoutsSessions(
+    userId
+  );
+
+  if (workoutSessions.length === 0) {
+    return [];
+  }
+
+  const workoutSessionsWithDuration = workoutSessions
+    .slice(0, 10)
+    .map((session) => {
+      if (session.endedAt === null) {
+        return {
+          ...session,
+          duration: null,
+        };
+      }
+      const startedAt = new Date(session.startedAt);
+      const endedAt = new Date(session.endedAt);
+
+      const durationMinutes = differenceInMinutes(endedAt, startedAt);
+
+      return {
+        ...session,
+        duration: durationMinutes,
+      };
+    });
+
+  return workoutSessionsWithDuration;
+};
+
+const getWorkoutDashboard = async (userId) => {
+  try {
+    const user = await authRepository.getUserByID(userId);
+
+    if (!user) {
+      throw new AppError("Usuário não encontrado", 404);
+    }
+
+    const workoutMonthAmmount = await workoutRepository.getWorkoutMonthAmmount(
+      userId
+    );
+    const lastMonthWorkoutsAmmount =
+      await workoutRepository.getLastMonthWorkoutsAmmount(userId);
+    const workoutPercentageChange = calculatePercentageDifference(
+      workoutMonthAmmount,
+      lastMonthWorkoutsAmmount
+    );
+    const consecutiveWorkoutDays = await getConsecutiveWorkoutDays(userId);
+    const averageWorkoutDuration = await getAverageWorkoutDuration(userId);
+    const completionRate = await getCompletionRate(userId);
+    const workoutExercises = await getAllWorkoutSessionExercises(userId);
+    const recentActivities = await getRecentActivities(userId);
+
+    return {
+      workoutMonthAmmount,
+      workoutPercentageChange,
+      consecutiveWorkoutDays,
+      averageWorkoutDuration,
+      completionRate,
+      workoutExercises,
+      recentActivities,
+    };
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -496,5 +690,6 @@ export default {
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
   getWorkoutHistory,
-  deleteWorkoutSession
+  deleteWorkoutSession,
+  getWorkoutDashboard,
 };

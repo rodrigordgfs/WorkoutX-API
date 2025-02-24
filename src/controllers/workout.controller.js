@@ -454,7 +454,7 @@ const deleteWorkoutSession = async (request, reply) => {
   } catch (error) {
     handleErrorResponse(error, reply);
   }
-}
+};
 
 const getWorkoutHistory = async (request, reply) => {
   try {
@@ -478,6 +478,28 @@ const getWorkoutHistory = async (request, reply) => {
   }
 };
 
+const getWorkoutDashboard = async (request, reply) => {
+  try {
+    const schemaQuery = z.object({
+      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+    });
+
+    const validation = schemaQuery.safeParse(request.query);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { userId } = validation.data;
+
+    const workoutDashboard = await workoutService.getWorkoutDashboard(userId);
+
+    reply.send(workoutDashboard);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
@@ -492,5 +514,6 @@ export default {
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
   getWorkoutHistory,
-  deleteWorkoutSession
+  deleteWorkoutSession,
+  getWorkoutDashboard,
 };

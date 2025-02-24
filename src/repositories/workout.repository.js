@@ -1,4 +1,5 @@
 import { prisma } from "../libs/prisma.js";
+import { startOfMonth, endOfMonth, subMonths } from "date-fns";
 
 const logError = (error) => {
   console.error("Database Error:", error);
@@ -337,6 +338,116 @@ const postWorkoutSession = async (userId, workoutId, exercises) => {
   }
 };
 
+const getRecentsWorkoutsSessions = async (userId) => {
+  try {
+    const sessions = await prisma.workoutSession.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: true,
+      },
+      orderBy: {
+        startedAt: "desc",
+      },
+      take: 5,
+    });
+
+    const sessionsWithExerciseCount = sessions.map((session) => {
+      return {
+        id: session.id,
+        startedAt: session.startedAt,
+        endedAt: session.endedAt,
+        workout: session.workout,
+        exerciseCount: session.exercises.length,
+      };
+    });
+
+    return sessionsWithExerciseCount;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessions = async (userId) => {
+  try {
+    const sessions = await prisma.workoutSession.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        exercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            completed: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        startedAt: "asc",
+      },
+    });
+
+    return sessions;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionsEnded = async (userId) => {
+  try {
+    const sessions = await prisma.workoutSession.findMany({
+      where: {
+        userId,
+        endedAt: {
+          not: null,
+        },
+      },
+      orderBy: {
+        startedAt: "asc",
+      },
+    });
+
+    return sessions;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 const getWorkoutSessionNotCompleted = async (userId) => {
   try {
     const session = await prisma.workoutSession.findFirst({
@@ -356,7 +467,7 @@ const getWorkoutSessionByID = async (sessionId) => {
   try {
     const session = await prisma.workoutSession.findUnique({
       where: {
-        id: sessionId
+        id: sessionId,
       },
       select: {
         id: true,
@@ -596,7 +707,7 @@ const deleteWorkoutSession = async (sessionId) => {
   } catch (error) {
     logError(error);
   }
-}
+};
 
 const getWorkoutHistory = async (userId) => {
   try {
@@ -640,7 +751,45 @@ const getWorkoutHistory = async (userId) => {
   } catch (error) {
     logError(error);
   }
-}
+};
+
+const getWorkoutMonthAmmount = async (userId) => {
+  try {
+    const workoutMonthAmmount = await prisma.workoutSession.findMany({
+      where: {
+        userId: userId,
+        startedAt: {
+          gte: new Date(new Date().setDate(1)),
+        },
+      },
+    });
+
+    return workoutMonthAmmount.length;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getLastMonthWorkoutsAmmount = async (userId) => {
+  try {
+    const firstDayOfLastMonth = startOfMonth(subMonths(new Date(), 1));
+    const lastDayOfLastMonth = endOfMonth(subMonths(new Date(), 1));
+
+    const workouts = await prisma.workoutSession.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: firstDayOfLastMonth,
+          lte: lastDayOfLastMonth,
+        },
+      },
+    });
+
+    return workouts.length;
+  } catch (error) {
+    logError(error);
+  }
+};
 
 export default {
   postWorkout,
@@ -662,5 +811,10 @@ export default {
   getWorkoutSessionByWorkoutID,
   postCompleteWorkoutSession,
   getWorkoutHistory,
-  deleteWorkoutSession
+  deleteWorkoutSession,
+  getWorkoutMonthAmmount,
+  getLastMonthWorkoutsAmmount,
+  getWorkoutSessions,
+  getWorkoutSessionsEnded,
+  getRecentsWorkoutsSessions,
 };
