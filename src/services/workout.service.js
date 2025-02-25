@@ -28,6 +28,7 @@ const postWorkout = async (userId, name, visibility, exercises) => {
 
 const generatePrompt = (
   objective,
+  muscleGroup,
   trainingTime,
   experienceLevel,
   frequency,
@@ -49,6 +50,7 @@ const generatePrompt = (
   
     **Dados do usuário:**
     - Objetivo: ${objective}
+    - Grupo muscular: ${muscleGroup}
     - Tempo disponível para treino: ${trainingTime}
     - Nível de experiência: ${experienceLevel}
     - Frequência semanal: ${frequency}
@@ -122,6 +124,7 @@ const buscaVideoYoutube = async (exerciseName) => {
 const postWorkoutAI = async (
   userId,
   objective,
+  muscleGroup,
   trainingTime,
   experienceLevel,
   frequency,
@@ -136,8 +139,8 @@ const postWorkoutAI = async (
 ) => {
   try {
     const prompt = generatePrompt(
-      userId,
       objective,
+      muscleGroup,
       trainingTime,
       experienceLevel,
       frequency,

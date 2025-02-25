@@ -98,6 +98,7 @@ const postWorkoutAI = async (request, reply) => {
     const schemaBody = z.object({
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       objective: z.string({ required_error: "O objetivo é obrigatório" }),
+      muscleGroup: z.string({ required_error: "O grupo muscular é obrigatório" }),
       trainingTime: z.string({
         required_error: "O tempo de treino é obrigatório",
       }),
@@ -128,6 +129,7 @@ const postWorkoutAI = async (request, reply) => {
     const {
       userId,
       objective,
+      muscleGroup,
       trainingTime,
       experienceLevel,
       frequency,
@@ -144,6 +146,7 @@ const postWorkoutAI = async (request, reply) => {
     const workout = await workoutService.postWorkoutAI(
       userId,
       objective,
+      muscleGroup,
       trainingTime,
       experienceLevel,
       frequency,
