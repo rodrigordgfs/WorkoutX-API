@@ -5,19 +5,17 @@ const logError = (error) => {
   throw new Error("An unexpected error occurred. Please try again.");
 };
 
-const postAuth = async (id, name, avatar, email) => {
+const postAuth = async (id, name, avatar) => {
   try {
     return await prisma.user.create({
       data: {
         id,
         name,
         avatar,
-        email,
       },
       select: {
         id: true,
         name: true,
-        email: true,
         avatar: true,
         experience: true,
         publicProfile: true,
@@ -40,7 +38,6 @@ const getUserByID = async (id) => {
       select: {
         id: true,
         name: true,
-        email: true,
         avatar: true,
         experience: true,
         publicProfile: true,
@@ -57,7 +54,6 @@ const getUserByID = async (id) => {
 const patchAuth = async (
   id,
   avatar,
-  email,
   name,
   userId,
   experience,
@@ -73,7 +69,6 @@ const patchAuth = async (
       },
       data: {
         avatar,
-        email,
         name,
         userId,
         experience,
@@ -85,7 +80,6 @@ const patchAuth = async (
       select: {
         id: true,
         name: true,
-        email: true,
         avatar: true,
         experience: true,
         publicProfile: true,

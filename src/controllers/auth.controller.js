@@ -30,10 +30,7 @@ const postAuth = async (request, reply) => {
     const schemaBody = z.object({
       name: z.string({ required_error: "O nome do treino é obrigatório" }),
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
-      avatar: z.string({ required_error: "A URL do avatar é obrigatória" }),
-      email: z
-        .string({ required_error: "O e-mail é obrigatório" })
-        .email({ message: "O e-mail deve ser válido" }),
+      avatar: z.string({ required_error: "A URL do avatar é obrigatória" })
     });
 
     const validation = schemaBody.safeParse(request.body);
@@ -42,9 +39,9 @@ const postAuth = async (request, reply) => {
       throw validation.error;
     }
 
-    const { avatar, email, name, userId } = validation.data;
+    const { avatar, name, userId } = validation.data;
 
-    const user = await authService.postAuth(userId, name, avatar, email);
+    const user = await authService.postAuth(userId, name, avatar);
 
     reply.code(StatusCodes.CREATED).send(user);
   } catch (error) {
@@ -61,9 +58,6 @@ const patchAuth = async (request, reply) => {
     const schemaBody = z.object({
       name: z.string({ required_error: "O nome do treino é obrigatório" }),
       avatar: z.string({ required_error: "A URL do avatar é obrigatória" }),
-      email: z
-        .string({ required_error: "O e-mail é obrigatório" })
-        .email({ message: "O e-mail deve ser válido" }),
       goal: z
         .nativeEnum(Goal, { required_error: "O Objetivo é obrigatório" })
         .optional(),
@@ -92,7 +86,6 @@ const patchAuth = async (request, reply) => {
 
     const {
       avatar,
-      email,
       name,
       userId,
       experience,
@@ -106,7 +99,6 @@ const patchAuth = async (request, reply) => {
     const user = await authService.patchAuth(
       id,
       avatar,
-      email,
       name,
       userId,
       experience,

@@ -86,9 +86,9 @@ const generatePrompt = (
             "name": "Nome do exercício",
             "instructions": "Descrição detalhada",
             "weight": "Peso recomendado",
-            "repetitions": "Número de repetições",
+            "repetitions": "Número de repetições", // deve ser um numero inteiro
             "series": "Número de séries",
-            "restTime": "Tempo de descanso em segundos",
+            "restTime": "Tempo de descanso em segundos", // deve ser um numero inteiro em segundos
             "videoUrl": "URL do vídeo demonstrativo"
           },
           ...

@@ -1,7 +1,7 @@
 import authRepository from "../repositories/auth.repository.js";
 import AppError from "../utils/error.js";
 
-const postAuth = async (userId, name, avatar, email) => {
+const postAuth = async (userId, name, avatar) => {
   try {
     const user = await authRepository.getUserByID(userId);
 
@@ -9,7 +9,7 @@ const postAuth = async (userId, name, avatar, email) => {
       return user;
     }
 
-    return await authRepository.postAuth(userId, name, avatar, email);
+    return await authRepository.postAuth(userId, name, avatar);
   } catch (error) {
     throw new AppError(error.message);
   }
@@ -18,7 +18,6 @@ const postAuth = async (userId, name, avatar, email) => {
 const patchAuth = async (
   id,
   avatar,
-  email,
   name,
   userId,
   experience,
@@ -31,7 +30,6 @@ const patchAuth = async (
     return await authRepository.patchAuth(
       id,
       avatar,
-      email,
       name,
       userId,
       experience,

@@ -9,7 +9,7 @@ async function main() {
         {
           name: "Supino Reto",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=EZMYCLKuGow",
@@ -19,7 +19,7 @@ async function main() {
         {
           name: "Supino Inclinado",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=WP1VLAt8hbM",
@@ -29,7 +29,7 @@ async function main() {
         {
           name: "Pullover",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=-KaMXMMIVrU",
@@ -39,7 +39,7 @@ async function main() {
         {
           name: "Crossover",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=jqTlJt3JXzQ",
@@ -49,7 +49,7 @@ async function main() {
         {
           name: "Rosca Direta com Barra",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=s4B8UW3BMqk",
@@ -59,7 +59,7 @@ async function main() {
         {
           name: "Rosca Alternada com Halteres",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=S1HAcTVQVYE",
@@ -69,7 +69,7 @@ async function main() {
         {
           name: "Rosca Scott com Barra W",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=Kh4G5N48EO8",
@@ -79,7 +79,7 @@ async function main() {
         {
           name: "Rosca Concentrada com Halter",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=PcwdHVhWY3s",
@@ -95,7 +95,7 @@ async function main() {
         {
           name: "Levantamento Terra",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "40",
           restTime: "90",
           videoUrl: "https://www.youtube.com/watch?v=50AkPBZwACQ",
@@ -105,7 +105,7 @@ async function main() {
         {
           name: "Puxada Alta",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "30",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=9FFLBDWXSZA",
@@ -115,7 +115,7 @@ async function main() {
         {
           name: "Remada Curvado",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "25",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=TfxJMertfsw",
@@ -125,7 +125,7 @@ async function main() {
         {
           name: "Serrote",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=m4h4jT9patY",
@@ -135,7 +135,7 @@ async function main() {
         {
           name: "Tríceps Testa com Barra",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=J2g1cJ2lNOg",
@@ -145,7 +145,7 @@ async function main() {
         {
           name: "Tríceps na Polia com Barra",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "25",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=9cmeOVHOjck",
@@ -155,7 +155,7 @@ async function main() {
         {
           name: "Tríceps Corda na Polia",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=TLnIVtuuoYw",
@@ -165,7 +165,7 @@ async function main() {
         {
           name: "Extensão de Tríceps com Halteres Unilateral",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "12",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=zPAfW4JyUTI",
@@ -181,7 +181,7 @@ async function main() {
         {
           name: "Desenvolvimento de Ombros na Máquina",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=uKw0TCpC8-o",
@@ -191,7 +191,7 @@ async function main() {
         {
           name: "Desenvolvimento com Halteres",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=eufDL9MmF8A",
@@ -201,7 +201,7 @@ async function main() {
         {
           name: "Elevação Frontal com Halteres",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "45",
           videoUrl: "https://www.youtube.com/watch?v=NxSuojHZa8k",
@@ -211,7 +211,7 @@ async function main() {
         {
           name: "Elevação Lateral com Halteres",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "45",
           videoUrl: "https://www.youtube.com/watch?v=IwWvZ0rlNXs",
@@ -221,7 +221,7 @@ async function main() {
         {
           name: "Crucifixo Invertido Usando o Voador",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=wjlX-5DTjBQ",
@@ -231,7 +231,7 @@ async function main() {
         {
           name: "Agachamento Livre",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "40",
           restTime: "90",
           videoUrl: "https://www.youtube.com/watch?v=rM6SDUdl9fs",
@@ -241,7 +241,7 @@ async function main() {
         {
           name: "Leg Press",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "80",
           restTime: "90",
           videoUrl: "https://www.youtube.com/watch?v=nY8UsiAqwds",
@@ -251,7 +251,7 @@ async function main() {
         {
           name: "Avanço com Halteres",
           series: "3",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=koeV-24SQOo",
@@ -261,7 +261,7 @@ async function main() {
         {
           name: "Máquina Flexora",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "25",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=5yaWMXbkCGs",
@@ -271,7 +271,7 @@ async function main() {
         {
           name: "Stiff com Barra",
           series: "2",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "30",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=u1E3_u2gJYE",
@@ -287,7 +287,7 @@ async function main() {
         {
           name: "Supino Reto",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=EZMYCLKuGow",
@@ -297,7 +297,7 @@ async function main() {
         {
           name: "Supino Inclinado",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=WP1VLAt8hbM",
@@ -307,7 +307,7 @@ async function main() {
         {
           name: "Pullover",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=-KaMXMMIVrU",
@@ -317,7 +317,7 @@ async function main() {
         {
           name: "Crossover",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=jqTlJt3JXzQ",
@@ -327,7 +327,7 @@ async function main() {
         {
           name: "Rosca Direta com Barra",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "15",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=s4B8UW3BMqk",
@@ -337,7 +337,7 @@ async function main() {
         {
           name: "Rosca Alternada com Halteres",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=S1HAcTVQVYE",
@@ -347,7 +347,7 @@ async function main() {
         {
           name: "Rosca Scott com Barra W",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=Kh4G5N48EO8",
@@ -357,7 +357,7 @@ async function main() {
         {
           name: "Rosca Concentrada com Halter",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "10",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=PcwdHVhWY3s",
@@ -373,7 +373,7 @@ async function main() {
         {
           name: "Remada Alta na Polia",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "40",
           restTime: "90",
           videoUrl: "https://www.youtube.com/watch?v=LVQq6ZnM97U",
@@ -383,7 +383,7 @@ async function main() {
         {
           name: "Remada Baixa na Polia",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "40",
           restTime: "90",
           videoUrl: "https://www.youtube.com/watch?v=f8AVh4VBbos",
@@ -393,7 +393,7 @@ async function main() {
         {
           name: "Remada Unilateral com Halter",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "20",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=m4h4jT9patY",
@@ -403,7 +403,7 @@ async function main() {
         {
           name: "Encolhimento de Ombros com Halteres",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "25",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=YeILDnoeYEk",
@@ -413,7 +413,7 @@ async function main() {
         {
           name: "Tríceps Mergulho no Banco",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "Corporal",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=LdfpvZPnUSI",
@@ -423,7 +423,7 @@ async function main() {
         {
           name: "Tríceps Francês com Halter",
           series: "4",
-          repetitions: "8 - 12",
+          repetitions: "12",
           weight: "12",
           restTime: "60",
           videoUrl: "https://www.youtube.com/watch?v=GKpHcN1xM3o",
@@ -468,7 +468,6 @@ async function main() {
     data: {
       avatar:
         "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yc3huVHRKUXdKUmdUT2pOQVpuZXFvVTFzelIifQ",
-      email: "rodrigordgfs@gmail.com",
       experience: "ATHLETE",
       goal: "COMPETITION",
       height: 175,
