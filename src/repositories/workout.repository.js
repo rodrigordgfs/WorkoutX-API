@@ -281,6 +281,31 @@ const getWorkoutExercises = async (workoutId) => {
   }
 };
 
+const getVolumeWorkoutExercises = async (userId, startDate, endDate) => {
+  try {
+    const exercises = await prisma.workoutSession.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: {
+        exercises: {
+          include: {
+            exercise: true,
+          },
+        },
+      },
+    });
+
+    return exercises;
+  } catch (error) {
+    logError(error);
+  }
+};
+
 const postWorkoutSession = async (userId, workoutId, exercises) => {
   try {
     const workoutSession = await prisma.workoutSession.create({
@@ -817,4 +842,5 @@ export default {
   getWorkoutSessions,
   getWorkoutSessionsEnded,
   getRecentsWorkoutsSessions,
+  getVolumeWorkoutExercises,
 };

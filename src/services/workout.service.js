@@ -8,7 +8,8 @@ import {
   isSameDay,
   subDays,
   differenceInMinutes,
-  differenceInSeconds,
+  startOfWeek,
+  endOfWeek,
 } from "date-fns";
 
 const postWorkout = async (userId, name, visibility, exercises) => {
@@ -639,6 +640,35 @@ const getRecentActivities = async (userId) => {
   return workoutSessionsWithDuration;
 };
 
+const getVolumeWorkoutExercises = async (userId) => {
+  const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
+
+  const workoutSession = await workoutRepository.getVolumeWorkoutExercises(
+    userId,
+    startDate,
+    endDate
+  );
+
+  const volumeByDay = {};
+
+  workoutSession.forEach((session) => {
+    const sessionDate = session.startedAt.toISOString().split("T")[0];
+    if (!volumeByDay[sessionDate]) {
+      volumeByDay[sessionDate] = 0;
+    }
+
+    session.exercises.forEach((exercise) => {
+      const weight = parseFloat(exercise.weight) || 0;
+      const repetitions = parseInt(exercise.repetitions) || 0;
+      const series = parseInt(exercise.series) || 0;
+      volumeByDay[sessionDate] += weight * repetitions * series;
+    });
+  });
+
+  return volumeByDay;
+};
+
 const getWorkoutDashboard = async (userId) => {
   try {
     const user = await authRepository.getUserByID(userId);
@@ -661,6 +691,7 @@ const getWorkoutDashboard = async (userId) => {
     const completionRate = await getCompletionRate(userId);
     const workoutExercises = await getAllWorkoutSessionExercises(userId);
     const recentActivities = await getRecentActivities(userId);
+    const volumeWorkoutExercises = await getVolumeWorkoutExercises(userId);
 
     return {
       workoutMonthAmmount,
@@ -670,6 +701,7 @@ const getWorkoutDashboard = async (userId) => {
       completionRate,
       workoutExercises,
       recentActivities,
+      volumeWorkoutExercises,
     };
   } catch (error) {
     throw new AppError(error.message);
