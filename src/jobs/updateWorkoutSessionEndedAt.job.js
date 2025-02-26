@@ -10,6 +10,7 @@ const updateWorkoutSessionEndedAt = async () => {
         endedAt: null,
       },
       data: {
+        endedByService: true,
         endedAt: new Date(),
       },
     });

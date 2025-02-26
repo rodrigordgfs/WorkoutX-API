@@ -11,6 +11,7 @@ import {
   startOfWeek,
   endOfWeek,
 } from "date-fns";
+import { Visibility } from "@prisma/client";
 
 const postWorkout = async (userId, name, visibility, exercises) => {
   try {
@@ -265,7 +266,7 @@ const copyWorkout = async (id, newUserId) => {
     const copiedWorkout = await workoutRepository.postWorkout(
       newUserId,
       workout.name,
-      workout.visibility,
+      Visibility.PRIVATE,
       exercises
     );
 

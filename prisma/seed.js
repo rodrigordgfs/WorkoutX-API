@@ -3,8 +3,9 @@ import { prisma } from "../src/libs/prisma.js";
 async function main() {
   const workouts = [
     {
-      userId: "user_2sxnTvxC259NA2XzMrIZyIHPAFU",
+      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
       name: "Treino A - Peito e Bíceps",
+      visibility: "PRIVATE",
       exercises: [
         {
           name: "Supino Reto",
@@ -89,8 +90,9 @@ async function main() {
       ],
     },
     {
-      userId: "user_2sxnTvxC259NA2XzMrIZyIHPAFU",
+      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
       name: "Treino B - Costas e Tríceps",
+      visibility: "PRIVATE",
       exercises: [
         {
           name: "Levantamento Terra",
@@ -175,8 +177,9 @@ async function main() {
       ],
     },
     {
-      userId: "user_2sxnTvxC259NA2XzMrIZyIHPAFU",
+      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
       name: "Treino C - Deltoides, Quadríceps e Posterior de Coxa",
+      visibility: "PRIVATE",
       exercises: [
         {
           name: "Desenvolvimento de Ombros na Máquina",
@@ -281,8 +284,9 @@ async function main() {
       ],
     },
     {
-      userId: "user_2sxnTvxC259NA2XzMrIZyIHPAFU",
+      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
       name: "Treino D - Peito e Bíceps",
+      visibility: "PRIVATE",
       exercises: [
         {
           name: "Supino Reto",
@@ -367,8 +371,9 @@ async function main() {
       ],
     },
     {
-      userId: "user_2sxnTvxC259NA2XzMrIZyIHPAFU",
+      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
       name: "Treino E - Costas, Tríceps e Abdômen",
+      visibility: "PRIVATE",
       exercises: [
         {
           name: "Remada Alta na Polia",
@@ -471,7 +476,7 @@ async function main() {
       experience: "ATHLETE",
       goal: "COMPETITION",
       height: 175,
-      id: "user_2sxnTvxC259NA2XzMrIZyIHPAFU",
+      id: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
       name: "Rodrigo Viegas Rodrigues",
       publicProfile: true,
       weight: 90,

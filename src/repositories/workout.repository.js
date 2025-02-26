@@ -326,6 +326,7 @@ const postWorkoutSession = async (userId, workoutId, exercises) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         user: {
           select: {
             id: true,
@@ -373,6 +374,7 @@ const getRecentsWorkoutsSessions = async (userId) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         workout: {
           select: {
             id: true,
@@ -392,6 +394,7 @@ const getRecentsWorkoutsSessions = async (userId) => {
         id: session.id,
         startedAt: session.startedAt,
         endedAt: session.endedAt,
+        endedByService: session.endedByService,
         workout: session.workout,
         exerciseCount: session.exercises.length,
       };
@@ -413,6 +416,7 @@ const getWorkoutSessions = async (userId) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         user: {
           select: {
             id: true,
@@ -498,6 +502,7 @@ const getWorkoutSessionByID = async (sessionId) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         user: {
           select: {
             id: true,
@@ -627,6 +632,7 @@ const getWorkoutSessionByWorkoutID = async (workoutId) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         user: {
           select: {
             id: true,
@@ -683,6 +689,7 @@ const postCompleteWorkoutSession = async (sessionId) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         user: {
           select: {
             id: true,
@@ -744,6 +751,7 @@ const getWorkoutHistory = async (userId) => {
         id: true,
         startedAt: true,
         endedAt: true,
+        endedByService: true,
         workout: {
           select: {
             name: true,
