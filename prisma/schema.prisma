@@ -141,3 +141,31 @@ model WorkoutSessionExercise {
 
   @@map("workout_session_exercises")
 }
+
+model MuscleGroup {
+  id          String                @id @default(uuid())
+  name        String
+  image       String
+  description String
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  exercises   MuscleGroupExercise[]
+
+  @@map("muscle_groups")
+}
+
+model MuscleGroupExercise {
+  id            String       @id @default(uuid())
+  name          String
+  series        String
+  repetitions   String
+  weight        String
+  restTime      String
+  instruction   String
+  imageUrl      String?
+  videoUrl      String?
+  MuscleGroup   MuscleGroup? @relation(fields: [muscleGroupId], references: [id])
+  muscleGroupId String?
+
+  @@map("muscle_group_exercises")
+}
