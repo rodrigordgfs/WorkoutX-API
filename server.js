@@ -11,7 +11,10 @@ const app = fastify({
 });
 
 app.register(cors, {
-  origin: "*",
+  origin: [
+    "http://localhost:3000",
+    "https://workoutx.site",
+  ],
 });
 app.register(routes);
 
