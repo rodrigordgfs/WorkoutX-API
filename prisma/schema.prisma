@@ -49,16 +49,16 @@ enum Visibility {
 }
 
 model Workout {
-  id             String           @id @default(uuid())
+  id             String             @id @default(uuid())
   userId         String
   name           String
-  visibility     Visibility       @default(PUBLIC)
+  visibility     Visibility         @default(PRIVATE)
+  exercises      WorkoutExercises[]
   WorkoutSession WorkoutSession[]
-  exercises      Exercise[]
   likes          WorkoutLikes[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("workouts")
 }
@@ -75,6 +75,18 @@ model WorkoutLikes {
   @@map("workout_likes")
 }
 
+model WorkoutExercises {
+  id         String   @id @default(uuid())
+  workoutId  String
+  exerciseId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("workout_exercises")
+}
+
 model Exercise {
   id                     String                   @id @default(uuid())
   muscleGroupId          String
@@ -86,11 +98,11 @@ model Exercise {
   imageUrl               String
   videoUrl               String
   instructions           String
+  WorkoutSessionExercise WorkoutSessionExercise[]
+  WorkoutExercises       WorkoutExercises[]
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
-  workout                Workout[]
   muscleGroup            MuscleGroup              @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
-  WorkoutSessionExercise WorkoutSessionExercise[]
 
   @@map("exercises")
 }

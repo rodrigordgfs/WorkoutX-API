@@ -16,7 +16,7 @@ app.register(cors, {
 app.register(routes);
 
 app
-  .listen({ port: environment.port, host: "0.0.0.0" })
+  .listen({ port: environment.port, host: "192.168.8.4" })
   .then(() => {
     console.log(`Server is running on port ${environment.port}`);
   })

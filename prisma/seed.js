@@ -1547,6 +1547,25 @@ async function main() {
     // },
   ];
 
+  const workouts = [
+    {
+      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
+      name: "Treino A - Peito e Bíceps",
+      visibility: "PRIVATE",
+      exercises: [
+        { id: "1fb6f64e-2496-46cf-a4c8-73f83cfb6c0a" },
+        { id: "ca875478-da7d-478c-9526-e57360c5762a" },
+        { id: "82c5f75e-76c5-4779-992c-6150db23ab7a" },
+        { id: "3e8058ca-01a7-4922-aa33-0871904c852f" },
+        { id: "fc5d9947-5b28-45ed-9e90-c65b31ff3679" },
+        { id: "7aae83b0-e6ba-4718-858e-5e267f26b979" },
+        { id: "3d6e6dd8-daaa-4a2a-97f6-2298d4b1cf8a" },
+        { id: "9d9aa766-5838-463e-8fec-58a65b4a3e67" },
+        { id: "17381849-de6a-4755-9039-528931c12d91" },
+      ],
+    },
+  ];
+
   await prisma.user.create({
     data: {
       avatar:
@@ -1572,6 +1591,7 @@ async function main() {
     });
   }
 
+  let exercisesData = []
   for (const exercise of exercises) {
     await prisma.exercise.create({
       data: {
@@ -1589,25 +1609,20 @@ async function main() {
     });
   }
 
-  // for (const workoutData of workouts) {
-  //   await prisma.workout.create({
-  //     data: {
-  //       userId: workoutData.userId,
-  //       name: workoutData.name,
-  //       exercises: {
-  //         create: workoutData.exercises.map((exercise) => ({
-  //           name: exercise.name,
-  //           series: exercise.series,
-  //           repetitions: exercise.repetitions,
-  //           weight: exercise.weight,
-  //           restTime: exercise.restTime,
-  //           videoUrl: exercise.videoUrl,
-  //           instructions: exercise.instructions,
-  //         })),
-  //       },
-  //     },
-  //   });
-  // }
+  for (const workoutData of workouts) {
+    await prisma.workout.create({
+      data: {
+        userId: workoutData.userId,
+        name: workoutData.name,
+        visibility: workoutData.visibility,
+        exercises: {
+          connect: workoutData.exercises.map((exercise) => {
+            return { id: exercise.id };
+          }),
+        },
+      },
+    });
+  }
 }
 
 main()
