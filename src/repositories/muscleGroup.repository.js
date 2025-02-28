@@ -20,6 +20,38 @@ const getMuscleGroup = async () => {
   }
 };
 
+const getMuscleGroupById = async (id) => {
+  try {
+    return await prisma.muscleGroup.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image: true,
+        exercises: {
+          select: {
+            id: true,
+            name: true,
+            instructions: true,
+            series: true,
+            repetitions: true,
+            restTime: true,
+            weight: true,
+            imageUrl: true,
+            videoUrl: true,
+          }
+        }
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
-  getMuscleGroup
+  getMuscleGroup,
+  getMuscleGroupById
 };

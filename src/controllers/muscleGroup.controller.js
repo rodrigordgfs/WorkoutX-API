@@ -31,6 +31,28 @@ const getMuscleGroup = async (request, reply) => {
   } catch (error) {
     handleErrorResponse(error, reply);
   }
-}
+};
 
-export default { getMuscleGroup };
+const getMuscleGroupById = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do Grupo Muscular é obrigatório" }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { id } = validation.data;
+
+    const muscleGroup = await muscleGroupService.getMuscleGroupById(id);
+
+    reply.send(muscleGroup);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+export default { getMuscleGroup, getMuscleGroupById };

@@ -53,12 +53,12 @@ model Workout {
   userId         String
   name           String
   visibility     Visibility       @default(PUBLIC)
+  WorkoutSession WorkoutSession[]
   exercises      Exercise[]
   likes          WorkoutLikes[]
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  WorkoutSession WorkoutSession[]
 
   @@map("workouts")
 }
@@ -77,17 +77,19 @@ model WorkoutLikes {
 
 model Exercise {
   id                     String                   @id @default(uuid())
-  workoutId              String
+  muscleGroupId          String
   name                   String
   series                 String
   repetitions            String
   weight                 String
   restTime               String
-  videoUrl               String?
+  imageUrl               String
+  videoUrl               String
   instructions           String
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime                 @updatedAt
-  workout                Workout                  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  workout                Workout[]
+  muscleGroup            MuscleGroup              @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
   WorkoutSessionExercise WorkoutSessionExercise[]
 
   @@map("exercises")
@@ -143,29 +145,13 @@ model WorkoutSessionExercise {
 }
 
 model MuscleGroup {
-  id          String                @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   image       String
   description String
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-  exercises   MuscleGroupExercise[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  exercises   Exercise[]
 
   @@map("muscle_groups")
-}
-
-model MuscleGroupExercise {
-  id            String       @id @default(uuid())
-  name          String
-  series        String
-  repetitions   String
-  weight        String
-  restTime      String
-  instruction   String
-  imageUrl      String?
-  videoUrl      String?
-  MuscleGroup   MuscleGroup? @relation(fields: [muscleGroupId], references: [id])
-  muscleGroupId String?
-
-  @@map("muscle_group_exercises")
 }

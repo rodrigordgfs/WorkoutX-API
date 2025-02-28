@@ -9,6 +9,21 @@ const getMuscleGroup = async () => {
   }
 };
 
+const getMuscleGroupById = async (id) => {
+  try {
+    const muscleGroup = await muscleGroupRepository.getMuscleGroupById(id);
+
+    if (!muscleGroup) {
+      throw new AppError("Grupo Muscular não encontrado");
+    }
+
+    return muscleGroup;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   getMuscleGroup,
+  getMuscleGroupById
 };
