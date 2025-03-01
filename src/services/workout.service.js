@@ -236,15 +236,18 @@ const postLikeWorkout = async (idWorkout, idUser) => {
   }
 };
 
-const deleteExercise = async (id) => {
+const deleteWorkoutExercise = async (idWorkout, idExercise) => {
   try {
-    const exercise = await workoutRepository.getExerciseByID(id);
+    const exercise = await workoutRepository.getWorkoutExerciseByID(
+      idWorkout,
+      idExercise
+    );
 
     if (!exercise) {
       throw new AppError("Exercício não encontrado", 404);
     }
 
-    await workoutRepository.deleteExercise(id);
+    await workoutRepository.deleteWorkoutExercise(idWorkout, idExercise);
   } catch (error) {
     throw new AppError(error.message);
   }
@@ -717,7 +720,7 @@ export default {
   postWorkoutAI,
   getWorkouts,
   postLikeWorkout,
-  deleteExercise,
+  deleteWorkoutExercise,
   copyWorkout,
   deleteWorkout,
   postWorkoutSession,

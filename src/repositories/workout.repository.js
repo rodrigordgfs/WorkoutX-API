@@ -120,21 +120,34 @@ const getWorkouts = async (userId, visibility) => {
         },
         exercises: {
           select: {
-            id: true,
-            name: true,
-            series: true,
-            repetitions: true,
-            weight: true,
-            restTime: true,
-            videoUrl: true,
-            imageUrl: true,
-            instructions: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                imageUrl: true,
+                instructions: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+                repetitions: true,
+                restTime: true,
+                series: true,
+                videoUrl: true,
+                weight: true,
+              },
+            },
           },
         },
       },
     });
 
-    return workouts;
+    return workouts.map((workout) => ({
+      ...workout,
+      exercises: workout.exercises.map((e) => e.exercise),
+    }));
   } catch (error) {
     logError(error);
   }
@@ -164,21 +177,34 @@ const getWorkoutByID = async (workoutId) => {
         },
         exercises: {
           select: {
-            id: true,
-            name: true,
-            series: true,
-            repetitions: true,
-            weight: true,
-            restTime: true,
-            videoUrl: true,
-            imageUrl: true,
-            instructions: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                imageUrl: true,
+                instructions: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+                repetitions: true,
+                restTime: true,
+                series: true,
+                videoUrl: true,
+                weight: true,
+              },
+            },
           },
         },
       },
     });
 
-    return workout;
+    return workouts.map((workout) => ({
+      ...workout,
+      exercises: workout.exercises.map((e) => e.exercise),
+    }));
   } catch (error) {
     logError(error);
   }
@@ -243,11 +269,27 @@ const getExerciseByID = async (exerciseId) => {
   }
 };
 
-const deleteExercise = async (exerciseId) => {
+const getWorkoutExerciseByID = async (idWorkout, idExercise) => {
   try {
-    await prisma.exercise.delete({
+    const exercise = await prisma.workoutExercises.findFirst({
       where: {
-        id: exerciseId,
+        exerciseId: idExercise,
+        workoutId: idWorkout,
+      },
+    });
+
+    return exercise;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const deleteWorkoutExercise = async (idWorkout, idExercise) => {
+  try {
+    await prisma.workoutExercises.deleteMany({
+      where: {
+        workoutId: idWorkout,
+        exerciseId: idExercise,
       },
     });
 
@@ -837,8 +879,9 @@ export default {
   getWorkoutLikedByUser,
   postUnlikeWorkout,
   getExerciseByID,
-  deleteExercise,
+  deleteWorkoutExercise,
   deleteWorkout,
+  getWorkoutExerciseByID,
   getWorkoutExercises,
   postWorkoutSession,
   patchWorkoutSessionExercise,

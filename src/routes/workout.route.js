@@ -5,7 +5,7 @@ const workout = async (fastify) => {
   fastify.post("/workout/:idWorkout/user/:idUser/like", workoutController.postLikeWorkout);
   fastify.post("/workout/ai", workoutController.postWorkoutAI);
   fastify.get("/workout", workoutController.getWorkouts);
-  fastify.delete("/workout/exercise/:id", workoutController.deleteExercise);
+  fastify.delete("/workout/:idWorkout/exercise/:idExercise", workoutController.deleteExercise);
   fastify.post("/workout/:id/copy", workoutController.copyWorkout);
   fastify.delete("/workout/:id", workoutController.deleteWorkout);
   fastify.get("/workout/session", workoutController.getWorkoutSessionByWorkoutID);

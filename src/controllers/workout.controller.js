@@ -98,7 +98,9 @@ const postWorkoutAI = async (request, reply) => {
     const schemaBody = z.object({
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       objective: z.string({ required_error: "O objetivo é obrigatório" }),
-      muscleGroup: z.string({ required_error: "O grupo muscular é obrigatório" }),
+      muscleGroup: z.string({
+        required_error: "O grupo muscular é obrigatório",
+      }),
       trainingTime: z.string({
         required_error: "O tempo de treino é obrigatório",
       }),
@@ -211,7 +213,10 @@ const getWorkouts = async (request, reply) => {
 const deleteExercise = async (request, reply) => {
   try {
     const schemaParams = z.object({
-      id: z.string({ required_error: "O ID do exercício é obrigatório" }),
+      idWorkout: z.string({ required_error: "O ID do treino é obrigatório" }),
+      idExercise: z.string({
+        required_error: "O ID do exercício é obrigatório",
+      }),
     });
 
     const validation = schemaParams.safeParse(request.params);
@@ -220,9 +225,9 @@ const deleteExercise = async (request, reply) => {
       throw validation.error;
     }
 
-    const { id } = validation.data;
+    const { idExercise, idWorkout } = validation.data;
 
-    await workoutService.deleteExercise(id);
+    await workoutService.deleteWorkoutExercise(idWorkout, idExercise);
 
     reply.code(StatusCodes.NO_CONTENT).send();
   } catch (error) {
