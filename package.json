@@ -22,6 +22,7 @@
     "prisma": "^6.4.1"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.758.0",
     "@clerk/fastify": "^2.1.23",
     "@fastify/caching": "^9.0.3",
     "@prisma/client": "^6.4.1",
@@ -31,6 +32,7 @@
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",
     "http-status-codes": "^2.1.0",
+    "jimp": "0.16.1",
     "node-cron": "^3.0.3",
     "openai": "^4.85.1",
     "uuid": "^11.0.5",

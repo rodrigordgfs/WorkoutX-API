@@ -30,14 +30,17 @@ const postMuscleGroup = async (request, reply) => {
       name: z.string({
         required_error: "O nome do Grupo Muscular é obrigatório",
       }),
-      image: z
-        .string({
-          required_error: "A URL da imagem do Grupo Muscular é obrigatória",
-        })
-        .url({ message: "A URL da imagem do Grupo Muscular é inválida" }),
       description: z.string({
         required_error: "A descrição do Grupo Muscular é obrigatória",
       }),
+      image: z
+        .string({
+          required_error: "A imagem em base64 é obrigatória",
+        })
+        .regex(
+          /^data:image\/(png|jpeg|jpg);base64,/,
+          "Formato de imagem inválido"
+        ),
     });
 
     const validation = schemaBody.safeParse(request.body);
@@ -91,4 +94,4 @@ const getMuscleGroupById = async (request, reply) => {
   }
 };
 
-export default { getMuscleGroup, getMuscleGroupById, postMuscleGroup };
+export default { postMuscleGroup, getMuscleGroup, getMuscleGroupById };

@@ -9,6 +9,7 @@ startJobs();
 
 const app = fastify({
   pluginTimeout: 60000,
+  bodyLimit: 10 * 1024 * 1024,
 });
 
 app.register(cors, {
