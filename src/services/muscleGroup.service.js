@@ -23,7 +23,20 @@ const getMuscleGroupById = async (id) => {
   }
 };
 
+const postMuscleGroup = async (name, description, image) => {
+  try {
+    return await muscleGroupRepository.postMuscleGroup(
+      name,
+      description,
+      image
+    );
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   getMuscleGroup,
-  getMuscleGroupById
+  getMuscleGroupById,
+  postMuscleGroup,
 };

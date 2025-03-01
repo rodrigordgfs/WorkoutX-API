@@ -24,6 +24,42 @@ const handleErrorResponse = (error, reply) => {
   });
 };
 
+const postMuscleGroup = async (request, reply) => {
+  try {
+    const schemaBody = z.object({
+      name: z.string({
+        required_error: "O nome do Grupo Muscular é obrigatório",
+      }),
+      image: z
+        .string({
+          required_error: "A URL da imagem do Grupo Muscular é obrigatória",
+        })
+        .url({ message: "A URL da imagem do Grupo Muscular é inválida" }),
+      description: z.string({
+        required_error: "A descrição do Grupo Muscular é obrigatória",
+      }),
+    });
+
+    const validation = schemaBody.safeParse(request.body);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { name, description, image } = validation.data;
+
+    const muscleGroup = await muscleGroupService.postMuscleGroup(
+      name,
+      description,
+      image
+    );
+
+    reply.code(StatusCodes.CREATED).send(muscleGroup);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 const getMuscleGroup = async (request, reply) => {
   try {
     const muscleGroup = await muscleGroupService.getMuscleGroup();
@@ -55,4 +91,4 @@ const getMuscleGroupById = async (request, reply) => {
   }
 };
 
-export default { getMuscleGroup, getMuscleGroupById };
+export default { getMuscleGroup, getMuscleGroupById, postMuscleGroup };

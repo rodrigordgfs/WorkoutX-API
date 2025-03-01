@@ -42,8 +42,22 @@ const getMuscleGroupById = async (id) => {
             weight: true,
             imageUrl: true,
             videoUrl: true,
-          }
-        }
+          },
+        },
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const postMuscleGroup = async (name, description, image) => {
+  try {
+    return await prisma.muscleGroup.create({
+      data: {
+        name,
+        description,
+        image,
       },
     });
   } catch (error) {
@@ -53,5 +67,6 @@ const getMuscleGroupById = async (id) => {
 
 export default {
   getMuscleGroup,
-  getMuscleGroupById
+  getMuscleGroupById,
+  postMuscleGroup,
 };
