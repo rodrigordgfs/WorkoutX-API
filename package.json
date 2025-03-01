@@ -22,8 +22,10 @@
     "prisma": "^6.4.1"
   },
   "dependencies": {
+    "@clerk/fastify": "^2.1.23",
     "@fastify/caching": "^9.0.3",
     "@prisma/client": "^6.4.1",
+    "add": "^2.0.6",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
@@ -32,6 +34,7 @@
     "node-cron": "^3.0.3",
     "openai": "^4.85.1",
     "uuid": "^11.0.5",
+    "yarn": "^1.22.22",
     "zod": "^3.24.2"
   },
   "prisma": {
