@@ -196,13 +196,33 @@ const getWorkouts = async (request, reply) => {
     const schemaQuery = z.object({
       userId: z.string().optional(),
       visibility: z.nativeEnum(Visibility).optional(),
+      likes: z.boolean().optional(),
+      exercises: z.boolean().optional(),
     });
 
-    const validation = schemaQuery.safeParse(request.query);
+    const validation = schemaQuery.safeParse({
+      ...request.query,
+      likes: request.query.likes === "true" || undefined,
+      exercises: request.query.exercises === "true" || undefined,
+    });
 
-    const { userId, visibility } = validation.data;
+    if (!validation.success) {
+      return reply
+        .status(400)
+        .send({
+          error: "Invalid query parameters",
+          details: validation.error.errors,
+        });
+    }
 
-    const workouts = await workoutService.getWorkouts(userId, visibility);
+    const { userId, visibility, likes, exercises } = validation.data;
+
+    const workouts = await workoutService.getWorkouts(
+      userId,
+      visibility,
+      likes,
+      exercises
+    );
 
     reply.send(workouts);
   } catch (error) {

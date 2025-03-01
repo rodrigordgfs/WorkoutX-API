@@ -95,7 +95,7 @@ const postWorkoutAI = async (userId, workout) => {
   }
 };
 
-const getWorkouts = async (userId, visibility) => {
+const getWorkouts = async (userId, visibility, likes, exercises) => {
   try {
     const workouts = await prisma.workout.findMany({
       where: {
@@ -106,11 +106,6 @@ const getWorkouts = async (userId, visibility) => {
         id: true,
         name: true,
         visibility: true,
-        likes: {
-          select: {
-            userId: true,
-          },
-        },
         user: {
           select: {
             id: true,
@@ -118,35 +113,46 @@ const getWorkouts = async (userId, visibility) => {
             avatar: true,
           },
         },
-        exercises: {
-          select: {
-            exercise: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-                instructions: true,
-                muscleGroup: {
-                  select: {
-                    id: true,
-                    name: true,
+        ...(likes && {
+          likes: {
+            select: {
+              userId: true,
+            },
+          },
+        }),
+        ...(exercises && {
+          exercises: {
+            select: {
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  imageUrl: true,
+                  instructions: true,
+                  muscleGroup: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
                   },
+                  repetitions: true,
+                  restTime: true,
+                  series: true,
+                  videoUrl: true,
+                  weight: true,
                 },
-                repetitions: true,
-                restTime: true,
-                series: true,
-                videoUrl: true,
-                weight: true,
               },
             },
           },
-        },
+        }),
       },
     });
 
     return workouts.map((workout) => ({
       ...workout,
-      exercises: workout.exercises.map((e) => e.exercise),
+      exercises: exercises
+        ? workout.exercises.map((e) => e.exercise)
+        : undefined,
     }));
   } catch (error) {
     logError(error);

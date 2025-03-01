@@ -196,9 +196,14 @@ const postWorkoutAI = async (
   }
 };
 
-const getWorkouts = async (userId, visibility) => {
+const getWorkouts = async (userId, visibility, likes, exercises) => {
   try {
-    const workouts = await workoutRepository.getWorkouts(userId, visibility);
+    const workouts = await workoutRepository.getWorkouts(
+      userId,
+      visibility,
+      likes,
+      exercises
+    );
     return workouts;
   } catch (error) {
     throw new AppError(error.message);
