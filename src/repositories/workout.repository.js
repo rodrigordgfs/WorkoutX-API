@@ -207,10 +207,10 @@ const getWorkoutByID = async (workoutId) => {
       },
     });
 
-    return workouts.map((workout) => ({
+    return {
       ...workout,
       exercises: workout.exercises.map((e) => e.exercise),
-    }));
+    };
   } catch (error) {
     logError(error);
   }

@@ -326,8 +326,6 @@ const postWorkoutSession = async (userId, workoutId) => {
       throw new AppError("Treino não encontrado", 404);
     }
 
-    const exercises = await workoutRepository.getWorkoutExercises(workoutId);
-
     const workoutSessionsNotCompleted =
       await workoutRepository.getWorkoutSessionNotCompleted(userId);
 
@@ -341,7 +339,7 @@ const postWorkoutSession = async (userId, workoutId) => {
     const session = await workoutRepository.postWorkoutSession(
       userId,
       workoutId,
-      exercises
+      workout.exercises
     );
 
     return session;
