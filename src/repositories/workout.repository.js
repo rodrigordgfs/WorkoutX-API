@@ -1,5 +1,12 @@
 import { prisma } from "../libs/prisma.js";
-import { startOfMonth, endOfMonth, subMonths } from "date-fns";
+import {
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  setHours,
+  setMinutes,
+  setSeconds,
+} from "date-fns";
 
 const logError = (error) => {
   console.error("Database Error:", error);
@@ -844,7 +851,10 @@ const getWorkoutMonthAmmount = async (userId) => {
       where: {
         userId: userId,
         startedAt: {
-          gte: new Date(new Date().setDate(1)),
+          gte: setSeconds(
+            setMinutes(setHours(startOfMonth(new Date()), 0), 0),
+            0
+          ),
         },
       },
     });
