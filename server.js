@@ -3,12 +3,17 @@ import routes from "./src/routes/index.js";
 import environment from "./src/config/envs.js";
 import { startJobs } from "./src/jobs/index.js";
 import { clerkPlugin } from "@clerk/fastify";
+import cors from "@fastify/cors";
 
 startJobs();
 
 const app = fastify({
   pluginTimeout: 60000,
   bodyLimit: 10 * 1024 * 1024,
+});
+
+app.register(cors, {
+  origin: "*",
 });
 
 app.register(clerkPlugin, {
