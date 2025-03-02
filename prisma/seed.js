@@ -1549,7 +1549,7 @@ async function main() {
 
   const workouts = [
     {
-      userId: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
+      userId: "user_2tYqBz9P9Myh8aYjhbYr3llsxB5",
       name: "Treino A - Peito e Bíceps",
       visibility: "PRIVATE",
       exercises: [
@@ -1569,12 +1569,12 @@ async function main() {
   await prisma.user.create({
     data: {
       avatar:
-        "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18yc3huVHRKUXdKUmdUT2pOQVpuZXFvVTFzelIifQ",
+        "https://img.clerk.com/eyJ0eXBlIjoicHJveHkiLCJzcmMiOiJodHRwczovL2ltYWdlcy5jbGVyay5kZXYvb2F1dGhfZ29vZ2xlL2ltZ18ydFlxQnU4cTJ1WkNsdXZTRjhUQjl0OUxSY2IifQ",
       experience: "ATHLETE",
       goal: "COMPETITION",
       height: 175,
-      id: "user_2tYPPiwlmkzwFQftgQ49Y372EUM",
-      name: "Rodrigo Viegas Rodrigues",
+      id: "user_2tYqBz9P9Myh8aYjhbYr3llsxB5",
+      name: "WorkoutX",
       publicProfile: true,
       weight: 90,
     },
