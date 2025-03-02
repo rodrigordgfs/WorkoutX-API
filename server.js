@@ -12,13 +12,9 @@ const app = fastify({
   bodyLimit: 10 * 1024 * 1024,
 });
 
-app.register(cors, 
-  {
-    origin: "*",
-    methods: ["GET", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }
-);
+app.register(cors, {
+  origin: "*"
+});
 
 app.register(clerkPlugin, {
   secretKey: process.env.CLERK_SECRET_KEY,
