@@ -1,6 +1,7 @@
 import axios from "axios";
 import workoutRepository from "../repositories/workout.repository.js";
 import authRepository from "../repositories/auth.repository.js";
+import muscleGroupRepository from "../repositories/muscleGroup.repository.js";
 import AppError from "../utils/error.js";
 import openai from "../libs/openai.js";
 import { v4 as uuidv4 } from "uuid";
@@ -12,6 +13,7 @@ import {
   endOfWeek,
 } from "date-fns";
 import { Visibility } from "@prisma/client";
+import { uploadImageToS3 } from "../utils/uploadImageToS3.js";
 
 const postWorkout = async (userId, name, visibility, exercises) => {
   try {
@@ -724,6 +726,50 @@ const getWorkoutDashboard = async (userId) => {
   }
 };
 
+const postExercise = async (
+  name,
+  muscleGroupId,
+  series,
+  repetitions,
+  weight,
+  restTime,
+  videoUrl,
+  image,
+  instructions
+) => {
+  try {
+    const muscleGroup = await muscleGroupRepository.getMuscleGroupById(
+      muscleGroupId
+    );
+
+    if (!muscleGroup) {
+      throw new AppError("Grupo muscular não encontrado", 404);
+    }
+
+    const imageUrl = await uploadImageToS3(
+      name,
+      image,
+      "workoutx-bucket",
+      "exercises/"
+    );
+
+    const exercise = await workoutRepository.postExercise(
+      name,
+      muscleGroupId,
+      series,
+      repetitions,
+      weight,
+      restTime,
+      videoUrl,
+      imageUrl,
+      instructions
+    );
+    return exercise;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -740,4 +786,5 @@ export default {
   getWorkoutHistory,
   deleteWorkoutSession,
   getWorkoutDashboard,
+  postExercise,
 };

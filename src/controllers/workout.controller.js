@@ -538,6 +538,86 @@ const getWorkoutDashboard = async (request, reply) => {
   }
 };
 
+const postExercise = async (request, reply) => {
+  try {
+    const schemaBody = z.object({
+      name: z
+        .string({ required_error: "O nome do exercício é obrigatório" })
+        .min(3, {
+          message: "O nome do exercício deve ter no mínimo 3 caracteres",
+        })
+        .max(255, {
+          message: "O nome do exercício deve ter no máximo 255 caracteres",
+        }),
+      muscleGroupId: z.string({
+        required_error: "O ID do grupo muscular é obrigatório",
+      }),
+      series: z
+        .string({ required_error: "O número de séries é obrigatório" })
+        .regex(/^\d+$/, {
+          message: "O número de séries deve ser um número inteiro",
+        }),
+      repetitions: z.string({
+        required_error: "O número de repetições é obrigatório",
+      }),
+      weight: z.string({ required_error: "O peso é obrigatório" }),
+      restTime: z.string({
+        required_error: "O tempo de descanso é obrigatório",
+      }),
+      image: z
+        .string({
+          required_error: "A imagem em base64 é obrigatória",
+        })
+        .regex(
+          /^data:image\/(png|jpeg|jpg);base64,/,
+          "Formato de imagem inválido"
+        ),
+      videoUrl: z
+        .string({ required_error: "A URL do vídeo é obrigatória" })
+        .url({ message: "A URL do vídeo deve ser válida" }),
+      instructions: z
+        .string({ required_error: "As instruções são obrigatórias" })
+        .min(3, {
+          message: "As instruções devem ter pelo menos 3 caracteres",
+        }),
+    });
+
+    const validation = schemaBody.safeParse(request.body);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const {
+      name,
+      muscleGroupId,
+      series,
+      repetitions,
+      weight,
+      restTime,
+      videoUrl,
+      image,
+      instructions,
+    } = validation.data;
+
+    const exercise = await workoutService.postExercise(
+      name,
+      muscleGroupId,
+      series,
+      repetitions,
+      weight,
+      restTime,
+      videoUrl,
+      image,
+      instructions
+    );
+
+    reply.code(StatusCodes.CREATED).send(exercise);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
@@ -554,4 +634,5 @@ export default {
   getWorkoutHistory,
   deleteWorkoutSession,
   getWorkoutDashboard,
+  postExercise,
 };

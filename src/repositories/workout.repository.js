@@ -919,6 +919,40 @@ const getLastMonthWorkoutsAmmount = async (userId) => {
   }
 };
 
+const postExercise = async (
+  name,
+  muscleGroupId,
+  series,
+  repetitions,
+  weight,
+  restTime,
+  videoUrl,
+  imageUrl,
+  instructions
+) => {
+  try {
+    return await prisma.exercise.create({
+      data: {
+        name,
+        instructions,
+        series,
+        repetitions,
+        restTime,
+        weight,
+        videoUrl,
+        imageUrl,
+        muscleGroup: {
+          connect: {
+            id: muscleGroupId,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -947,4 +981,5 @@ export default {
   getWorkoutSessionsEnded,
   getRecentsWorkoutsSessions,
   getVolumeWorkoutExercises,
+  postExercise,
 };
