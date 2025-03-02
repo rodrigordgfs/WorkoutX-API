@@ -70,6 +70,7 @@ CREATE TABLE "workout_sessions" (
     "workoutId" TEXT NOT NULL,
     "startedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "endedAt" TIMESTAMP(3),
+    "endedByService" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "workout_sessions_pkey" PRIMARY KEY ("id")
 );
@@ -88,6 +89,30 @@ CREATE TABLE "workout_session_exercises" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "workout_session_exercises_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "muscle_groups" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "image" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "muscle_groups_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "muscle_group_exercises" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "instruction" TEXT NOT NULL,
+    "imageUrl" TEXT,
+    "videoUrl" TEXT,
+    "muscleGroupId" TEXT,
+
+    CONSTRAINT "muscle_group_exercises_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
@@ -113,3 +138,6 @@ ALTER TABLE "workout_session_exercises" ADD CONSTRAINT "workout_session_exercise
 
 -- AddForeignKey
 ALTER TABLE "workout_session_exercises" ADD CONSTRAINT "workout_session_exercises_exerciseId_fkey" FOREIGN KEY ("exerciseId") REFERENCES "exercises"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "muscle_group_exercises" ADD CONSTRAINT "muscle_group_exercises_muscleGroupId_fkey" FOREIGN KEY ("muscleGroupId") REFERENCES "muscle_groups"("id") ON DELETE SET NULL ON UPDATE CASCADE;

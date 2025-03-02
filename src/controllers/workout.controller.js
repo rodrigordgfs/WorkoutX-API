@@ -98,7 +98,9 @@ const postWorkoutAI = async (request, reply) => {
     const schemaBody = z.object({
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       objective: z.string({ required_error: "O objetivo é obrigatório" }),
-      muscleGroup: z.string({ required_error: "O grupo muscular é obrigatório" }),
+      muscleGroup: z.string({
+        required_error: "O grupo muscular é obrigatório",
+      }),
       trainingTime: z.string({
         required_error: "O tempo de treino é obrigatório",
       }),
@@ -194,13 +196,31 @@ const getWorkouts = async (request, reply) => {
     const schemaQuery = z.object({
       userId: z.string().optional(),
       visibility: z.nativeEnum(Visibility).optional(),
+      likes: z.boolean().optional(),
+      exercises: z.boolean().optional(),
     });
 
-    const validation = schemaQuery.safeParse(request.query);
+    const validation = schemaQuery.safeParse({
+      ...request.query,
+      likes: request.query.likes === "true" || undefined,
+      exercises: request.query.exercises === "true" || undefined,
+    });
 
-    const { userId, visibility } = validation.data;
+    if (!validation.success) {
+      return reply.status(400).send({
+        error: "Invalid query parameters",
+        details: validation.error.errors,
+      });
+    }
 
-    const workouts = await workoutService.getWorkouts(userId, visibility);
+    const { userId, visibility, likes, exercises } = validation.data;
+
+    const workouts = await workoutService.getWorkouts(
+      userId,
+      visibility,
+      likes,
+      exercises
+    );
 
     reply.send(workouts);
   } catch (error) {
@@ -211,7 +231,10 @@ const getWorkouts = async (request, reply) => {
 const deleteExercise = async (request, reply) => {
   try {
     const schemaParams = z.object({
-      id: z.string({ required_error: "O ID do exercício é obrigatório" }),
+      idWorkout: z.string({ required_error: "O ID do treino é obrigatório" }),
+      idExercise: z.string({
+        required_error: "O ID do exercício é obrigatório",
+      }),
     });
 
     const validation = schemaParams.safeParse(request.params);
@@ -220,9 +243,9 @@ const deleteExercise = async (request, reply) => {
       throw validation.error;
     }
 
-    const { id } = validation.data;
+    const { idExercise, idWorkout } = validation.data;
 
-    await workoutService.deleteExercise(id);
+    await workoutService.deleteWorkoutExercise(idWorkout, idExercise);
 
     reply.code(StatusCodes.NO_CONTENT).send();
   } catch (error) {
@@ -463,6 +486,12 @@ const getWorkoutHistory = async (request, reply) => {
   try {
     const schemaQuery = z.object({
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+      name: z.string().optional(),
+      period: z
+        .enum(["last_month", "last_3_months", "last_year", "all"])
+        .optional(),
+      status: z.enum(["completed", "in_progress", "all"]).optional(),
+      order: z.enum(["desc", "asc"]).optional(),
     });
 
     const validation = schemaQuery.safeParse(request.query);
@@ -471,9 +500,15 @@ const getWorkoutHistory = async (request, reply) => {
       throw validation.error;
     }
 
-    const { userId } = validation.data;
+    const { userId, name, order, period, status } = validation.data;
 
-    const workoutHistory = await workoutService.getWorkoutHistory(userId);
+    const workoutHistory = await workoutService.getWorkoutHistory(
+      userId,
+      name,
+      order,
+      period,
+      status
+    );
 
     reply.send(workoutHistory);
   } catch (error) {

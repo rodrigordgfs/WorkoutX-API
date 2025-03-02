@@ -196,9 +196,14 @@ const postWorkoutAI = async (
   }
 };
 
-const getWorkouts = async (userId, visibility) => {
+const getWorkouts = async (userId, visibility, likes, exercises) => {
   try {
-    const workouts = await workoutRepository.getWorkouts(userId, visibility);
+    const workouts = await workoutRepository.getWorkouts(
+      userId,
+      visibility,
+      likes,
+      exercises
+    );
     return workouts;
   } catch (error) {
     throw new AppError(error.message);
@@ -236,15 +241,18 @@ const postLikeWorkout = async (idWorkout, idUser) => {
   }
 };
 
-const deleteExercise = async (id) => {
+const deleteWorkoutExercise = async (idWorkout, idExercise) => {
   try {
-    const exercise = await workoutRepository.getExerciseByID(id);
+    const exercise = await workoutRepository.getWorkoutExerciseByID(
+      idWorkout,
+      idExercise
+    );
 
     if (!exercise) {
       throw new AppError("Exercício não encontrado", 404);
     }
 
-    await workoutRepository.deleteExercise(id);
+    await workoutRepository.deleteWorkoutExercise(idWorkout, idExercise);
   } catch (error) {
     throw new AppError(error.message);
   }
@@ -318,8 +326,6 @@ const postWorkoutSession = async (userId, workoutId) => {
       throw new AppError("Treino não encontrado", 404);
     }
 
-    const exercises = await workoutRepository.getWorkoutExercises(workoutId);
-
     const workoutSessionsNotCompleted =
       await workoutRepository.getWorkoutSessionNotCompleted(userId);
 
@@ -333,7 +339,7 @@ const postWorkoutSession = async (userId, workoutId) => {
     const session = await workoutRepository.postWorkoutSession(
       userId,
       workoutId,
-      exercises
+      workout.exercises
     );
 
     return session;
@@ -434,7 +440,7 @@ const postCompleteWorkoutSession = async (sessionId) => {
   }
 };
 
-const getWorkoutHistory = async (userId) => {
+const getWorkoutHistory = async (userId, name, order, period, status) => {
   try {
     const user = await authRepository.getUserByID(userId);
 
@@ -442,7 +448,13 @@ const getWorkoutHistory = async (userId) => {
       throw new AppError("Usuário não encontrado", 404);
     }
 
-    const workoutHistory = await workoutRepository.getWorkoutHistory(userId);
+    const workoutHistory = await workoutRepository.getWorkoutHistory(
+      userId,
+      name,
+      order,
+      period,
+      status
+    );
 
     const formattedHistory = workoutHistory.map((session) => {
       const duration =
@@ -717,7 +729,7 @@ export default {
   postWorkoutAI,
   getWorkouts,
   postLikeWorkout,
-  deleteExercise,
+  deleteWorkoutExercise,
   copyWorkout,
   deleteWorkout,
   postWorkoutSession,

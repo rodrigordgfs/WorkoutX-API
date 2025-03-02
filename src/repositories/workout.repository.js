@@ -1,5 +1,13 @@
 import { prisma } from "../libs/prisma.js";
-import { startOfMonth, endOfMonth, subMonths } from "date-fns";
+import {
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  setHours,
+  setMinutes,
+  setSeconds,
+  subYears,
+} from "date-fns";
 
 const logError = (error) => {
   console.error("Database Error:", error);
@@ -39,6 +47,7 @@ const postWorkout = async (userId, name, visibility, exercises) => {
             weight: true,
             restTime: true,
             videoUrl: true,
+            imageUrl: true,
             instructions: true,
           },
         },
@@ -83,6 +92,7 @@ const postWorkoutAI = async (userId, workout) => {
             weight: true,
             restTime: true,
             videoUrl: true,
+            imageUrl: true,
             instructions: true,
           },
         },
@@ -93,7 +103,7 @@ const postWorkoutAI = async (userId, workout) => {
   }
 };
 
-const getWorkouts = async (userId, visibility) => {
+const getWorkouts = async (userId, visibility, likes, exercises) => {
   try {
     const workouts = await prisma.workout.findMany({
       where: {
@@ -104,11 +114,6 @@ const getWorkouts = async (userId, visibility) => {
         id: true,
         name: true,
         visibility: true,
-        likes: {
-          select: {
-            userId: true,
-          },
-        },
         user: {
           select: {
             id: true,
@@ -116,22 +121,47 @@ const getWorkouts = async (userId, visibility) => {
             avatar: true,
           },
         },
-        exercises: {
-          select: {
-            id: true,
-            name: true,
-            series: true,
-            repetitions: true,
-            weight: true,
-            restTime: true,
-            videoUrl: true,
-            instructions: true,
+        ...(likes && {
+          likes: {
+            select: {
+              userId: true,
+            },
           },
-        },
+        }),
+        ...(exercises && {
+          exercises: {
+            select: {
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  imageUrl: true,
+                  instructions: true,
+                  muscleGroup: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                  repetitions: true,
+                  restTime: true,
+                  series: true,
+                  videoUrl: true,
+                  weight: true,
+                },
+              },
+            },
+          },
+        }),
       },
     });
 
-    return workouts;
+    return workouts.map((workout) => ({
+      ...workout,
+      exercises: exercises
+        ? workout.exercises.map((e) => e.exercise)
+        : undefined,
+    }));
   } catch (error) {
     logError(error);
   }
@@ -161,20 +191,34 @@ const getWorkoutByID = async (workoutId) => {
         },
         exercises: {
           select: {
-            id: true,
-            name: true,
-            series: true,
-            repetitions: true,
-            weight: true,
-            restTime: true,
-            videoUrl: true,
-            instructions: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                imageUrl: true,
+                instructions: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+                repetitions: true,
+                restTime: true,
+                series: true,
+                videoUrl: true,
+                weight: true,
+              },
+            },
           },
         },
       },
     });
 
-    return workout;
+    return {
+      ...workout,
+      exercises: workout.exercises.map((e) => e.exercise),
+    };
   } catch (error) {
     logError(error);
   }
@@ -239,11 +283,27 @@ const getExerciseByID = async (exerciseId) => {
   }
 };
 
-const deleteExercise = async (exerciseId) => {
+const getWorkoutExerciseByID = async (idWorkout, idExercise) => {
   try {
-    await prisma.exercise.delete({
+    const exercise = await prisma.workoutExercises.findFirst({
       where: {
-        id: exerciseId,
+        exerciseId: idExercise,
+        workoutId: idWorkout,
+      },
+    });
+
+    return exercise;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const deleteWorkoutExercise = async (idWorkout, idExercise) => {
+  try {
+    await prisma.workoutExercises.deleteMany({
+      where: {
+        workoutId: idWorkout,
+        exerciseId: idExercise,
       },
     });
 
@@ -741,11 +801,42 @@ const deleteWorkoutSession = async (sessionId) => {
   }
 };
 
-const getWorkoutHistory = async (userId) => {
+const getWorkoutHistory = async (
+  userId,
+  name,
+  order = "desc",
+  period = "all",
+  status = "all"
+) => {
   try {
+    let dateFilter = {};
+    const now = new Date();
+
+    if (period === "last_month") {
+      dateFilter.startedAt = { gte: startOfMonth(subMonths(now, 1)) };
+    } else if (period === "last_3_months") {
+      dateFilter.startedAt = { gte: startOfMonth(subMonths(now, 3)) };
+    } else if (period === "last_year") {
+      dateFilter.startedAt = { gte: startOfMonth(subYears(now, 1)) };
+    }
+
+    let statusFilter = {};
+    if (status === "completed") {
+      statusFilter.endedAt = { not: null };
+    } else if (status === "in_progress") {
+      statusFilter.endedAt = null;
+    }
+
     const workoutHistory = await prisma.workoutSession.findMany({
       where: {
         userId: userId,
+        workout: {
+          name: {
+            contains: name || "",
+          },
+        },
+        ...dateFilter,
+        ...statusFilter,
       },
       select: {
         id: true,
@@ -776,13 +867,14 @@ const getWorkoutHistory = async (userId) => {
         },
       },
       orderBy: {
-        endedAt: "desc",
+        endedAt: order === "asc" ? "asc" : "desc",
       },
     });
 
     return workoutHistory;
   } catch (error) {
     logError(error);
+    throw new Error("Erro ao buscar o histórico de treinos");
   }
 };
 
@@ -792,7 +884,10 @@ const getWorkoutMonthAmmount = async (userId) => {
       where: {
         userId: userId,
         startedAt: {
-          gte: new Date(new Date().setDate(1)),
+          gte: setSeconds(
+            setMinutes(setHours(startOfMonth(new Date()), 0), 0),
+            0
+          ),
         },
       },
     });
@@ -833,8 +928,9 @@ export default {
   getWorkoutLikedByUser,
   postUnlikeWorkout,
   getExerciseByID,
-  deleteExercise,
+  deleteWorkoutExercise,
   deleteWorkout,
+  getWorkoutExerciseByID,
   getWorkoutExercises,
   postWorkoutSession,
   patchWorkoutSessionExercise,
