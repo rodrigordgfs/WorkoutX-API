@@ -13,7 +13,7 @@ const app = fastify({
 });
 
 app.register(cors, {
-  origin: "*"
+  origin: ["https://www.workoutx.site", "http://localhost:5173"],
 });
 
 app.register(clerkPlugin, {
