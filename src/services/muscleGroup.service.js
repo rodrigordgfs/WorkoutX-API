@@ -4,6 +4,10 @@ import AppError from "../utils/error.js";
 import { PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import aws from "../libs/aws.js";
 
+const BUCKET_NAME = "workoutx-bucket";
+const BASE_FOLDER = "muscle-groups/";
+const IMAGE_CONTENT_TYPE = "image/png";
+
 const getMuscleGroup = async () => {
   try {
     return await muscleGroupRepository.getMuscleGroup();
@@ -30,16 +34,13 @@ async function processBase64Image(base64String) {
   try {
     const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
     const imageBuffer = Buffer.from(base64Data, "base64");
-
     const image = await Jimp.read(imageBuffer);
 
-    // Garante que o resize funcione corretamente
     if (typeof image.resize !== "function") {
       throw new Error("A função resize() não está disponível no Jimp.");
     }
 
-    // Redimensiona mantendo a proporção
-    image.resize(800, Jimp.AUTO).quality(80); // Reduz qualidade para 80%
+    image.resize(800, Jimp.AUTO).quality(80);
 
     const pngBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
     return pngBuffer;
@@ -51,10 +52,6 @@ async function processBase64Image(base64String) {
 
 const uploadImageToS3 = async (name, base64Image) => {
   try {
-    const BUCKET_NAME = "workoutx-bucket";
-    const BASE_FOLDER = "muscle-groups/";
-    const IMAGE_CONTENT_TYPE = "image/png";
-
     const image = await processBase64Image(base64Image);
     const fileName = `${BASE_FOLDER}${String(name)
       .replaceAll(" ", "-")
@@ -86,6 +83,22 @@ const uploadImageToS3 = async (name, base64Image) => {
   }
 };
 
+const deleteImageFromS3 = async (imageUrl) => {
+  try {
+    const key = imageUrl.split(".com/")[1];
+
+    if (!key) {
+      throw new Error("Caminho da imagem inválido.");
+    }
+
+    await aws.send(new DeleteObjectCommand({ Bucket: BUCKET_NAME, Key: key }));
+    console.log(`Imagem removida do S3: ${imageUrl}`);
+  } catch (error) {
+    console.error("Erro ao deletar imagem do S3:", error);
+    throw new AppError("Falha ao deletar imagem do S3");
+  }
+};
+
 const postMuscleGroup = async (name, description, image) => {
   try {
     const imageUrl = await uploadImageToS3(name, image);
@@ -100,8 +113,34 @@ const postMuscleGroup = async (name, description, image) => {
   }
 };
 
+const deleteMuscleGroup = async (id) => {
+  try {
+    const muscleGroup = await muscleGroupRepository.getMuscleGroupById(id);
+
+    if (!muscleGroup) {
+      throw new AppError("Grupo Muscular não encontrado");
+    }
+
+    if (muscleGroup.exercises.length > 0) {
+      throw new AppError(
+        "Não é possível deletar um Grupo Muscular com exercícios associados"
+      );
+    }
+
+    if (muscleGroup.imageUrl) {
+      await deleteImageFromS3(muscleGroup.imageUrl);
+    }
+
+    await muscleGroupRepository.deleteMuscleGroup(id);
+    console.log(`Grupo muscular deletado: ${id}`);
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   getMuscleGroup,
   getMuscleGroupById,
   postMuscleGroup,
+  deleteMuscleGroup,
 };

@@ -6,6 +6,7 @@ import {
   setHours,
   setMinutes,
   setSeconds,
+  subYears,
 } from "date-fns";
 
 const logError = (error) => {
@@ -800,11 +801,42 @@ const deleteWorkoutSession = async (sessionId) => {
   }
 };
 
-const getWorkoutHistory = async (userId) => {
+const getWorkoutHistory = async (
+  userId,
+  name,
+  order = "desc",
+  period = "all",
+  status = "all"
+) => {
   try {
+    let dateFilter = {};
+    const now = new Date();
+
+    if (period === "last_month") {
+      dateFilter.startedAt = { gte: startOfMonth(subMonths(now, 1)) };
+    } else if (period === "last_3_months") {
+      dateFilter.startedAt = { gte: startOfMonth(subMonths(now, 3)) };
+    } else if (period === "last_year") {
+      dateFilter.startedAt = { gte: startOfMonth(subYears(now, 1)) };
+    }
+
+    let statusFilter = {};
+    if (status === "completed") {
+      statusFilter.endedAt = { not: null };
+    } else if (status === "in_progress") {
+      statusFilter.endedAt = null;
+    }
+
     const workoutHistory = await prisma.workoutSession.findMany({
       where: {
         userId: userId,
+        workout: {
+          name: {
+            contains: name || "",
+          },
+        },
+        ...dateFilter,
+        ...statusFilter,
       },
       select: {
         id: true,
@@ -835,13 +867,14 @@ const getWorkoutHistory = async (userId) => {
         },
       },
       orderBy: {
-        endedAt: "desc",
+        endedAt: order === "asc" ? "asc" : "desc",
       },
     });
 
     return workoutHistory;
   } catch (error) {
     logError(error);
+    throw new Error("Erro ao buscar o histórico de treinos");
   }
 };
 

@@ -440,7 +440,7 @@ const postCompleteWorkoutSession = async (sessionId) => {
   }
 };
 
-const getWorkoutHistory = async (userId) => {
+const getWorkoutHistory = async (userId, name, order, period, status) => {
   try {
     const user = await authRepository.getUserByID(userId);
 
@@ -448,7 +448,13 @@ const getWorkoutHistory = async (userId) => {
       throw new AppError("Usuário não encontrado", 404);
     }
 
-    const workoutHistory = await workoutRepository.getWorkoutHistory(userId);
+    const workoutHistory = await workoutRepository.getWorkoutHistory(
+      userId,
+      name,
+      order,
+      period,
+      status
+    );
 
     const formattedHistory = workoutHistory.map((session) => {
       const duration =

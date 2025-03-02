@@ -207,12 +207,10 @@ const getWorkouts = async (request, reply) => {
     });
 
     if (!validation.success) {
-      return reply
-        .status(400)
-        .send({
-          error: "Invalid query parameters",
-          details: validation.error.errors,
-        });
+      return reply.status(400).send({
+        error: "Invalid query parameters",
+        details: validation.error.errors,
+      });
     }
 
     const { userId, visibility, likes, exercises } = validation.data;
@@ -488,6 +486,12 @@ const getWorkoutHistory = async (request, reply) => {
   try {
     const schemaQuery = z.object({
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+      name: z.string().optional(),
+      period: z
+        .enum(["last_month", "last_3_months", "last_year", "all"])
+        .optional(),
+      status: z.enum(["completed", "in_progress", "all"]).optional(),
+      order: z.enum(["desc", "asc"]).optional(),
     });
 
     const validation = schemaQuery.safeParse(request.query);
@@ -496,9 +500,15 @@ const getWorkoutHistory = async (request, reply) => {
       throw validation.error;
     }
 
-    const { userId } = validation.data;
+    const { userId, name, order, period, status } = validation.data;
 
-    const workoutHistory = await workoutService.getWorkoutHistory(userId);
+    const workoutHistory = await workoutService.getWorkoutHistory(
+      userId,
+      name,
+      order,
+      period,
+      status
+    );
 
     reply.send(workoutHistory);
   } catch (error) {
