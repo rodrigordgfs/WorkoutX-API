@@ -12,13 +12,13 @@ const app = fastify({
   bodyLimit: 10 * 1024 * 1024,
 });
 
-app.register(cors, {
-  origin: [
-    "http://localhost:3000",
-    "https://workoutx.site",
-  ],
-  credentials: true
-});
+app.register(cors, 
+  {
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }
+);
 
 app.register(clerkPlugin, {
   secretKey: process.env.CLERK_SECRET_KEY,
