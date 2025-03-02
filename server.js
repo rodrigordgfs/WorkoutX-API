@@ -14,6 +14,9 @@ const app = fastify({
 
 app.register(cors, {
   origin: ["https://www.workoutx.site", "http://localhost:5173"],
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 });
 
 app.register(clerkPlugin, {
