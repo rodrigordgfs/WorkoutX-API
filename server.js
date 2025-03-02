@@ -17,6 +17,7 @@ app.register(cors, {
     "http://localhost:3000",
     "https://workoutx.site",
   ],
+  credentials: true
 });
 
 app.register(clerkPlugin, {
