@@ -1,3 +1,4 @@
+import { id } from "date-fns/locale";
 import { prisma } from "../libs/prisma.js";
 import {
   startOfMonth,
@@ -23,6 +24,7 @@ const postWorkout = async (userId, name, visibility, exercises) => {
         visibility,
         exercises: {
           create: exercises.map((exercise) => ({
+            exerciseId: exercise.id,
             name: exercise.name,
             series: exercise.series,
             repetitions: exercise.repetitions,
@@ -41,20 +43,41 @@ const postWorkout = async (userId, name, visibility, exercises) => {
         exercises: {
           select: {
             id: true,
-            name: true,
-            series: true,
-            repetitions: true,
-            weight: true,
             restTime: true,
-            videoUrl: true,
-            imageUrl: true,
-            instructions: true,
+            repetitions: true,
+            series: true,
+            weight: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                imageUrl: true,
+                videoUrl: true,
+                instructions: true
+              },
+            }
           },
         },
       },
     });
 
-    return workout;
+    return {
+      ...workout,
+      exercises: workout.exercises.map((e) => {
+        return {
+          id: e.id,
+          exerciseId: e.exercise.id,
+          name: e.exercise.name,
+          imageUrl: e.exercise.imageUrl,
+          videoUrl: e.exercise.videoUrl,
+          instructions: e.exercise.instructions,
+          restTime: e.restTime,
+          repetitions: e.repetitions,
+          series: e.series,
+          weight: e.weight
+        };
+      }),
+    }
   } catch (error) {
     logError(error);
   }
@@ -953,6 +976,38 @@ const postExercise = async (
   }
 };
 
+const getExercise = async (muscleGroupId, includeMuscleGroup) => {
+  try {
+    const exercises = await prisma.exercise.findMany({
+      where: muscleGroupId ? { muscleGroupId } : {},
+      select: {
+        id: true,
+        name: true,
+        imageUrl: true,
+        instructions: true,
+        repetitions: true,
+        restTime: true,
+        series: true,
+        videoUrl: true,
+        weight: true,
+        muscleGroup: includeMuscleGroup
+          ? {
+              select: {
+                id: true,
+                name: true,
+              },
+            }
+          : false,
+      },
+    });
+
+    return exercises;
+  } catch (error) {
+    logError(error);
+    return [];
+  }
+};
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -982,4 +1037,5 @@ export default {
   getRecentsWorkoutsSessions,
   getVolumeWorkoutExercises,
   postExercise,
+  getExercise,
 };

@@ -20,6 +20,7 @@ const workout = async (fastify) => {
   fastify.get("/workout/dashboard", workoutController.getWorkoutDashboard);
 
   fastify.post("/exercise", workoutController.postExercise); // OK
+  fastify.get("/exercise", workoutController.getExercises); // OK
 };
 
 export default workout;

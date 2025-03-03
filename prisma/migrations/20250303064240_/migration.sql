@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "workout_exercises" ALTER COLUMN "repetitions" DROP DEFAULT,
+ALTER COLUMN "restTime" DROP DEFAULT,
+ALTER COLUMN "series" DROP DEFAULT,
+ALTER COLUMN "weight" DROP DEFAULT;

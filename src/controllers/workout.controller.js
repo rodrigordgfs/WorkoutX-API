@@ -39,11 +39,7 @@ const postWorkout = async (request, reply) => {
       exercises: z
         .array(
           z.object({
-            name: z
-              .string({ required_error: "O nome do exercício é obrigatório" })
-              .min(3, {
-                message: "O nome do exercício deve ter no mínimo 3 caracteres",
-              }),
+            id: z.string({ required_error: "O ID do exercício é obrigatório" }),
             series: z
               .string({ required_error: "O número de séries é obrigatório" })
               .regex(/^\d+$/, {
@@ -55,15 +51,7 @@ const postWorkout = async (request, reply) => {
             weight: z.string({ required_error: "O peso é obrigatório" }),
             restTime: z.string({
               required_error: "O tempo de descanso é obrigatório",
-            }),
-            videoUrl: z
-              .string({ required_error: "A URL do vídeo é obrigatória" })
-              .url({ message: "A URL do vídeo deve ser válida" }),
-            instructions: z
-              .string({ required_error: "As instruções são obrigatórias" })
-              .min(3, {
-                message: "As instruções devem ter pelo menos 3 caracteres",
-              }),
+            })
           })
         )
         .min(1, { message: "A lista de exercícios não pode estar vazia" })
@@ -618,6 +606,35 @@ const postExercise = async (request, reply) => {
   }
 };
 
+const getExercises = async (request, reply) => {
+  try {
+    const schemaQuery = z.object({
+      muscleGroupId: z.string().optional(),
+      muscleGroup: z.boolean().optional(),
+    });
+
+    const validation = schemaQuery.safeParse({
+      ...request.query,
+      muscleGroup: request.query.muscleGroup === "true" || undefined
+    });
+
+    if (!validation.success) {
+      return reply.status(400).send({
+        error: "Invalid query parameters",
+        details: validation.error.errors,
+      });
+    }
+
+    const { muscleGroupId, muscleGroup } = validation.data;
+
+    const exercises = await workoutService.getExercises(muscleGroupId, muscleGroup);
+
+    reply.send(exercises);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   postWorkout,
   getWorkouts,
@@ -635,4 +652,5 @@ export default {
   deleteWorkoutSession,
   getWorkoutDashboard,
   postExercise,
+  getExercises
 };

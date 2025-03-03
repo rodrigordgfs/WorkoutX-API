@@ -770,6 +770,15 @@ const postExercise = async (
   }
 };
 
+const getExercises = (muscleGroupId, muscleGroup) => {
+  try {
+    const exercises = workoutRepository.getExercise(muscleGroupId, muscleGroup);
+    return exercises;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+}
+
 export default {
   postWorkout,
   postWorkoutAI,
@@ -787,4 +796,5 @@ export default {
   deleteWorkoutSession,
   getWorkoutDashboard,
   postExercise,
+  getExercises
 };

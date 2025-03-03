@@ -76,13 +76,17 @@ model WorkoutLikes {
 }
 
 model WorkoutExercises {
-  id         String   @id @default(uuid())
-  workoutId  String
-  exerciseId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  workout    Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  id          String   @id @default(uuid())
+  workoutId   String
+  exerciseId  String
+  series      String
+  repetitions String
+  weight      String
+  restTime    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  workout     Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
   @@map("workout_exercises")
 }
