@@ -1,14 +1,14 @@
 # Use a imagem oficial do Node.js 20
-FROM node:latest
+FROM node:20
 
 # Defina o diretório de trabalho dentro do container
 WORKDIR /app
 
 # Copie apenas os arquivos necessários para instalar dependências
-COPY package*.json prisma ./
+COPY package.json package-lock.json ./
 
 # Instale as dependências de produção
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
 # Copie o restante do código da aplicação
 COPY . .
