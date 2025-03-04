@@ -526,25 +526,27 @@ const postWorkoutSession = async (userId, workoutId, exercises) => {
         id: workoutSession.workout.id,
         name: workoutSession.workout.name,
       },
-      exercises: workoutSession.exercises.map((e) => {
-        return {
-          id: e.id,
-          completed: e.completed,
-          exerciseId: e.WorkoutExercises.exercise.id,
-          name: e.WorkoutExercises.exercise.name,
-          imageUrl: e.WorkoutExercises.exercise.imageUrl,
-          videoUrl: e.WorkoutExercises.exercise.videoUrl,
-          instructions: e.WorkoutExercises.exercise.instructions,
-          muscleGroup: {
-            id: e.WorkoutExercises.exercise.muscleGroup.id,
-            name: e.WorkoutExercises.exercise.muscleGroup.name,
-          },
-          repetitions: e.WorkoutExercises.repetitions,
-          restTime: e.WorkoutExercises.restTime,
-          series: e.WorkoutExercises.series,
-          weight: e.WorkoutExercises.weight,
-        };
-      }),
+      exercises: workoutSession?.exercises
+        ? workoutSession.exercises.map((e) => {
+            return {
+              id: e.id,
+              completed: e.completed,
+              exerciseId: e.WorkoutExercises.exercise.id,
+              name: e.WorkoutExercises.exercise.name,
+              imageUrl: e.WorkoutExercises.exercise.imageUrl,
+              videoUrl: e.WorkoutExercises.exercise.videoUrl,
+              instructions: e.WorkoutExercises.exercise.instructions,
+              muscleGroup: {
+                id: e.WorkoutExercises.exercise.muscleGroup.id,
+                name: e.WorkoutExercises.exercise.muscleGroup.name,
+              },
+              repetitions: e.WorkoutExercises.repetitions,
+              restTime: e.WorkoutExercises.restTime,
+              series: e.WorkoutExercises.series,
+              weight: e.WorkoutExercises.weight,
+            };
+          })
+        : [],
     };
   } catch (error) {
     logError(error);
@@ -652,26 +654,30 @@ const getWorkoutSessions = async (userId) => {
       },
     });
 
-    return sessions.map((session) => ({
-      ...session,
-      exercises: session.exercises.map((e) => ({
-        id: e.id,
-        exerciseId: e.WorkoutExercises.exercise.id,
-        name: e.WorkoutExercises.exercise.name,
-        imageUrl: e.WorkoutExercises.exercise.imageUrl,
-        videoUrl: e.WorkoutExercises.exercise.videoUrl,
-        instructions: e.WorkoutExercises.exercise.instructions,
-        muscleGroup: {
-          id: e.WorkoutExercises.exercise.muscleGroup.id,
-          name: e.WorkoutExercises.exercise.muscleGroup.name,
-        },
-        completed: e.completed,
-        repetitions: e.repetitions,
-        restTime: e.restTime,
-        series: e.series,
-        weight: e.weight,
-      })),
-    }));
+    return session
+      ? sessions.map((session) => ({
+          ...session,
+          exercises: session?.exercises
+            ? session.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                completed: e.completed,
+                repetitions: e.repetitions,
+                restTime: e.restTime,
+                series: e.series,
+                weight: e.weight,
+              }))
+            : [],
+        }))
+      : [];
   } catch (error) {
     logError(error);
   }
@@ -768,26 +774,30 @@ const getWorkoutSessionByID = async (sessionId) => {
       },
     });
 
-    return {
-      ...session,
-      exercises: session.exercises.map((e) => ({
-        id: e.id,
-        exerciseId: e.WorkoutExercises.exercise.id,
-        name: e.WorkoutExercises.exercise.name,
-        imageUrl: e.WorkoutExercises.exercise.imageUrl,
-        videoUrl: e.WorkoutExercises.exercise.videoUrl,
-        instructions: e.WorkoutExercises.exercise.instructions,
-        muscleGroup: {
-          id: e.WorkoutExercises.exercise.muscleGroup.id,
-          name: e.WorkoutExercises.exercise.muscleGroup.name,
-        },
-        completed: e.completed,
-        repetitions: e.repetitions,
-        restTime: e.restTime,
-        series: e.series,
-        weight: e.weight,
-      })),
-    };
+    return session
+      ? {
+          ...session,
+          exercises: session?.exercises
+            ? session.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                completed: e.completed,
+                repetitions: e.repetitions,
+                restTime: e.restTime,
+                series: e.series,
+                weight: e.weight,
+              }))
+            : [],
+        }
+      : null;
   } catch (error) {
     logError(error);
   }
@@ -885,26 +895,30 @@ const patchWorkoutSessionExercise = async (
       },
     });
 
-    return {
-      ...workoutSession,
-      exercises: workoutSession.exercises.map((e) => ({
-        id: e.id,
-        exerciseId: e.WorkoutExercises.exercise.id,
-        name: e.WorkoutExercises.exercise.name,
-        imageUrl: e.WorkoutExercises.exercise.imageUrl,
-        videoUrl: e.WorkoutExercises.exercise.videoUrl,
-        instructions: e.WorkoutExercises.exercise.instructions,
-        muscleGroup: {
-          id: e.WorkoutExercises.exercise.muscleGroup.id,
-          name: e.WorkoutExercises.exercise.muscleGroup.name,
-        },
-        completed: e.completed,
-        repetitions: e.WorkoutExercises.repetitions,
-        restTime: e.WorkoutExercises.restTime,
-        series: e.WorkoutExercises.series,
-        weight: e.WorkoutExercises.weight,
-      })),
-    };
+    return workoutSession
+      ? {
+          ...workoutSession,
+          exercises: workoutSession?.exercises
+            ? workoutSession.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                completed: e.completed,
+                repetitions: e.WorkoutExercises.repetitions,
+                restTime: e.WorkoutExercises.restTime,
+                series: e.WorkoutExercises.series,
+                weight: e.WorkoutExercises.weight,
+              }))
+            : [],
+        }
+      : null;
   } catch (error) {
     logError(error);
   }
@@ -967,26 +981,30 @@ const getWorkoutSessionByWorkoutID = async (workoutId) => {
       },
     });
 
-    return {
-      ...session,
-      exercises: session.exercises.map((e) => ({
-        id: e.id,
-        exerciseId: e.WorkoutExercises.exercise.id,
-        name: e.WorkoutExercises.exercise.name,
-        imageUrl: e.WorkoutExercises.exercise.imageUrl,
-        videoUrl: e.WorkoutExercises.exercise.videoUrl,
-        instructions: e.WorkoutExercises.exercise.instructions,
-        muscleGroup: {
-          id: e.WorkoutExercises.exercise.muscleGroup.id,
-          name: e.WorkoutExercises.exercise.muscleGroup.name,
-        },
-        completed: e.completed,
-        repetitions: e.WorkoutExercises.repetitions,
-        restTime: e.WorkoutExercises.restTime,
-        series: e.WorkoutExercises.series,
-        weight: e.WorkoutExercises.weight,
-      })),
-    };
+    return session
+      ? {
+          ...session,
+          exercises: session?.exercises
+            ? session.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                completed: e.completed,
+                repetitions: e.WorkoutExercises.repetitions,
+                restTime: e.WorkoutExercises.restTime,
+                series: e.WorkoutExercises.series,
+                weight: e.WorkoutExercises.weight,
+              }))
+            : [],
+        }
+      : null;
   } catch (error) {
     logError(error);
   }
@@ -1057,26 +1075,30 @@ const postCompleteWorkoutSession = async (sessionId) => {
       },
     });
 
-    return {
-      ...workoutSession,
-      exercises: workoutSession.exercises.map((e) => ({
-        id: e.id,
-        exerciseId: e.WorkoutExercises.exercise.id,
-        name: e.WorkoutExercises.exercise.name,
-        imageUrl: e.WorkoutExercises.exercise.imageUrl,
-        videoUrl: e.WorkoutExercises.exercise.videoUrl,
-        instructions: e.WorkoutExercises.exercise.instructions,
-        muscleGroup: {
-          id: e.WorkoutExercises.exercise.muscleGroup.id,
-          name: e.WorkoutExercises.exercise.muscleGroup.name,
-        },
-        completed: e.completed,
-        repetitions: e.WorkoutExercises.repetitions,
-        restTime: e.WorkoutExercises.restTime,
-        series: e.WorkoutExercises.series,
-        weight: e.WorkoutExercises.weight,
-      })),
-    };
+    return workoutSession
+      ? {
+          ...workoutSession,
+          exercises: workoutSession?.exercises
+            ? workoutSession.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                completed: e.completed,
+                repetitions: e.WorkoutExercises.repetitions,
+                restTime: e.WorkoutExercises.restTime,
+                series: e.WorkoutExercises.series,
+                weight: e.WorkoutExercises.weight,
+              }))
+            : [],
+        }
+      : null;
   } catch (error) {
     logError(error);
   }
@@ -1181,26 +1203,30 @@ const getWorkoutHistory = async (
       },
     });
 
-    return workoutSession.map((session) => ({
-      ...session,
-      exercises: session.exercises.map((e) => ({
-        id: e.id,
-        exerciseId: e.WorkoutExercises.exercise.id,
-        name: e.WorkoutExercises.exercise.name,
-        imageUrl: e.WorkoutExercises.exercise.imageUrl,
-        videoUrl: e.WorkoutExercises.exercise.videoUrl,
-        instructions: e.WorkoutExercises.exercise.instructions,
-        muscleGroup: {
-          id: e.WorkoutExercises.exercise.muscleGroup.id,
-          name: e.WorkoutExercises.exercise.muscleGroup.name,
-        },
-        completed: e.completed,
-        repetitions: e.WorkoutExercises.repetitions,
-        restTime: e.WorkoutExercises.restTime,
-        series: e.WorkoutExercises.series,
-        weight: e.WorkoutExercises.weight,
-      })),
-    }));
+    return workoutSession
+      ? workoutSession.map((session) => ({
+          ...session,
+          exercises: session?.exercises
+            ? session.exercises.map((e) => ({
+                id: e.id,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                completed: e.completed,
+                repetitions: e.WorkoutExercises.repetitions,
+                restTime: e.WorkoutExercises.restTime,
+                series: e.WorkoutExercises.series,
+                weight: e.WorkoutExercises.weight,
+              }))
+            : [],
+        }))
+      : [];
   } catch (error) {
     logError(error);
     throw new Error("Erro ao buscar o histórico de treinos");
