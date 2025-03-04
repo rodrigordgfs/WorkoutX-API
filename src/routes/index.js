@@ -7,7 +7,7 @@ const routes = async (fastify) => {
   if (process.env.ENV !== "development") {
     fastify.addHook("preHandler", clerkAuth);
   }
-  app.addHook("onRequest", async (request, reply) => {
+  fastify.addHook("onRequest", async (request, reply) => {
     reply.header("Access-Control-Allow-Origin", "*");
     reply.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     reply.header("Access-Control-Allow-Headers", "*");
