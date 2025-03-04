@@ -10,7 +10,8 @@
     "dev": "nodemon src/server.js",
     "seed": "npx prisma migrate reset --force && node prisma/seed.js",
     "new-route": "node newRoute.js",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "build": "npm install --omit=dev && npx prisma generate && npm run build-app"
   },
   "keywords": [],
   "author": "",
