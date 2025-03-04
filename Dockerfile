@@ -1,20 +1,26 @@
-# Use uma imagem oficial do Node.js
-FROM node:18
+# Use a imagem oficial do Node.js 20
+FROM node:latest
 
 # Defina o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copie o package.json e o package-lock.json
-COPY package*.json ./
+# Copie apenas os arquivos necessários para instalar dependências
+COPY package*.json prisma ./
 
-# Instale as dependências
-RUN npm install
+# Instale as dependências de produção
+RUN npm ci --omit=dev
 
 # Copie o restante do código da aplicação
 COPY . .
 
+# Gerar os clientes do Prisma
+RUN npx prisma generate
+
+# Gere o build da aplicação (caso use TypeScript ou bundlers)
+RUN npm run build
+
 # Exponha a porta que a API usa
 EXPOSE 3000
 
-# Comando para rodar a aplicação
-CMD ["npm", "start"]
+# Comando para rodar as migrações e iniciar o servidor
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
