@@ -101,33 +101,12 @@ const postWorkoutAI = async (userId, workout) => {
         name: String(workout.name),
         exercises: {
           create: workout.exercises.map((exercise) => ({
-            name: String(exercise.name),
+            exerciseId: exercise.exerciseId,
             series: String(exercise.series),
             repetitions: String(exercise.repetitions),
             weight: String(exercise.weight),
             restTime: String(exercise.restTime),
-            videoUrl: String(exercise.videoUrl),
-            instructions: String(exercise.instructions),
           })),
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        visibility: true,
-        userId: true,
-        exercises: {
-          select: {
-            id: true,
-            name: true,
-            series: true,
-            repetitions: true,
-            weight: true,
-            restTime: true,
-            videoUrl: true,
-            imageUrl: true,
-            instructions: true,
-          },
         },
       },
     });

@@ -30,7 +30,7 @@ const postWorkout = async (userId, name, visibility, exercises) => {
   }
 };
 
-const generatePrompt = (
+const generatePrompt = async (
   objective,
   muscleGroup,
   trainingTime,
@@ -45,6 +45,8 @@ const generatePrompt = (
   nutrition,
   sleepQuality
 ) => {
+  const exercises = await workoutRepository.getExercise();
+
   const formattedEquipments = Array.isArray(equipments)
     ? equipments.join(", ")
     : "Nenhum";
@@ -66,63 +68,36 @@ const generatePrompt = (
     - Estilo de treino preferido: ${preferredTrainingStyle}
     - Nutrição: ${nutrition}
     - Qualidade do sono: ${sleepQuality}
+
+    **Exercícios disponíveis:**
+    Os treinos devem ser compostos por exercícios que trabalhem o grupo muscular ${muscleGroup}. Abaixo, a lista de exercícios disponíveis:
+    ${exercises
+      .map((exercise) => `ID ${exercise.id} | Nome - ${exercise.name}`)
+      .join(" --- ")}
   
     **Geração do treino:**
-    - Crie um nome para o treino, adequado ao objetivo e perfil do usuário.
-    - Inclua pelo menos 8 exercícios no treino.
-    - Para cada exercício, forneça:
-      - Nome do exercício
-      - Instruções detalhadas (em texto)
-      - Peso sugerido (se aplicável)
-      - Número de repetições
-      - Número de séries
-      - Tempo de descanso entre séries (em segundos, ex: 90)
-      - Link para vídeo demonstrativo (se disponível)
-  
-    **Formato esperado da resposta (JSON):**
+    Retorne uma lista com os IDs dos exercícios que compõem o treino, juntamente com o número de séries, repetições, peso (Em kilos ou Corporal) e o tempo de descanso para cada exercício.
+
+    **Quantidade de exercícios por treino**
+    Deve conter no minimo 8 exercícios.
+
+    **Formato do retorno**
+    Retorne direto o JSON com os exercícios, sem perguntar nada ao usuário ou textos.
+    O JSON deve seguir o seguinte formato:
     [
       {
-        "id": "", // deixar o id vazio ("") para que seja gerado automaticamente
-        "name": "Nome do treino",
-        "exercises": [
-          {
-            "id": "", // deixar o id vazio ("") para que seja gerado automaticamente
-            "name": "Nome do exercício",
-            "instructions": "Descrição detalhada",
-            "weight": "Peso recomendado",
-            "repetitions": "Número de repetições", // deve ser um numero inteiro
-            "series": "Número de séries",
-            "restTime": "Tempo de descanso em segundos", // deve ser um numero inteiro em segundos
-            "videoUrl": "URL do vídeo demonstrativo"
-          },
-          ...
-        ]
-      }
+        "id": "ID do exercício",
+        "series": "Número de séries (Número inteiro)",
+        "repetitions": "Número de repetições (Número inteiro)",
+        "weight": "Peso (Em kilos ou Corporal)",
+        "restTime": "Tempo de descanso (Em segundos)"
+        "name": "Nome do exercício"
+      },
+      ...
     ]
   `;
 
   return prompt;
-};
-
-const buscaVideoYoutube = async (exerciseName) => {
-  try {
-    const response = await axios.get(process.env.YOUTUBE_BASE_URL, {
-      params: {
-        part: "snippet",
-        q: `Como fazer o exercício ${exerciseName} - academia`,
-        maxResults: 1,
-        key: process.env.YOUTUBE_API_KEY,
-        type: "video",
-        videDuration: "medium",
-      },
-    });
-
-    const video = response.data.items[0];
-    return video ? `https://www.youtube.com/watch?v=${video.id.videoId}` : "";
-  } catch (error) {
-    console.error(`Erro ao buscar vídeo para ${exerciseName}:`, error);
-    return null;
-  }
 };
 
 const postWorkoutAI = async (
@@ -142,7 +117,7 @@ const postWorkoutAI = async (
   sleepQuality
 ) => {
   try {
-    const prompt = generatePrompt(
+    const prompt = await generatePrompt(
       objective,
       muscleGroup,
       trainingTime,
@@ -164,7 +139,7 @@ const postWorkoutAI = async (
         {
           role: "system",
           content:
-            "Você é um personal trainer especializado em treinos personalizados. Gere um treino para o cliente com base nas informações fornecidas. Os textos devem ser em portugues do Brasil.",
+            "Você é um personal trainer especializado em treinos personalizados. Gere um treino para o cliente com base nas informações fornecidas. Retorne estritamente um JSON válido, sem explicações ou formatação extra.",
         },
         {
           role: "user",
@@ -173,22 +148,22 @@ const postWorkoutAI = async (
       ],
     });
 
-    let workout = JSON.parse(response.choices[0].message.content);
+    const content = response.choices[0].message.content;
 
-    const keys = Object.keys(workout);
-    if (keys.length === 1) {
-      workout = workout[keys[0]][0];
-    }
+    const normalizedContent = content.normalize("NFC");
 
-    workout.id = uuidv4();
-    workout.userId = userId;
+    let exercises = JSON.parse(normalizedContent);
 
-    const exercises = workout.exercises;
-
-    for (const exercise of exercises) {
-      exercise.id = uuidv4();
-      exercise.videoUrl = await buscaVideoYoutube(exercise.name);
-    }
+    const workout = {
+      name: `Treino Personalizado de ${muscleGroup} - IA`,
+      exercises: exercises.map((exercise) => ({
+        exerciseId: exercise.id,
+        series: exercise.series,
+        repetitions: exercise.repetitions,
+        weight: exercise.weight,
+        restTime: exercise.restTime,
+      })),
+    };
 
     await workoutRepository.postWorkoutAI(userId, workout);
 
