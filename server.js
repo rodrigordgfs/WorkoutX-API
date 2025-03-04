@@ -30,8 +30,8 @@ app.register(routes);
 
 app
   .listen({
-    port: environment.port,
-    host: process.env.host,
+    port: environment.port || 3000,
+    host: '0.0.0.0'
   })
   .then(() => {
     console.log(`Server is running on port ${environment.port}`);
