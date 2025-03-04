@@ -76,37 +76,37 @@ model WorkoutLikes {
 }
 
 model WorkoutExercises {
-  id          String   @id @default(uuid())
-  workoutId   String
-  exerciseId  String
-  series      String
-  repetitions String
-  weight      String
-  restTime    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  workout     Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercise    Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  id                      String                   @id @default(uuid())
+  workoutId               String
+  exerciseId              String
+  series                  String
+  repetitions             String
+  weight                  String
+  restTime                String
+  workoutSessionExercises WorkoutSessionExercise[]
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  workout                 Workout                  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise                Exercise                 @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
   @@map("workout_exercises")
 }
 
 model Exercise {
-  id                     String                   @id @default(uuid())
-  muscleGroupId          String
-  name                   String
-  series                 String
-  repetitions            String
-  weight                 String
-  restTime               String
-  imageUrl               String
-  videoUrl               String
-  instructions           String
-  WorkoutSessionExercise WorkoutSessionExercise[]
-  WorkoutExercises       WorkoutExercises[]
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
-  muscleGroup            MuscleGroup              @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
+  id               String             @id @default(uuid())
+  muscleGroupId    String
+  name             String
+  series           String
+  repetitions      String
+  weight           String
+  restTime         String
+  imageUrl         String
+  videoUrl         String
+  instructions     String
+  WorkoutExercises WorkoutExercises[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  muscleGroup      MuscleGroup        @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade)
 
   @@map("exercises")
 }
@@ -144,18 +144,14 @@ model WorkoutSession {
 }
 
 model WorkoutSessionExercise {
-  id               String         @id @default(uuid())
-  workoutSessionId String
-  exerciseId       String
-  series           String
-  repetitions      String
-  weight           String
-  restTime         String
-  completed        Boolean        @default(false)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  workoutSession   WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
-  exercise         Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  id                 String            @id @default(uuid())
+  workoutSessionId   String
+  workoutExercisesId String?
+  completed          Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  workoutSession     WorkoutSession    @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  WorkoutExercises   WorkoutExercises? @relation(fields: [workoutExercisesId], references: [id])
 
   @@map("workout_session_exercises")
 }

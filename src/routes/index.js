@@ -4,7 +4,9 @@ import muscleGroup from "./muscleGroup.route.js";
 import workout from "./workout.route.js";
 
 const routes = async (fastify) => {
-  fastify.addHook("preHandler", clerkAuth);
+  if (process.env.ENV !== "development") {
+    fastify.addHook("preHandler", clerkAuth);
+  }
   fastify.register(workout);
   fastify.register(auth);
   fastify.register(muscleGroup);

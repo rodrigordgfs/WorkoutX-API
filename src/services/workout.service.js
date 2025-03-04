@@ -489,7 +489,7 @@ const getWorkoutHistory = async (userId, name, order, period, status) => {
         },
         exercises: session.exercises.map((ex) => ({
           id: ex.id,
-          name: ex.exercise.name,
+          name: ex.name,
           series: ex.series,
           repetitions: ex.repetitions,
           weight: ex.weight,
@@ -777,7 +777,7 @@ const getExercises = (muscleGroupId, muscleGroup) => {
   } catch (error) {
     throw new AppError(error.message);
   }
-}
+};
 
 export default {
   postWorkout,
@@ -796,5 +796,5 @@ export default {
   deleteWorkoutSession,
   getWorkoutDashboard,
   postExercise,
-  getExercises
+  getExercises,
 };
