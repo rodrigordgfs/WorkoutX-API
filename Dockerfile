@@ -3,8 +3,8 @@ FROM node:20
 WORKDIR /app
 
 # Copia os arquivos necessários para instalar dependências
-COPY package.json ./
-COPY prisma ./
+COPY package.json ./  
+COPY prisma ./  
 
 # Instala apenas as dependências de produção (sem devDependencies)
 RUN npm install --legacy-peer-deps --omit=dev
@@ -14,9 +14,6 @@ COPY . .
 
 # Gera os clientes do Prisma
 RUN npx prisma generate
-
-# Constrói a aplicação (caso use TypeScript ou bundlers)
-RUN npm run build
 
 # Expõe a porta usada pela API
 EXPOSE 3000
