@@ -3,7 +3,7 @@ FROM node:20
 WORKDIR /app
 
 # Copia os arquivos necessários para instalar dependências
-COPY package.json package-lock.json ./
+COPY package.json ./
 COPY prisma ./
 
 # Instala apenas as dependências de produção (sem devDependencies)
