@@ -654,7 +654,7 @@ const getWorkoutSessions = async (userId) => {
       },
     });
 
-    return session
+    return sessions
       ? sessions.map((session) => ({
           ...session,
           exercises: session?.exercises
