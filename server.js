@@ -13,7 +13,7 @@ const app = fastify({
 });
 
 app.register(cors, {
-  origin: ["https://www.workoutx.site", "http://localhost:5173", "http://192.168.8.4:5173"],
+  origin: "*",
   methods: "*",
   allowedHeaders: "*",
   credentials: true,
