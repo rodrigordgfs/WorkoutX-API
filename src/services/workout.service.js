@@ -11,6 +11,7 @@ import {
   differenceInMinutes,
   startOfWeek,
   endOfWeek,
+  format,
 } from "date-fns";
 import { Visibility } from "@prisma/client";
 import { uploadImageToS3 } from "../utils/uploadImageToS3.js";
@@ -527,12 +528,12 @@ const getAllWorkoutSessionExercises = async (userId) => {
     }
 
     const exerciseCount = exercises.reduce((acc, sessionExercise) => {
-      const exerciseId = sessionExercise.exercise.id;
+      const exerciseId = sessionExercise.exerciseId;
       if (acc[exerciseId]) {
         acc[exerciseId].count += 1;
       } else {
         acc[exerciseId] = {
-          exercise: sessionExercise.exercise,
+          exercise: sessionExercise,
           count: 1,
         };
       }
@@ -659,32 +660,37 @@ const getRecentActivities = async (userId) => {
 };
 
 const getVolumeWorkoutExercises = async (userId) => {
-  const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
+  try {
+    const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
+    const endDate = endOfWeek(new Date(), { weekStartsOn: 1 });
 
-  const workoutSession = await workoutRepository.getVolumeWorkoutExercises(
-    userId,
-    startDate,
-    endDate
-  );
+    const workoutSession = await workoutRepository.getVolumeWorkoutExercises(
+      userId,
+      startDate,
+      endDate
+    );
 
-  const volumeByDay = {};
+    const volumeByDay = {};
 
-  workoutSession.forEach((session) => {
-    const sessionDate = session.startedAt.toISOString().split("T")[0];
-    if (!volumeByDay[sessionDate]) {
-      volumeByDay[sessionDate] = 0;
-    }
+    workoutSession.forEach((session) => {
+      const sessionDate = format(session.startedAt, "yyyy-MM-dd");
+      if (!volumeByDay[sessionDate]) {
+        volumeByDay[sessionDate] = 0;
+      }
 
-    session.exercises.forEach((exercise) => {
-      const weight = parseFloat(exercise.weight) || 0;
-      const repetitions = parseInt(exercise.repetitions) || 0;
-      const series = parseInt(exercise.series) || 0;
-      volumeByDay[sessionDate] += weight * repetitions * series;
+      session.exercises.forEach((exercise) => {
+        const weight = parseFloat(exercise.weight) || 0;
+        const repetitions = parseInt(exercise.repetitions) || 0;
+        const series = parseInt(exercise.series) || 0;
+        volumeByDay[sessionDate] += weight * repetitions * series;
+      });
     });
-  });
 
-  return volumeByDay;
+    return volumeByDay;
+  } catch (error) {
+    console.log(error);
+    throw new AppError(error.message);
+  }
 };
 
 const getWorkoutDashboard = async (userId) => {

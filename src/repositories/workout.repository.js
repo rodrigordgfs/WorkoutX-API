@@ -1,4 +1,3 @@
-import { id } from "date-fns/locale";
 import { prisma } from "../libs/prisma.js";
 import {
   startOfMonth,
@@ -420,7 +419,7 @@ const getWorkoutExercises = async (workoutId) => {
 
 const getVolumeWorkoutExercises = async (userId, startDate, endDate) => {
   try {
-    const exercises = await prisma.workoutSession.findMany({
+    const workoutSession = await prisma.workoutSession.findMany({
       where: {
         userId,
         startedAt: {
@@ -428,16 +427,70 @@ const getVolumeWorkoutExercises = async (userId, startDate, endDate) => {
           lte: endDate,
         },
       },
-      include: {
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
         exercises: {
-          include: {
-            exercise: true,
+          select: {
+            id: true,
+            completed: true,
+            WorkoutExercises: {
+              select: {
+                repetitions: true,
+                series: true,
+                weight: true,
+                restTime: true,
+                exercise: {
+                  select: {
+                    muscleGroup: {
+                      select: {
+                        id: true,
+                        name: true,
+                      },
+                    },
+                    id: true,
+                    imageUrl: true,
+                    instructions: true,
+                    name: true,
+                    videoUrl: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
 
-    return exercises;
+    return workoutSession
+      ? workoutSession.map((session) => {
+          return {
+            id: session.id,
+            startedAt: session.startedAt,
+            endedAt: session.endedAt,
+            exercises: session.exercises.map((e) => {
+              return {
+                id: e.id,
+                completed: e.completed,
+                exerciseId: e.WorkoutExercises.exercise.id,
+                name: e.WorkoutExercises.exercise.name,
+                imageUrl: e.WorkoutExercises.exercise.imageUrl,
+                videoUrl: e.WorkoutExercises.exercise.videoUrl,
+                instructions: e.WorkoutExercises.exercise.instructions,
+                muscleGroup: {
+                  id: e.WorkoutExercises.exercise.muscleGroup.id,
+                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+                },
+                repetitions: e.WorkoutExercises.repetitions,
+                restTime: e.WorkoutExercises.restTime,
+                series: e.WorkoutExercises.series,
+                weight: e.WorkoutExercises.weight,
+              };
+            }),
+          };
+        })
+      : [];
   } catch (error) {
     logError(error);
   }
