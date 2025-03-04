@@ -1,4 +1,5 @@
 import fastify from "fastify";
+import cors from "@fastify/cors";
 import routes from "./src/routes/index.js";
 import { startJobs } from "./src/jobs/index.js";
 import { clerkPlugin } from "@clerk/fastify";
@@ -8,6 +9,13 @@ startJobs();
 const app = fastify({
   pluginTimeout: 60000,
   bodyLimit: 10 * 1024 * 1024,
+});
+
+app.register(cors, {
+  origin: true, // Permite qualquer origem
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Todos os métodos HTTP
+  allowedHeaders: "*", // Permite qualquer header
+  credentials: true, // Permite cookies e headers de autenticação
 });
 
 app.register(clerkPlugin, {
