@@ -1,21 +1,23 @@
 import Jimp from "jimp";
-import { PutObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import sharp from "sharp";
+import {
+  PutObjectCommand,
+  HeadObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import aws from "../libs/aws.js";
 
 async function processBase64Image(base64String) {
   try {
     const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
     const imageBuffer = Buffer.from(base64Data, "base64");
-    const image = await Jimp.read(imageBuffer);
 
-    if (typeof image.resize !== "function") {
-      throw new Error("A função resize() não está disponível no Jimp.");
-    }
+    const convertedBuffer = await sharp(imageBuffer).png().toBuffer();
 
+    const image = await Jimp.read(convertedBuffer);
     image.resize(800, Jimp.AUTO).quality(80);
 
-    const pngBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
-    return pngBuffer;
+    return await image.getBufferAsync(Jimp.MIME_PNG);
   } catch (error) {
     console.error("Erro ao processar imagem:", error);
     throw new Error("Falha ao processar a imagem.");
@@ -55,8 +57,8 @@ export const uploadImageToS3 = async (
 
     return `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
   } catch (error) {
-    console.log(error);
-    throw new Error("Erro ao fazer upload da imagem para o S3");
+    console.error("Erro ao fazer upload da imagem para o S3:", error);
+    throw new Error("Erro ao fazer upload da imagem para o S3.");
   }
 };
 

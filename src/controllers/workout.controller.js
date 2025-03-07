@@ -557,7 +557,7 @@ const postExercise = async (request, reply) => {
           required_error: "A imagem em base64 é obrigatória",
         })
         .regex(
-          /^data:image\/(png|jpeg|jpg);base64,/,
+          /^data:image\/(png|jpeg|jpg|webp);base64,/,
           "Formato de imagem inválido"
         ),
       videoUrl: z
