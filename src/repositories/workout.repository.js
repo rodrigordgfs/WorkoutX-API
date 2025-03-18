@@ -23,7 +23,7 @@ const postWorkout = async (userId, name, visibility, exercises) => {
         visibility,
         exercises: {
           create: exercises.map((exercise) => ({
-            exerciseId: exercise.exerciseId,
+            exerciseId: exercise.id,
             series: exercise.series,
             repetitions: exercise.repetitions,
             weight: exercise.weight,
