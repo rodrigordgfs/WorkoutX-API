@@ -14,7 +14,8 @@ const app = fastify({
 app.register(cors, {
   origin: [
     "http://localhost:3000",  // Permite requisições de localhost:3000
-    "https://www.workoutx.site"    // Permite requisições do domínio workout.site
+    "https://www.workoutx.site",
+    "https://workout-x.vercel.app"    // Permite requisições do domínio workout.site
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Todos os métodos HTTP
   allowedHeaders: "*", // Permite qualquer header
