@@ -14,11 +14,12 @@ const app = fastify({
 app.register(cors, {
   origin: [
     "http://localhost:3000",  // Permite requisições de localhost:3000
-    "https://workout.site"    // Permite requisições do domínio workout.site
+    "https://www.workoutx.site"    // Permite requisições do domínio workout.site
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Todos os métodos HTTP
   allowedHeaders: "*", // Permite qualquer header
   credentials: true, // Permite cookies e headers de autenticação
+  preflight: true, // Garante que as preflight requests sejam permitidas
 });
 
 app.register(clerkPlugin, {
