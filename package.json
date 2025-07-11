@@ -18,14 +18,14 @@
   "description": "",
   "devDependencies": {
     "nodemon": "^3.1.9",
-    "prisma": "^6.4.1"
+    "prisma": "^6.11.1"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
     "@clerk/fastify": "^2.1.23",
     "@fastify/caching": "^9.0.3",
     "@fastify/cors": "^11.0.0",
-    "@prisma/client": "^6.4.1",
+    "@prisma/client": "^6.11.1",
     "add": "^2.0.6",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",

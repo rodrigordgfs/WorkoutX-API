@@ -12,10 +12,7 @@ const app = fastify({
 });
 
 app.register(cors, {
-  origin: true, // Permite qualquer origem
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], // Todos os métodos HTTP
-  allowedHeaders: "*", // Permite qualquer header
-  credentials: true, // Permite cookies e headers de autenticação
+  origin: "*"
 });
 
 app.register(clerkPlugin, {
