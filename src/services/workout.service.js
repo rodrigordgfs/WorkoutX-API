@@ -727,12 +727,12 @@ const postExercise = async (
       throw new AppError("Grupo muscular não encontrado", 404);
     }
 
-    const imageUrl = await uploadImageToS3(
-      name,
-      image,
-      "workoutx-bucket",
-      "exercises/"
-    );
+    // const imageUrl = await uploadImageToS3(
+    //   name,
+    //   image,
+    //   "workoutx-bucket",
+    //   "exercises/"
+    // );
 
     const exercise = await workoutRepository.postExercise(
       name,
@@ -742,7 +742,7 @@ const postExercise = async (
       weight,
       restTime,
       videoUrl,
-      imageUrl,
+      image,
       instructions
     );
     return exercise;

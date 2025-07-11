@@ -29,17 +29,17 @@ const getMuscleGroupById = async (id) => {
 
 const postMuscleGroup = async (name, description, image) => {
   try {
-    const imageUrl = await uploadImageToS3(
-      name,
-      image,
-      "workoutx-bucket",
-      "muscle-groups/"
-    );
+    // const imageUrl = await uploadImageToS3(
+    //   name,
+    //   image,
+    //   "workoutx-bucket",
+    //   "muscle-groups/"
+    // );
 
     return await muscleGroupRepository.postMuscleGroup(
       name,
       description,
-      imageUrl
+      image
     );
   } catch (error) {
     throw new AppError(error.message);
