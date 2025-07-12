@@ -245,8 +245,11 @@ const copyWorkout = async (id, newUserId) => {
     }
 
     const exercises = workout.exercises.map((exercise) => ({
-      ...exercise,
-      id: uuidv4(),
+      id: exercise.exerciseId,
+      series: exercise.series,
+      repetitions: exercise.repetitions,
+      weight: exercise.weight,
+      restTime: exercise.restTime,
     }));
 
     const copiedWorkout = await workoutRepository.postWorkout(
