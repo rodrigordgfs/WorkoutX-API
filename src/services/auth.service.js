@@ -1,49 +1,20 @@
 import authRepository from "../repositories/auth.repository.js";
 import AppError from "../utils/error.js";
 
-const postAuth = async (userId, name, avatar) => {
+const upsertUser = async (id, name, avatar) => {
   try {
-    const user = await authRepository.getUserByID(userId);
+    const existingUser = await authRepository.getUserByID(id);
 
-    if (user) {
-      return user;
+    if (existingUser) {
+      return await authRepository.updateUser(id, name, avatar);
     }
 
-    return await authRepository.postAuth(userId, name, avatar);
-  } catch (error) {
-    throw new AppError(error.message);
-  }
-};
-
-const patchAuth = async (
-  id,
-  avatar,
-  name,
-  userId,
-  experience,
-  goal,
-  height,
-  publicProfile,
-  weight
-) => {
-  try {
-    return await authRepository.patchAuth(
-      id,
-      avatar,
-      name,
-      userId,
-      experience,
-      goal,
-      height,
-      publicProfile,
-      weight
-    );
+    return await authRepository.createUser(id, name, avatar);
   } catch (error) {
     throw new AppError(error.message);
   }
 };
 
 export default {
-  postAuth,
-  patchAuth,
+  upsertUser,
 };

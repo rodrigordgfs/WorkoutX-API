@@ -38,6 +38,9 @@ const getExercises = async (muscleGroupId, name) => {
         createdAt: true,
         updatedAt: true,
       },
+      orderBy: {
+        name: 'asc',
+      },
     });
   } catch (error) {
     logError(error);

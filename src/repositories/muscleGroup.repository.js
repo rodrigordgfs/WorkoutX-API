@@ -26,9 +26,15 @@ const getMuscleGroup = async (name) => {
             image: true,
             description: true,
           },
+          orderBy: {
+            name: 'asc',
+          },
         },
       },
       where,
+      orderBy: {
+        name: 'asc',
+      },
     });
   } catch (error) {
     logError(error);
@@ -52,6 +58,9 @@ const getMuscleGroupById = async (id) => {
             name: true,
             image: true,
             description: true,
+          },
+          orderBy: {
+            name: 'asc',
           },
         },
       },
@@ -97,6 +106,9 @@ const updateMuscleGroup = async (id, name, description, image) => {
             name: true,
             image: true,
             description: true,
+          },
+          orderBy: {
+            name: 'asc',
           },
         },
       },
