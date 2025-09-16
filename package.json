@@ -4,11 +4,12 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "docker-up": "docker-compose up -d",
-    "docker-down": "docker-compose down -v",
+    "docker-up": "docker compose up -d",
+    "docker-down": "docker compose down -v",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon --exec /home/rodrigo-shinoda/.asdf/shims/node server.js",
     "seed": "npx prisma migrate reset --force && node prisma/seed.js",
+    "import-muscle-groups": "node prisma/import-muscle-groups.js",
     "new-route": "node newRoute.js",
     "migrate": "npx prisma migrate dev"
   },
@@ -18,16 +19,16 @@
   "description": "",
   "devDependencies": {
     "nodemon": "^3.1.9",
-    "prisma": "^6.11.1"
+    "prisma": "^6.16.2"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
     "@clerk/fastify": "^2.1.23",
     "@fastify/caching": "^9.0.3",
     "@fastify/cors": "^11.0.0",
-    "@prisma/client": "^6.11.1",
+    "@prisma/client": "^6.16.2",
     "add": "^2.0.6",
-    "axios": "^1.7.9",
+    "axios": "^1.12.2",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1",

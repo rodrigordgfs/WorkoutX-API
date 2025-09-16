@@ -1,10 +1,11 @@
 import fastify from "fastify";
 import cors from "@fastify/cors";
 import routes from "./src/routes/index.js";
-import { startJobs } from "./src/jobs/index.js";
+import environment from "./src/config/envs.js";
+// import { startJobs } from "./src/jobs/index.js";
 import { clerkPlugin } from "@clerk/fastify";
 
-startJobs();
+// startJobs();
 
 const app = fastify({
   pluginTimeout: 60000,
@@ -12,7 +13,10 @@ const app = fastify({
 });
 
 app.register(cors, {
-  origin: "*"
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true
 });
 
 app.register(clerkPlugin, {
@@ -24,11 +28,11 @@ app.register(routes);
 
 app
   .listen({
-    port: process.env.PORT || 8080,
+    port: environment.port || 3000,
     host: "0.0.0.0",
   })
   .then(() => {
-    console.log(`Server is running on port ${process.env.PORT || 3000}`);
+    console.log(`Server is running on port ${environment.port || 3000}`);
   })
   .catch((err) => {
     console.error("Error starting server:", err);

@@ -1,79 +1,68 @@
 import muscleGroupRepository from "../repositories/muscleGroup.repository.js";
-import AppError from "../utils/error.js";
-import {
-  deleteImageFromS3,
-  uploadImageToS3,
-} from "../utils/uploadImageToS3.js";
 
-const getMuscleGroup = async () => {
+const getMuscleGroup = async (name) => {
   try {
-    return await muscleGroupRepository.getMuscleGroup();
+    return await muscleGroupRepository.getMuscleGroup(name);
   } catch (error) {
-    throw new AppError(error.message);
+    throw new Error(error.message);
   }
 };
 
 const getMuscleGroupById = async (id) => {
   try {
     const muscleGroup = await muscleGroupRepository.getMuscleGroupById(id);
-
     if (!muscleGroup) {
-      throw new AppError("Grupo Muscular não encontrado");
+      throw new Error("Grupo Muscular não encontrado");
     }
-
     return muscleGroup;
   } catch (error) {
-    throw new AppError(error.message);
+    throw new Error(error.message);
   }
 };
 
 const postMuscleGroup = async (name, description, image) => {
   try {
-    // const imageUrl = await uploadImageToS3(
-    //   name,
-    //   image,
-    //   "workoutx-bucket",
-    //   "muscle-groups/"
-    // );
-
-    return await muscleGroupRepository.postMuscleGroup(
-      name,
-      description,
-      image
-    );
+    return await muscleGroupRepository.postMuscleGroup(name, description, image);
   } catch (error) {
-    throw new AppError(error.message);
+    throw new Error(error.message);
+  }
+};
+
+const updateMuscleGroup = async (id, name, description, image) => {
+  try {
+    const muscleGroup = await muscleGroupRepository.updateMuscleGroup(id, name, description, image);
+    if (!muscleGroup) {
+      throw new Error("Grupo Muscular não encontrado");
+    }
+    return muscleGroup;
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
 
 const deleteMuscleGroup = async (id) => {
   try {
     const muscleGroup = await muscleGroupRepository.getMuscleGroupById(id);
-
     if (!muscleGroup) {
-      throw new AppError("Grupo Muscular não encontrado");
+      throw new Error("Grupo Muscular não encontrado");
     }
-
-    if (muscleGroup.exercises.length > 0) {
-      throw new AppError(
-        "Não é possível deletar um Grupo Muscular com exercícios associados"
-      );
+    
+    // Verificar se existem exercícios vinculados
+    const hasExercises = await muscleGroupRepository.checkExercisesLinked(id);
+    if (hasExercises) {
+      throw new Error("Não é possível excluir o grupo muscular pois existem exercícios vinculados a ele");
     }
-
-    if (muscleGroup.imageUrl) {
-      await deleteImageFromS3(muscleGroup.imageUrl, "workoutx-bucket");
-    }
-
+    
     await muscleGroupRepository.deleteMuscleGroup(id);
-    console.log(`Grupo muscular deletado: ${id}`);
   } catch (error) {
-    throw new AppError(error.message);
+    throw new Error(error.message);
   }
 };
 
 export default {
+  postMuscleGroup,
   getMuscleGroup,
   getMuscleGroupById,
-  postMuscleGroup,
+  updateMuscleGroup,
   deleteMuscleGroup,
 };

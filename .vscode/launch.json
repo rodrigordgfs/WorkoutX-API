@@ -10,7 +10,8 @@
         ],
         "envFile": "${workspaceFolder}/.env",
         "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/nodemon",
-        "program": "${workspaceFolder}/src/server.js"
+        "program": "${workspaceFolder}/server.js",
+        "runtimeArgs": ["--exec", "/home/rodrigo-shinoda/.asdf/shims/node"]
       }
     ]
   }

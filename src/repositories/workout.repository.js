@@ -1,56 +1,83 @@
 import { prisma } from "../libs/prisma.js";
-import {
-  startOfMonth,
-  endOfMonth,
-  subMonths,
-  setHours,
-  setMinutes,
-  setSeconds,
-  subYears,
-} from "date-fns";
 
 const logError = (error) => {
   console.error("Database Error:", error);
   throw new Error("An unexpected error occurred. Please try again.");
 };
 
-const postWorkout = async (userId, name, visibility, exercises) => {
+const getUserById = async (userId) => {
   try {
-    const workout = await prisma.workout.create({
-      data: {
-        userId,
-        name,
-        visibility,
-        exercises: {
-          create: exercises.map((exercise) => ({
-            exerciseId: exercise.id,
-            series: exercise.series,
-            repetitions: exercise.repetitions,
-            weight: exercise.weight,
-            restTime: exercise.restTime
-          })),
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getExercisesByIds = async (exerciseIds) => {
+  try {
+    return await prisma.exercise.findMany({
+      where: {
+        id: {
+          in: exerciseIds,
         },
       },
       select: {
         id: true,
         name: true,
-        visibility: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const createWorkout = async (userId, name, privacy, exercises) => {
+  try {
+    return await prisma.workout.create({
+      data: {
+        userId,
+        name,
+        visibility: privacy,
+        WorkoutExercises: {
+          create: exercises.map((exercise) => ({
+            exerciseId: exercise.id,
+            series: exercise.series.toString(),
+            repetitions: exercise.repetitions.toString(),
+            weight: exercise.weight.toString(),
+            restTime: exercise.rest.toString(),
+          })),
+        },
+      },
+      select: {
+        id: true,
         userId: true,
-        exercises: {
+        name: true,
+        visibility: true,
+        createdAt: true,
+        updatedAt: true,
+        WorkoutExercises: {
           select: {
             id: true,
-            exerciseId: true,
-            repetitions: true,
-            restTime: true,
             series: true,
+            repetitions: true,
             weight: true,
+            restTime: true,
             exercise: {
               select: {
                 id: true,
                 name: true,
-                imageUrl: true,
+                image: true,
                 videoUrl: true,
-                instructions: true,
+                description: true,
                 muscleGroup: {
                   select: {
                     id: true,
@@ -63,47 +90,160 @@ const postWorkout = async (userId, name, visibility, exercises) => {
         },
       },
     });
-
-    return {
-      ...workout,
-      exercises: workout.exercises.map((e) => {
-        return {
-          id: e.id,
-          exerciseId: e.exercise.id,
-          name: e.exercise.name,
-          imageUrl: e.exercise.imageUrl,
-          videoUrl: e.exercise.videoUrl,
-          instructions: e.exercise.instructions,
-          restTime: e.restTime,
-          repetitions: e.repetitions,
-          series: e.series,
-          weight: e.weight,
-          muscleGroup: {
-            id: e.exercise.muscleGroup.id,
-            name: e.exercise.muscleGroup.name,
-          },
-        };
-      }),
-    };
   } catch (error) {
     logError(error);
   }
 };
 
-const postWorkoutAI = async (userId, workout) => {
+const getWorkoutsByUserId = async (userId) => {
   try {
-    return await prisma.workout.create({
-      data: {
-        userId,
-        name: String(workout.name),
-        exercises: {
-          create: workout.exercises.map((exercise) => ({
-            exerciseId: exercise.exerciseId,
-            series: String(exercise.series),
-            repetitions: String(exercise.repetitions),
-            weight: String(exercise.weight),
-            restTime: String(exercise.restTime),
-          })),
+    return await prisma.workout.findMany({
+      where: {
+        userId: userId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        name: true,
+        visibility: true,
+        createdAt: true,
+        updatedAt: true,
+        WorkoutExercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                videoUrl: true,
+                description: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            exercise: {
+              name: 'asc',
+            },
+          },
+        },
+        WorkoutSessions: {
+          where: {
+            status: "IN_PROGRESS"
+          },
+          select: {
+            id: true,
+            status: true,
+            startedAt: true,
+            endedAt: true,
+            createdAt: true,
+            updatedAt: true,
+               WorkoutSessionExercises: {
+                 select: {
+                   id: true,
+                   status: true,
+                   series: true,
+                   repetitions: true,
+                   weight: true,
+                   restTime: true,
+                   createdAt: true,
+                   updatedAt: true,
+                   workoutExercise: {
+                  select: {
+                    id: true,
+                    series: true,
+                    repetitions: true,
+                    weight: true,
+                    restTime: true,
+                    exercise: {
+                      select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        videoUrl: true,
+                        description: true,
+                        muscleGroup: {
+                          select: {
+                            id: true,
+                            name: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                workoutExercise: {
+                  exercise: {
+                    name: 'asc',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutById = async (workoutId) => {
+  try {
+    return await prisma.workout.findUnique({
+      where: {
+        id: workoutId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        name: true,
+        visibility: true,
+        createdAt: true,
+        updatedAt: true,
+        WorkoutExercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                videoUrl: true,
+                description: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            exercise: {
+              name: 'asc',
+            },
+          },
         },
       },
     });
@@ -112,47 +252,226 @@ const postWorkoutAI = async (userId, workout) => {
   }
 };
 
-const getWorkouts = async (userId, visibility, likes, exercises) => {
+const getWorkoutSessionInProgressByWorkoutId = async (workoutId) => {
   try {
-    const workouts = await prisma.workout.findMany({
+    return await prisma.workoutSession.findFirst({
       where: {
-        ...(userId ? { userId } : {}),
-        ...(visibility ? { visibility } : {}),
+        workoutId: workoutId,
+        status: "IN_PROGRESS",
+      },
+      select: {
+        id: true,
+        userId: true,
+        workoutId: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        workout: {
+          select: {
+            id: true,
+            userId: true,
+            name: true,
+            visibility: true,
+            createdAt: true,
+            updatedAt: true,
+            WorkoutExercises: {
+              select: {
+                id: true,
+                series: true,
+                repetitions: true,
+                weight: true,
+                restTime: true,
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    videoUrl: true,
+                    description: true,
+                    muscleGroup: {
+                      select: {
+                        id: true,
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                exercise: {
+                  name: 'asc',
+                },
+              },
+            },
+          },
+        },
+               WorkoutSessionExercises: {
+                 select: {
+                   id: true,
+                   status: true,
+                   series: true,
+                   repetitions: true,
+                   weight: true,
+                   restTime: true,
+                   createdAt: true,
+                   updatedAt: true,
+                   workoutExercise: {
+              select: {
+                id: true,
+                series: true,
+                repetitions: true,
+                weight: true,
+                restTime: true,
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    videoUrl: true,
+                    description: true,
+                    muscleGroup: {
+                      select: {
+                        id: true,
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            workoutExercise: {
+              exercise: {
+                name: 'asc',
+              },
+            },
+          },
+        },
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutInProgressByUserId = async (userId) => {
+  try {
+    return await prisma.workout.findFirst({
+      where: {
+        userId: userId,
+        status: "IN_PROGRESS",
       },
       select: {
         id: true,
         name: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+
+const updateWorkoutStatus = async (workoutId, status) => {
+  try {
+    return await prisma.workout.update({
+      where: {
+        id: workoutId,
+      },
+      data: {
+        status: status,
+      },
+      select: {
+        id: true,
+        userId: true,
+        name: true,
         visibility: true,
-        user: {
+        createdAt: true,
+        updatedAt: true,
+        WorkoutExercises: {
           select: {
             id: true,
-            name: true,
-            avatar: true,
-          },
-        },
-        ...(likes && {
-          likes: {
-            select: {
-              userId: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                videoUrl: true,
+                description: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
             },
           },
-        }),
-        ...(exercises && {
-          exercises: {
+          orderBy: {
+            exercise: {
+              name: 'asc',
+            },
+          },
+        },
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const completeWorkout = async (workoutId, workoutStatus) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // Atualizar exercícios não completados para UNCOMPLETED
+      await tx.workoutExercises.updateMany({
+        where: {
+          workoutId: workoutId,
+          status: {
+            not: "COMPLETED",
+          },
+        },
+        data: {
+          status: "UNCOMPLETED",
+        },
+      });
+
+      // Atualizar o treino com o status apropriado (COMPLETED ou UNCOMPLETED)
+      return await tx.workout.update({
+        where: {
+          id: workoutId,
+        },
+        data: {
+          status: workoutStatus,
+        },
+        select: {
+          id: true,
+          userId: true,
+          name: true,
+          visibility: true,
+          createdAt: true,
+          updatedAt: true,
+          WorkoutExercises: {
             select: {
               id: true,
-              exerciseId: true,
-              repetitions: true,
-              restTime: true,
               series: true,
+              repetitions: true,
               weight: true,
+              restTime: true,
               exercise: {
                 select: {
                   id: true,
                   name: true,
-                  imageUrl: true,
+                  image: true,
                   videoUrl: true,
-                  instructions: true,
+                  description: true,
                   muscleGroup: {
                     select: {
                       id: true,
@@ -162,371 +481,237 @@ const getWorkouts = async (userId, visibility, likes, exercises) => {
                 },
               },
             },
-          },
-        }),
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    return workouts.map((workout) => ({
-      ...workout,
-      exercises: exercises
-        ? workout.exercises.map((e) => {
-            return {
-              id: e.id,
-              exerciseId: e.exercise.id,
-              name: e.exercise.name,
-              imageUrl: e.exercise.imageUrl,
-              videoUrl: e.exercise.videoUrl,
-              instructions: e.exercise.instructions,
-              muscleGroup: e.exercise.muscleGroup,
-              repetitions: e.repetitions,
-              restTime: e.restTime,
-              series: e.series,
-              weight: e.weight,
-              muscleGroup: {
-                id: e.exercise.muscleGroup.id,
-                name: e.exercise.muscleGroup.name,
+            orderBy: {
+              exercise: {
+                name: 'asc',
               },
-            };
-          })
-        : undefined,
-    }));
+            },
+          },
+        },
+      });
+    });
   } catch (error) {
     logError(error);
   }
 };
 
-const getWorkoutByID = async (workoutId) => {
+const stopWorkout = async (workoutId) => {
   try {
-    const workout = await prisma.workout.findUnique({
+    return await prisma.$transaction(async (tx) => {
+      // Voltar todos os exercícios para NOT_STARTED
+      await tx.workoutExercises.updateMany({
+        where: {
+          workoutId: workoutId,
+        },
+        data: {
+          status: "NOT_STARTED",
+        },
+      });
+
+      // Voltar o treino para NOT_STARTED
+      return await tx.workout.update({
+        where: {
+          id: workoutId,
+        },
+        data: {
+          status: "NOT_STARTED",
+        },
+        select: {
+          id: true,
+          userId: true,
+          name: true,
+          visibility: true,
+          createdAt: true,
+          updatedAt: true,
+          WorkoutExercises: {
+            select: {
+              id: true,
+              series: true,
+              repetitions: true,
+              weight: true,
+              restTime: true,
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  videoUrl: true,
+                  description: true,
+                  muscleGroup: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+            orderBy: {
+              exercise: {
+                name: 'asc',
+              },
+            },
+          },
+        },
+      });
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+// WorkoutSession functions
+const createWorkoutSession = async (userId, workoutId) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // Criar a sessão do treino
+      const workoutSession = await tx.workoutSession.create({
+        data: {
+          userId,
+          workoutId,
+          status: "IN_PROGRESS",
+        },
+        select: {
+          id: true,
+          userId: true,
+          workoutId: true,
+          status: true,
+          startedAt: true,
+          endedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      // Buscar os exercícios do treino
+      const workoutExercises = await tx.workoutExercises.findMany({
+        where: {
+          workoutId: workoutId,
+        },
+        select: {
+          id: true,
+          series: true,
+          repetitions: true,
+          weight: true,
+          restTime: true,
+        },
+      });
+
+      // Criar os exercícios da sessão
+      await tx.workoutSessionExercises.createMany({
+        data: workoutExercises.map((exercise) => ({
+          workoutSessionId: workoutSession.id,
+          workoutExerciseId: exercise.id,
+          status: "NOT_STARTED",
+          series: exercise.series,
+          repetitions: exercise.repetitions,
+          weight: exercise.weight,
+          restTime: exercise.restTime,
+        })),
+      });
+
+      return workoutSession;
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionInProgressByUserId = async (userId) => {
+  try {
+    return await prisma.workoutSession.findFirst({
       where: {
-        id: workoutId,
+        userId: userId,
+        status: "IN_PROGRESS",
       },
       select: {
         id: true,
-        name: true,
-        visibility: true,
-        likes: {
+        userId: true,
+        workoutId: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionById = async (sessionId) => {
+  try {
+    return await prisma.workoutSession.findUnique({
+      where: {
+        id: sessionId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        workoutId: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        workout: {
           select: {
+            id: true,
             userId: true,
-          },
-        },
-        user: {
-          select: {
-            id: true,
             name: true,
-            avatar: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            exerciseId: true,
-            repetitions: true,
-            restTime: true,
-            series: true,
-            weight: true,
-            exercise: {
-              select: {
-                id: true,
-                name: true,
-                imageUrl: true,
-                videoUrl: true,
-                instructions: true,
-                muscleGroup: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return {
-      ...workout,
-      exercises: workout.exercises.map((e) => {
-        return {
-          id: e.id,
-          exerciseId: e.exercise.id,
-          name: e.exercise.name,
-          imageUrl: e.exercise.imageUrl,
-          videoUrl: e.exercise.videoUrl,
-          instructions: e.exercise.instructions,
-          muscleGroup: e.exercise.muscleGroup,
-          repetitions: e.repetitions,
-          restTime: e.restTime,
-          series: e.series,
-          weight: e.weight,
-          muscleGroup: {
-            id: e.exercise.muscleGroup.id,
-            name: e.exercise.muscleGroup.name,
-          },
-        };
-      }),
-    };
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const postLikeWorkout = async (workoutId, userId) => {
-  try {
-    const like = await prisma.workoutLikes.create({
-      data: {
-        workoutId,
-        userId,
-      },
-    });
-
-    return like;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const postUnlikeWorkout = async (workoutId, userId) => {
-  try {
-    await prisma.workoutLikes.deleteMany({
-      where: {
-        workoutId,
-        userId,
-      },
-    });
-
-    return;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutLikedByUser = async (workoutId, userId) => {
-  try {
-    const like = await prisma.workoutLikes.findFirst({
-      where: {
-        workoutId,
-        userId,
-      },
-    });
-
-    return like;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getExerciseByID = async (exerciseId) => {
-  try {
-    const exercise = await prisma.exercise.findUnique({
-      where: {
-        id: exerciseId,
-      },
-    });
-
-    return exercise;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutExerciseByID = async (idWorkout, idExercise) => {
-  try {
-    const exercise = await prisma.workoutExercises.findFirst({
-      where: {
-        exerciseId: idExercise,
-        workoutId: idWorkout,
-      },
-    });
-
-    return exercise;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const deleteWorkoutExercise = async (idWorkout, idExercise) => {
-  try {
-    await prisma.workoutExercises.deleteMany({
-      where: {
-        workoutId: idWorkout,
-        exerciseId: idExercise,
-      },
-    });
-
-    return;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const deleteWorkout = async (workoutId) => {
-  try {
-    await prisma.workout.delete({
-      where: {
-        id: workoutId,
-      },
-    });
-
-    return;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutExercises = async (workoutId) => {
-  try {
-    const exercises = await prisma.exercise.findMany({
-      where: {
-        workoutId,
-      },
-    });
-
-    return exercises;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getVolumeWorkoutExercises = async (userId, startDate, endDate) => {
-  try {
-    const workoutSession = await prisma.workoutSession.findMany({
-      where: {
-        userId,
-        startedAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
+            visibility: true,
+            createdAt: true,
+            updatedAt: true,
             WorkoutExercises: {
               select: {
-                repetitions: true,
+                id: true,
                 series: true,
+                repetitions: true,
                 weight: true,
                 restTime: true,
                 exercise: {
                   select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    videoUrl: true,
+                    description: true,
                     muscleGroup: {
                       select: {
                         id: true,
                         name: true,
                       },
                     },
-                    id: true,
-                    imageUrl: true,
-                    instructions: true,
-                    name: true,
-                    videoUrl: true,
                   },
+                },
+              },
+              orderBy: {
+                exercise: {
+                  name: 'asc',
                 },
               },
             },
           },
         },
-      },
-    });
-
-    return workoutSession
-      ? workoutSession.map((session) => {
-          return {
-            id: session.id,
-            startedAt: session.startedAt,
-            endedAt: session.endedAt,
-            exercises: session.exercises.map((e) => {
-              return {
-                id: e.id,
-                completed: e.completed,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
-                },
-                repetitions: e.WorkoutExercises.repetitions,
-                restTime: e.WorkoutExercises.restTime,
-                series: e.WorkoutExercises.series,
-                weight: e.WorkoutExercises.weight,
-              };
-            }),
-          };
-        })
-      : [];
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const postWorkoutSession = async (userId, workoutId, exercises) => {
-  try {
-    const newWorkoutSession = await prisma.workoutSession.create({
-      data: {
-        userId,
-        workoutId,
-      },
-    });
-
-    await prisma.workoutSessionExercise.createMany({
-      data: exercises.map((exercise) => ({
-        workoutSessionId: newWorkoutSession.id,
-        workoutExercisesId: exercise.id,
-      })),
-    });
-
-    const workoutSession = await prisma.workoutSession.findUnique({
-      where: {
-        id: newWorkoutSession.id,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        user: {
+        WorkoutSessionExercises: {
           select: {
             id: true,
-            name: true,
-          },
-        },
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
-            WorkoutExercises: {
+            status: true,
+            workoutExercise: {
               select: {
                 id: true,
-                repetitions: true,
                 series: true,
+                repetitions: true,
                 weight: true,
                 restTime: true,
                 exercise: {
                   select: {
                     id: true,
                     name: true,
-                    instructions: true,
+                    image: true,
                     videoUrl: true,
-                    imageUrl: true,
+                    description: true,
                     muscleGroup: {
                       select: {
                         id: true,
@@ -538,596 +723,153 @@ const postWorkoutSession = async (userId, workoutId, exercises) => {
               },
             },
           },
-        },
-      },
-    });
-
-    return {
-      id: workoutSession.id,
-      startedAt: workoutSession.startedAt,
-      endedAt: workoutSession.endedAt,
-      endedByService: workoutSession.endedByService,
-      user: {
-        id: workoutSession.user.id,
-        name: workoutSession.user.name,
-      },
-      workout: {
-        id: workoutSession.workout.id,
-        name: workoutSession.workout.name,
-      },
-      exercises: workoutSession?.exercises
-        ? workoutSession.exercises.map((e) => {
-            return {
-              id: e.id,
-              completed: e.completed,
-              exerciseId: e.WorkoutExercises.exercise.id,
-              name: e.WorkoutExercises.exercise.name,
-              imageUrl: e.WorkoutExercises.exercise.imageUrl,
-              videoUrl: e.WorkoutExercises.exercise.videoUrl,
-              instructions: e.WorkoutExercises.exercise.instructions,
-              muscleGroup: {
-                id: e.WorkoutExercises.exercise.muscleGroup.id,
-                name: e.WorkoutExercises.exercise.muscleGroup.name,
-              },
-              repetitions: e.WorkoutExercises.repetitions,
-              restTime: e.WorkoutExercises.restTime,
-              series: e.WorkoutExercises.series,
-              weight: e.WorkoutExercises.weight,
-            };
-          })
-        : [],
-    };
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getRecentsWorkoutsSessions = async (userId) => {
-  try {
-    const sessions = await prisma.workoutSession.findMany({
-      where: {
-        userId,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: true,
-      },
-      orderBy: {
-        startedAt: "desc",
-      },
-      take: 5,
-    });
-
-    const sessionsWithExerciseCount = sessions.map((session) => {
-      return {
-        id: session.id,
-        startedAt: session.startedAt,
-        endedAt: session.endedAt,
-        endedByService: session.endedByService,
-        workout: session.workout,
-        exerciseCount: session.exercises.length,
-      };
-    });
-
-    return sessionsWithExerciseCount;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutSessions = async (userId) => {
-  try {
-    const sessions = await prisma.workoutSession.findMany({
-      where: {
-        userId,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
-            WorkoutExercises: {
-              select: {
-                id: true,
-                repetitions: true,
-                series: true,
-                weight: true,
-                restTime: true,
-                exercise: {
-                  select: {
-                    id: true,
-                    name: true,
-                    imageUrl: true,
-                    videoUrl: true,
-                    instructions: true,
-                    muscleGroup: {
-                      select: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        startedAt: "asc",
-      },
-    });
-
-    return sessions
-      ? sessions.map((session) => ({
-          ...session,
-          exercises: session?.exercises
-            ? session.exercises.map((e) => ({
-                id: e.id,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
-                },
-                completed: e.completed,
-                repetitions: e.repetitions,
-                restTime: e.restTime,
-                series: e.series,
-                weight: e.weight,
-              }))
-            : [],
-        }))
-      : [];
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutSessionsEnded = async (userId) => {
-  try {
-    const sessions = await prisma.workoutSession.findMany({
-      where: {
-        userId,
-        endedAt: {
-          not: null,
-        },
-      },
-      orderBy: {
-        startedAt: "asc",
-      },
-    });
-
-    return sessions;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutSessionNotCompleted = async (userId) => {
-  try {
-    const session = await prisma.workoutSession.findFirst({
-      where: {
-        userId,
-        endedAt: null,
-      },
-    });
-
-    return session;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutSessionByID = async (sessionId) => {
-  try {
-    const session = await prisma.workoutSession.findUnique({
-      where: {
-        id: sessionId,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
-            WorkoutExercises: {
-              select: {
-                id: true,
-                repetitions: true,
-                series: true,
-                weight: true,
-                restTime: true,
-                exercise: {
-                  select: {
-                    id: true,
-                    name: true,
-                    imageUrl: true,
-                    videoUrl: true,
-                    instructions: true,
-                    muscleGroup: {
-                      select: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
-                },
+          orderBy: {
+            workoutExercise: {
+              exercise: {
+                name: 'asc',
               },
             },
           },
         },
       },
     });
+  } catch (error) {
+    logError(error);
+  }
+};
 
-    return session
-      ? {
-          ...session,
-          exercises: session?.exercises
-            ? session.exercises.map((e) => ({
-                id: e.id,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
+const completeWorkoutSession = async (sessionId) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // Buscar a sessão com os exercícios
+      const session = await tx.workoutSession.findUnique({
+        where: { id: sessionId },
+        include: {
+          WorkoutSessionExercises: true,
+        },
+      });
+
+      if (!session) {
+        throw new Error("Sessão não encontrada");
+      }
+
+      // Verificar se todos os exercícios estão completados
+      const allCompleted = session.WorkoutSessionExercises.every(
+        (exercise) => exercise.status === "COMPLETED"
+      );
+
+      const workoutStatus = allCompleted ? "COMPLETED" : "UNCOMPLETED";
+
+      // Atualizar exercícios não completados para UNCOMPLETED
+      await tx.workoutSessionExercises.updateMany({
+        where: {
+          workoutSessionId: sessionId,
+          status: {
+            not: "COMPLETED",
+          },
+        },
+        data: {
+          status: "UNCOMPLETED",
+        },
+      });
+
+      // Atualizar status da sessão
+      return await tx.workoutSession.update({
+        where: {
+          id: sessionId,
+        },
+        data: {
+          status: workoutStatus,
+          endedAt: new Date(),
+        },
+        select: {
+          id: true,
+          userId: true,
+          workoutId: true,
+          status: true,
+          startedAt: true,
+          endedAt: true,
+          createdAt: true,
+          updatedAt: true,
+          workout: {
+            select: {
+              id: true,
+              userId: true,
+              name: true,
+              visibility: true,
+              createdAt: true,
+              updatedAt: true,
+              WorkoutExercises: {
+                select: {
+                  id: true,
+                  series: true,
+                  repetitions: true,
+                  weight: true,
+                  restTime: true,
+                  exercise: {
+                    select: {
+                      id: true,
+                      name: true,
+                      image: true,
+                      videoUrl: true,
+                      description: true,
+                      muscleGroup: {
+                        select: {
+                          id: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
                 },
-                completed: e.completed,
-                repetitions: e.repetitions,
-                restTime: e.restTime,
-                series: e.series,
-                weight: e.weight,
-              }))
-            : [],
-        }
-      : null;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutSessionExerciseById = async (exerciseId) => {
-  try {
-    const exercise = await prisma.workoutSessionExercise.findUnique({
-      where: {
-        id: exerciseId,
-      },
-    });
-
-    return exercise;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const patchWorkoutSessionExercise = async (
-  sessionId,
-  exerciseId,
-  completed,
-  weight,
-  repetitions,
-  series
-) => {
-  try {
-    await prisma.workoutSessionExercise.update({
-      where: {
-        id: exerciseId,
-      },
-      data: {
-        completed,
-        WorkoutExercises: {
-          update: {
-            weight,
-            repetitions,
-            series,
+                orderBy: {
+                  exercise: {
+                    name: 'asc',
+                  },
+                },
+              },
+            },
           },
-        },
-      },
-    });
-
-    const workoutSession = await prisma.workoutSession.findUnique({
-      where: {
-        id: sessionId,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
-            WorkoutExercises: {
-              select: {
-                id: true,
-                repetitions: true,
-                series: true,
-                weight: true,
-                restTime: true,
-                exercise: {
-                  select: {
-                    id: true,
-                    name: true,
-                    imageUrl: true,
-                    videoUrl: true,
-                    instructions: true,
-                    muscleGroup: {
-                      select: {
-                        id: true,
-                        name: true,
+          WorkoutSessionExercises: {
+            select: {
+              id: true,
+              status: true,
+              workoutExercise: {
+                select: {
+                  id: true,
+                  series: true,
+                  repetitions: true,
+                  weight: true,
+                  restTime: true,
+                  exercise: {
+                    select: {
+                      id: true,
+                      name: true,
+                      image: true,
+                      videoUrl: true,
+                      description: true,
+                      muscleGroup: {
+                        select: {
+                          id: true,
+                          name: true,
+                        },
                       },
                     },
                   },
                 },
               },
             },
-          },
-        },
-      },
-    });
-
-    return workoutSession
-      ? {
-          ...workoutSession,
-          exercises: workoutSession?.exercises
-            ? workoutSession.exercises.map((e) => ({
-                id: e.id,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
-                },
-                completed: e.completed,
-                repetitions: e.WorkoutExercises.repetitions,
-                restTime: e.WorkoutExercises.restTime,
-                series: e.WorkoutExercises.series,
-                weight: e.WorkoutExercises.weight,
-              }))
-            : [],
-        }
-      : null;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getWorkoutSessionByWorkoutID = async (workoutId) => {
-  try {
-    const session = await prisma.workoutSession.findFirst({
-      where: {
-        workoutId,
-        endedAt: null,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
-            WorkoutExercises: {
-              select: {
-                id: true,
-                repetitions: true,
-                series: true,
-                weight: true,
-                restTime: true,
+            orderBy: {
+              workoutExercise: {
                 exercise: {
-                  select: {
-                    id: true,
-                    name: true,
-                    imageUrl: true,
-                    videoUrl: true,
-                    instructions: true,
-                    muscleGroup: {
-                      select: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
+                  name: 'asc',
                 },
               },
             },
           },
         },
-      },
+      });
     });
-
-    return session
-      ? {
-          ...session,
-          exercises: session?.exercises
-            ? session.exercises.map((e) => ({
-                id: e.id,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
-                },
-                completed: e.completed,
-                repetitions: e.WorkoutExercises.repetitions,
-                restTime: e.WorkoutExercises.restTime,
-                series: e.WorkoutExercises.series,
-                weight: e.WorkoutExercises.weight,
-              }))
-            : [],
-        }
-      : null;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const postCompleteWorkoutSession = async (sessionId) => {
-  try {
-    await prisma.workoutSession.update({
-      where: {
-        id: sessionId,
-      },
-      data: {
-        endedAt: new Date(),
-      },
-    });
-
-    const workoutSession = await prisma.workoutSession.findUnique({
-      where: {
-        id: sessionId,
-      },
-      select: {
-        id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        workout: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        exercises: {
-          select: {
-            id: true,
-            completed: true,
-            WorkoutExercises: {
-              select: {
-                id: true,
-                repetitions: true,
-                series: true,
-                weight: true,
-                restTime: true,
-                exercise: {
-                  select: {
-                    id: true,
-                    name: true,
-                    imageUrl: true,
-                    videoUrl: true,
-                    instructions: true,
-                    muscleGroup: {
-                      select: {
-                        id: true,
-                        name: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    return workoutSession
-      ? {
-          ...workoutSession,
-          exercises: workoutSession?.exercises
-            ? workoutSession.exercises.map((e) => ({
-                id: e.id,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
-                },
-                completed: e.completed,
-                repetitions: e.WorkoutExercises.repetitions,
-                restTime: e.WorkoutExercises.restTime,
-                series: e.WorkoutExercises.series,
-                weight: e.WorkoutExercises.weight,
-              }))
-            : [],
-        }
-      : null;
   } catch (error) {
     logError(error);
   }
@@ -1135,91 +877,146 @@ const postCompleteWorkoutSession = async (sessionId) => {
 
 const deleteWorkoutSession = async (sessionId) => {
   try {
-    await prisma.workoutSession.delete({
+    return await prisma.workoutSession.delete({
       where: {
         id: sessionId,
       },
     });
-
-    return;
   } catch (error) {
     logError(error);
   }
 };
 
-const getWorkoutHistory = async (
-  userId,
-  name,
-  order = "desc",
-  period = "all",
-  status = "all"
-) => {
+const completeWorkoutSessionExercise = async (sessionExerciseId, exerciseData) => {
   try {
-    let dateFilter = {};
-    const now = new Date();
-
-    if (period === "last_month") {
-      dateFilter.startedAt = { gte: startOfMonth(subMonths(now, 1)) };
-    } else if (period === "last_3_months") {
-      dateFilter.startedAt = { gte: startOfMonth(subMonths(now, 3)) };
-    } else if (period === "last_year") {
-      dateFilter.startedAt = { gte: startOfMonth(subYears(now, 1)) };
-    }
-
-    let statusFilter = {};
-    if (status === "completed") {
-      statusFilter.endedAt = { not: null };
-    } else if (status === "in_progress") {
-      statusFilter.endedAt = null;
-    }
-
-    const workoutSession = await prisma.workoutSession.findMany({
+    return await prisma.workoutSessionExercises.update({
       where: {
-        userId: userId,
-        workout: {
-          name: {
-            contains: name || "",
-          },
-        },
-        ...dateFilter,
-        ...statusFilter,
+        id: sessionExerciseId,
+      },
+      data: {
+        status: "COMPLETED",
+        series: exerciseData.series,
+        repetitions: exerciseData.repetitions,
+        weight: exerciseData.weight,
+        restTime: exerciseData.restTime,
       },
       select: {
         id: true,
-        startedAt: true,
-        endedAt: true,
-        endedByService: true,
-        workout: {
-          select: {
-            name: true,
-            visibility: true,
-            createdAt: true,
-          },
-        },
-        exercises: {
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        workoutSession: {
           select: {
             id: true,
-            completed: true,
-            WorkoutExercises: {
+            userId: true,
+            workoutId: true,
+            status: true,
+            startedAt: true,
+            endedAt: true,
+            createdAt: true,
+            updatedAt: true,
+            workout: {
               select: {
                 id: true,
-                repetitions: true,
-                series: true,
-                weight: true,
-                restTime: true,
-                exercise: {
+                userId: true,
+                name: true,
+                visibility: true,
+                createdAt: true,
+                updatedAt: true,
+                WorkoutExercises: {
                   select: {
                     id: true,
-                    name: true,
-                    imageUrl: true,
-                    videoUrl: true,
-                    instructions: true,
-                    muscleGroup: {
+                    series: true,
+                    repetitions: true,
+                    weight: true,
+                    restTime: true,
+                    exercise: {
                       select: {
                         id: true,
                         name: true,
+                        image: true,
+                        videoUrl: true,
+                        description: true,
+                        muscleGroup: {
+                          select: {
+                            id: true,
+                            name: true,
+                          },
+                        },
                       },
                     },
+                  },
+                  orderBy: {
+                    exercise: {
+                      name: 'asc',
+                    },
+                  },
+                },
+              },
+            },
+               WorkoutSessionExercises: {
+                 select: {
+                   id: true,
+                   status: true,
+                   series: true,
+                   repetitions: true,
+                   weight: true,
+                   restTime: true,
+                   createdAt: true,
+                   updatedAt: true,
+                   workoutExercise: {
+                  select: {
+                    id: true,
+                    series: true,
+                    repetitions: true,
+                    weight: true,
+                    restTime: true,
+                    exercise: {
+                      select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        videoUrl: true,
+                        description: true,
+                        muscleGroup: {
+                          select: {
+                            id: true,
+                            name: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              orderBy: {
+                workoutExercise: {
+                  exercise: {
+                    name: 'asc',
+                  },
+                },
+              },
+            },
+          },
+        },
+        workoutExercise: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                videoUrl: true,
+                description: true,
+                muscleGroup: {
+                  select: {
+                    id: true,
+                    name: true,
                   },
                 },
               },
@@ -1227,176 +1024,27 @@ const getWorkoutHistory = async (
           },
         },
       },
-      orderBy: {
-        endedAt: order === "asc" ? "asc" : "desc",
-      },
-    });
-
-    return workoutSession
-      ? workoutSession.map((session) => ({
-          ...session,
-          exercises: session?.exercises
-            ? session.exercises.map((e) => ({
-                id: e.id,
-                exerciseId: e.WorkoutExercises.exercise.id,
-                name: e.WorkoutExercises.exercise.name,
-                imageUrl: e.WorkoutExercises.exercise.imageUrl,
-                videoUrl: e.WorkoutExercises.exercise.videoUrl,
-                instructions: e.WorkoutExercises.exercise.instructions,
-                muscleGroup: {
-                  id: e.WorkoutExercises.exercise.muscleGroup.id,
-                  name: e.WorkoutExercises.exercise.muscleGroup.name,
-                },
-                completed: e.completed,
-                repetitions: e.WorkoutExercises.repetitions,
-                restTime: e.WorkoutExercises.restTime,
-                series: e.WorkoutExercises.series,
-                weight: e.WorkoutExercises.weight,
-              }))
-            : [],
-        }))
-      : [];
-  } catch (error) {
-    logError(error);
-    throw new Error("Erro ao buscar o histórico de treinos");
-  }
-};
-
-const getWorkoutMonthAmmount = async (userId) => {
-  try {
-    const workoutMonthAmmount = await prisma.workoutSession.findMany({
-      where: {
-        userId: userId,
-        startedAt: {
-          gte: setSeconds(
-            setMinutes(setHours(startOfMonth(new Date()), 0), 0),
-            0
-          ),
-        },
-      },
-    });
-
-    return workoutMonthAmmount.length;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const getLastMonthWorkoutsAmmount = async (userId) => {
-  try {
-    const firstDayOfLastMonth = startOfMonth(subMonths(new Date(), 1));
-    const lastDayOfLastMonth = endOfMonth(subMonths(new Date(), 1));
-
-    const workouts = await prisma.workoutSession.findMany({
-      where: {
-        userId,
-        startedAt: {
-          gte: firstDayOfLastMonth,
-          lte: lastDayOfLastMonth,
-        },
-      },
-    });
-
-    return workouts.length;
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const postExercise = async (
-  name,
-  muscleGroupId,
-  series,
-  repetitions,
-  weight,
-  restTime,
-  videoUrl,
-  imageUrl,
-  instructions
-) => {
-  try {
-    return await prisma.exercise.create({
-      data: {
-        name,
-        instructions,
-        series,
-        repetitions,
-        restTime,
-        weight,
-        videoUrl,
-        imageUrl,
-        muscleGroup: {
-          connect: {
-            id: muscleGroupId,
-          },
-        },
-      },
     });
   } catch (error) {
     logError(error);
-  }
-};
-
-const getExercise = async (muscleGroupId, includeMuscleGroup) => {
-  try {
-    const exercises = await prisma.exercise.findMany({
-      where: muscleGroupId ? { muscleGroupId } : {},
-      select: {
-        id: true,
-        name: true,
-        imageUrl: true,
-        instructions: true,
-        repetitions: true,
-        restTime: true,
-        series: true,
-        videoUrl: true,
-        weight: true,
-        muscleGroup: includeMuscleGroup
-          ? {
-              select: {
-                id: true,
-                name: true,
-              },
-            }
-          : false,
-      },
-    });
-
-    return exercises;
-  } catch (error) {
-    logError(error);
-    return [];
   }
 };
 
 export default {
-  postWorkout,
-  postWorkoutAI,
-  getWorkouts,
-  getWorkoutByID,
-  postLikeWorkout,
-  getWorkoutLikedByUser,
-  postUnlikeWorkout,
-  getExerciseByID,
-  deleteWorkoutExercise,
-  deleteWorkout,
-  getWorkoutExerciseByID,
-  getWorkoutExercises,
-  postWorkoutSession,
-  patchWorkoutSessionExercise,
-  getWorkoutSessionByID,
-  getWorkoutSessionExerciseById,
-  getWorkoutSessionNotCompleted,
-  getWorkoutSessionByWorkoutID,
-  postCompleteWorkoutSession,
-  getWorkoutHistory,
+  getUserById,
+  getExercisesByIds,
+  createWorkout,
+  getWorkoutsByUserId,
+  getWorkoutById,
+  getWorkoutInProgressByUserId,
+  updateWorkoutStatus,
+  completeWorkout,
+  stopWorkout,
+  createWorkoutSession,
+  getWorkoutSessionInProgressByUserId,
+  getWorkoutSessionById,
+  completeWorkoutSession,
   deleteWorkoutSession,
-  getWorkoutMonthAmmount,
-  getLastMonthWorkoutsAmmount,
-  getWorkoutSessions,
-  getWorkoutSessionsEnded,
-  getRecentsWorkoutsSessions,
-  getVolumeWorkoutExercises,
-  postExercise,
-  getExercise,
+  getWorkoutSessionInProgressByWorkoutId,
+  completeWorkoutSessionExercise,
 };

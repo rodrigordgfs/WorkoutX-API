@@ -5,7 +5,7 @@ const logError = (error) => {
   throw new Error("An unexpected error occurred. Please try again.");
 };
 
-const postAuth = async (id, name, avatar) => {
+const createUser = async (id, name, avatar) => {
   try {
     return await prisma.user.create({
       data: {
@@ -16,12 +16,7 @@ const postAuth = async (id, name, avatar) => {
       select: {
         id: true,
         name: true,
-        avatar: true,
-        experience: true,
-        publicProfile: true,
-        goal: true,
-        height: true,
-        weight: true,
+        avatar: true
       },
     });
   } catch (error) {
@@ -38,12 +33,7 @@ const getUserByID = async (id) => {
       select: {
         id: true,
         name: true,
-        avatar: true,
-        experience: true,
-        publicProfile: true,
-        goal: true,
-        height: true,
-        weight: true,
+        avatar: true
       },
     });
   } catch (error) {
@@ -51,41 +41,20 @@ const getUserByID = async (id) => {
   }
 };
 
-const patchAuth = async (
-  id,
-  avatar,
-  name,
-  userId,
-  experience,
-  goal,
-  height,
-  publicProfile,
-  weight
-) => {
+const updateUser = async (id, name, avatar) => {
   try {
     return await prisma.user.update({
       where: {
         id,
       },
       data: {
-        avatar,
         name,
-        userId,
-        experience,
-        goal,
-        height,
-        publicProfile,
-        weight,
+        avatar,
       },
       select: {
         id: true,
         name: true,
-        avatar: true,
-        experience: true,
-        publicProfile: true,
-        goal: true,
-        height: true,
-        weight: true,
+        avatar: true
       },
     });
   } catch (error) {
@@ -94,7 +63,7 @@ const patchAuth = async (
 };
 
 export default {
-  postAuth,
+  createUser,
   getUserByID,
-  patchAuth,
+  updateUser,
 };

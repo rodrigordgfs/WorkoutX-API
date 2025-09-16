@@ -16,6 +16,9 @@ const handleErrorResponse = (error, reply) => {
 
   const errorMessages = {
     "Treino não encontrado": StatusCodes.NOT_FOUND,
+    "Exercício não encontrado": StatusCodes.NOT_FOUND,
+    "Usuário não encontrado": StatusCodes.NOT_FOUND,
+    "Usuário já possui um treino em progresso": StatusCodes.CONFLICT,
   };
 
   const statusCode =
@@ -25,39 +28,36 @@ const handleErrorResponse = (error, reply) => {
   });
 };
 
-const postWorkout = async (request, reply) => {
+const createWorkout = async (request, reply) => {
   try {
     const schemaBody = z.object({
-      name: z
-        .string({ required_error: "O nome do treino é obrigatório" })
-        .min(3, { message: "O nome do treino deve ter no mínimo 3 caracteres" })
-        .max(255, {
-          message: "O nome do treino deve ter no máximo 255 caracteres",
-        }),
-      visibility: z.nativeEnum(Visibility).default(Visibility.PUBLIC),
+      name: z.string({ required_error: "O nome do treino é obrigatório" }),
+      privacy: z.nativeEnum(Visibility, { 
+        required_error: "A privacidade é obrigatória",
+        invalid_type_error: "Privacidade deve ser 'public' ou 'private'"
+      }),
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
-      exercises: z
-        .array(
-          z.object({
-            id: z.string({ required_error: "O ID do exercício é obrigatório" }),
-            series: z
-              .string({ required_error: "O número de séries é obrigatório" })
-              .regex(/^\d+$/, {
-                message: "O número de séries deve ser um número inteiro",
-              }),
-            repetitions: z.string({
-              required_error: "O número de repetições é obrigatório",
-            }),
-            weight: z.string({ required_error: "O peso é obrigatório" }),
-            restTime: z.string({
-              required_error: "O tempo de descanso é obrigatório",
-            })
-          })
-        )
-        .min(1, { message: "A lista de exercícios não pode estar vazia" })
-        .refine((val) => Array.isArray(val), {
-          message: "O campo exercises deve ser uma lista de exercícios",
-        }),
+      exercises: z.array(
+        z.object({
+          id: z.string({ required_error: "O ID do exercício é obrigatório" }),
+          series: z.number({ 
+            required_error: "O número de séries é obrigatório",
+            invalid_type_error: "Séries deve ser um número"
+          }).min(1, "Séries deve ser pelo menos 1"),
+          repetitions: z.number({ 
+            required_error: "O número de repetições é obrigatório",
+            invalid_type_error: "Repetições deve ser um número"
+          }).min(1, "Repetições deve ser pelo menos 1"),
+          weight: z.number({ 
+            required_error: "O peso é obrigatório",
+            invalid_type_error: "Peso deve ser um número"
+          }).min(0, "Peso deve ser maior ou igual a 0"),
+          rest: z.number({ 
+            required_error: "O tempo de descanso é obrigatório",
+            invalid_type_error: "Tempo de descanso deve ser um número"
+          }).min(0, "Tempo de descanso deve ser maior ou igual a 0"),
+        })
+      ).min(1, "Pelo menos um exercício é obrigatório"),
     });
 
     const validation = schemaBody.safeParse(request.body);
@@ -66,445 +66,39 @@ const postWorkout = async (request, reply) => {
       throw validation.error;
     }
 
-    const { userId, name, exercises, visibility } = validation.data;
+    const { name, privacy, exercises, userId } = validation.data;
 
-    const workout = await workoutService.postWorkout(
-      userId,
-      name,
-      visibility,
-      exercises
-    );
+    const workout = await workoutService.createWorkout(userId, name, privacy, exercises);
 
-    reply.code(StatusCodes.CREATED).send(workout);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
+    // Transformar WorkoutExercises para exercises na resposta com a estrutura desejada
+    const response = {
+      id: workout.id,
+      userId: workout.userId,
+      name: workout.name,
+      visibility: workout.visibility,
+      createdAt: workout.createdAt,
+      updatedAt: workout.updatedAt,
+      exercises: workout.WorkoutExercises.map(workoutExercise => ({
+        id: workoutExercise.exercise.id,
+        name: workoutExercise.exercise.name,
+        image: workoutExercise.exercise.image,
+        videoUrl: workoutExercise.exercise.videoUrl,
+        description: workoutExercise.exercise.description,
+        series: workoutExercise.series,
+        repetitions: workoutExercise.repetitions,
+        weight: workoutExercise.weight,
+        restTime: workoutExercise.restTime,
+        muscleGroup: workoutExercise.exercise.muscleGroup
+      }))
+    };
 
-const postWorkoutAI = async (request, reply) => {
-  try {
-    const schemaBody = z.object({
-      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
-      objective: z.string({ required_error: "O objetivo é obrigatório" }),
-      muscleGroup: z.string({
-        required_error: "O grupo muscular é obrigatório",
-      }),
-      trainingTime: z.string({
-        required_error: "O tempo de treino é obrigatório",
-      }),
-      experienceLevel: z.string({
-        required_error: "O nível de experiência é obrigatório",
-      }),
-      frequency: z.string({ required_error: "A frequência é obrigatória" }),
-      duration: z.string({ required_error: "A duração é obrigatória" }),
-      location: z.string({ required_error: "O local é obrigatório" }),
-      equipments: z.array(z.string()).default([]),
-      hasPhysicalLimitations: z.boolean().default(false),
-      limitationDescription: z.string().optional(),
-      preferredTrainingStyle: z.string({
-        required_error: "O estilo de treino é obrigatório",
-      }),
-      nutrition: z.string({ required_error: "A nutrição é obrigatória" }),
-      sleepQuality: z.string({
-        required_error: "A qualidade do sono é obrigatória",
-      }),
-    });
-
-    const validation = schemaBody.safeParse(request.body);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const {
-      userId,
-      objective,
-      muscleGroup,
-      trainingTime,
-      experienceLevel,
-      frequency,
-      duration,
-      location,
-      equipments,
-      hasPhysicalLimitations,
-      limitationDescription,
-      preferredTrainingStyle,
-      nutrition,
-      sleepQuality,
-    } = validation.data;
-
-    const workout = await workoutService.postWorkoutAI(
-      userId,
-      objective,
-      muscleGroup,
-      trainingTime,
-      experienceLevel,
-      frequency,
-      duration,
-      location,
-      equipments,
-      hasPhysicalLimitations,
-      limitationDescription,
-      preferredTrainingStyle,
-      nutrition,
-      sleepQuality
-    );
-
-    reply.code(StatusCodes.CREATED).send(workout);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const postLikeWorkout = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      idWorkout: z.string({ required_error: "O ID do treino é obrigatório" }),
-      idUser: z.string({ required_error: "O ID do usuário é obrigatório" }),
-    });
-
-    const validation = schemaParams.safeParse(request.params);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { idUser, idWorkout } = validation.data;
-
-    const like = await workoutService.postLikeWorkout(idWorkout, idUser);
-
-    reply.send(like);
+    reply.code(StatusCodes.CREATED).send(response);
   } catch (error) {
     handleErrorResponse(error, reply);
   }
 };
 
 const getWorkouts = async (request, reply) => {
-  try {
-    const schemaQuery = z.object({
-      userId: z.string().optional(),
-      visibility: z.nativeEnum(Visibility).optional(),
-      likes: z.boolean().optional(),
-      exercises: z.boolean().optional(),
-    });
-
-    const validation = schemaQuery.safeParse({
-      ...request.query,
-      likes: request.query.likes === "true" || undefined,
-      exercises: request.query.exercises === "true" || undefined,
-    });
-
-    if (!validation.success) {
-      return reply.status(400).send({
-        error: "Invalid query parameters",
-        details: validation.error.errors,
-      });
-    }
-
-    const { userId, visibility, likes, exercises } = validation.data;
-
-    const workouts = await workoutService.getWorkouts(
-      userId,
-      visibility,
-      likes,
-      exercises
-    );
-
-    reply.send(workouts);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const deleteExercise = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      idWorkout: z.string({ required_error: "O ID do treino é obrigatório" }),
-      idExercise: z.string({
-        required_error: "O ID do exercício é obrigatório",
-      }),
-    });
-
-    const validation = schemaParams.safeParse(request.params);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { idExercise, idWorkout } = validation.data;
-
-    await workoutService.deleteWorkoutExercise(idWorkout, idExercise);
-
-    reply.code(StatusCodes.NO_CONTENT).send();
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const copyWorkout = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      id: z.string({ required_error: "O ID do treino é obrigatório" }),
-    });
-
-    const schemaBody = z.object({
-      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
-    });
-
-    const validationParams = schemaParams.safeParse(request.params);
-    const validationBody = schemaBody.safeParse(request.body);
-
-    if (!validationParams.success) {
-      throw validationParams.error;
-    }
-
-    if (!validationBody.success) {
-      throw validationBody.error;
-    }
-
-    const { id } = validationParams.data;
-    const { userId } = validationBody.data;
-
-    const workout = await workoutService.copyWorkout(id, userId);
-
-    reply.code(StatusCodes.CREATED).send(workout);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const deleteWorkout = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      id: z.string({ required_error: "O ID do treino é obrigatório" }),
-    });
-
-    const validation = schemaParams.safeParse(request.params);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { id } = validation.data;
-
-    await workoutService.deleteWorkout(id);
-
-    reply.code(StatusCodes.NO_CONTENT).send();
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const getWorkoutSession = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      sessionId: z.string({
-        required_error: "O ID da sessão de treino é obrigatório",
-      }),
-    });
-
-    const validation = schemaParams.safeParse(request.params);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { sessionId } = validation.data;
-
-    const workoutSession = await workoutService.getWorkoutSession(sessionId);
-
-    reply.send(workoutSession);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const postWorkoutSession = async (request, reply) => {
-  try {
-    const schemaBody = z.object({
-      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
-      workoutId: z.string({ required_error: "O ID do treino é obrigatório" }),
-    });
-
-    const validation = schemaBody.safeParse(request.body);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { userId, workoutId } = validation.data;
-
-    const workoutSession = await workoutService.postWorkoutSession(
-      userId,
-      workoutId
-    );
-
-    reply.code(StatusCodes.CREATED).send(workoutSession);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const patchWorkoutSessionExercise = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      sessionId: z.string({
-        required_error: "O ID da sessão de treino é obrigatório",
-      }),
-      exerciseId: z.string({
-        required_error: "O ID do exercício é obrigatório",
-      }),
-    });
-
-    const schemaBody = z.object({
-      completed: z.boolean({
-        required_error: "O campo completed é obrigatório",
-      }),
-      weight: z.string({ required_error: "O campo weight é obrigatório" }),
-      repetitions: z.string({
-        required_error: "O campo repetitions é obrigatório",
-      }),
-      series: z.string({ required_error: "O campo series é obrigatório" }),
-    });
-
-    const validationParams = schemaParams.safeParse(request.params);
-    const validationBody = schemaBody.safeParse(request.body);
-
-    if (!validationParams.success) {
-      throw validationParams.error;
-    }
-
-    if (!validationBody.success) {
-      throw validationBody.error;
-    }
-
-    const { sessionId, exerciseId } = validationParams.data;
-    const { completed, weight, repetitions, series } = validationBody.data;
-
-    const workoutSession = await workoutService.patchWorkoutSessionExercise(
-      sessionId,
-      exerciseId,
-      completed,
-      weight,
-      repetitions,
-      series
-    );
-
-    reply.send(workoutSession);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const getWorkoutSessionByWorkoutID = async (request, reply) => {
-  try {
-    const schemaQuery = z.object({
-      workoutId: z.string({ required_error: "O ID do treino é obrigatório" }),
-    });
-
-    const validation = schemaQuery.safeParse(request.query);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { workoutId } = validation.data;
-
-    const workoutSession = await workoutService.getWorkoutSessionByWorkoutID(
-      workoutId
-    );
-
-    reply.send(workoutSession);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const postCompleteWorkoutSession = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      sessionId: z.string({
-        required_error: "O ID da sessão de treino é obrigatório",
-      }),
-    });
-
-    const validation = schemaParams.safeParse(request.params);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { sessionId } = validation.data;
-
-    const workoutSession = await workoutService.postCompleteWorkoutSession(
-      sessionId
-    );
-
-    reply.send(workoutSession);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const deleteWorkoutSession = async (request, reply) => {
-  try {
-    const schemaParams = z.object({
-      sessionId: z.string({
-        required_error: "O ID da sessão de treino é obrigatório",
-      }),
-    });
-
-    const validation = schemaParams.safeParse(request.params);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { sessionId } = validation.data;
-
-    await workoutService.deleteWorkoutSession(sessionId);
-
-    reply.code(StatusCodes.NO_CONTENT).send();
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const getWorkoutHistory = async (request, reply) => {
-  try {
-    const schemaQuery = z.object({
-      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
-      name: z.string().optional(),
-      period: z
-        .enum(["last_month", "last_3_months", "last_year", "all"])
-        .optional(),
-      status: z.enum(["completed", "in_progress", "all"]).optional(),
-      order: z.enum(["desc", "asc"]).optional(),
-    });
-
-    const validation = schemaQuery.safeParse(request.query);
-
-    if (!validation.success) {
-      throw validation.error;
-    }
-
-    const { userId, name, order, period, status } = validation.data;
-
-    const workoutHistory = await workoutService.getWorkoutHistory(
-      userId,
-      name,
-      order,
-      period,
-      status
-    );
-
-    reply.send(workoutHistory);
-  } catch (error) {
-    handleErrorResponse(error, reply);
-  }
-};
-
-const getWorkoutDashboard = async (request, reply) => {
   try {
     const schemaQuery = z.object({
       userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
@@ -518,139 +112,446 @@ const getWorkoutDashboard = async (request, reply) => {
 
     const { userId } = validation.data;
 
-    const workoutDashboard = await workoutService.getWorkoutDashboard(userId);
+    const workouts = await workoutService.getWorkouts(userId);
 
-    reply.send(workoutDashboard);
+    // Mapear array de workouts para a estrutura desejada
+    const response = workouts.map(workout => {
+      // Verificar se existe sessão em progresso
+      const sessionInProgress = workout.WorkoutSessions && workout.WorkoutSessions.length > 0 ? workout.WorkoutSessions[0] : null;
+      
+      return {
+        id: workout.id,
+        userId: workout.userId,
+        name: workout.name,
+        visibility: workout.visibility,
+        createdAt: workout.createdAt,
+        updatedAt: workout.updatedAt,
+        session: sessionInProgress ? {
+          id: sessionInProgress.id,
+          status: sessionInProgress.status,
+          startedAt: sessionInProgress.startedAt,
+          endedAt: sessionInProgress.endedAt,
+          createdAt: sessionInProgress.createdAt,
+          updatedAt: sessionInProgress.updatedAt,
+               exercises: sessionInProgress.WorkoutSessionExercises.map(sessionExercise => ({
+                 id: sessionExercise.id,
+                 status: sessionExercise.status,
+                 createdAt: sessionExercise.createdAt,
+                 updatedAt: sessionExercise.updatedAt,
+                 series: sessionExercise.series,
+                 repetitions: sessionExercise.repetitions,
+                 weight: sessionExercise.weight,
+                 restTime: sessionExercise.restTime,
+                 name: sessionExercise.workoutExercise.exercise.name,
+                 image: sessionExercise.workoutExercise.exercise.image,
+                 videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+                 description: sessionExercise.workoutExercise.exercise.description
+               }))
+        } : {},
+        exercises: workout.WorkoutExercises.map(workoutExercise => ({
+          id: workoutExercise.exercise.id,
+          name: workoutExercise.exercise.name,
+          image: workoutExercise.exercise.image,
+          videoUrl: workoutExercise.exercise.videoUrl,
+          description: workoutExercise.exercise.description,
+          series: workoutExercise.series,
+          repetitions: workoutExercise.repetitions,
+          weight: workoutExercise.weight,
+          restTime: workoutExercise.restTime,
+          muscleGroup: workoutExercise.exercise.muscleGroup
+        }))
+      };
+    });
+
+    reply.code(StatusCodes.OK).send(response);
   } catch (error) {
     handleErrorResponse(error, reply);
   }
 };
 
-const postExercise = async (request, reply) => {
+const getWorkoutById = async (request, reply) => {
   try {
-    const schemaBody = z.object({
-      name: z
-        .string({ required_error: "O nome do exercício é obrigatório" })
-        .min(3, {
-          message: "O nome do exercício deve ter no mínimo 3 caracteres",
-        })
-        .max(255, {
-          message: "O nome do exercício deve ter no máximo 255 caracteres",
-        }),
-      muscleGroupId: z.string({
-        required_error: "O ID do grupo muscular é obrigatório",
-      }),
-      series: z
-        .string({ required_error: "O número de séries é obrigatório" })
-        .regex(/^\d+$/, {
-          message: "O número de séries deve ser um número inteiro",
-        }),
-      repetitions: z.string({
-        required_error: "O número de repetições é obrigatório",
-      }),
-      weight: z.string({ required_error: "O peso é obrigatório" }),
-      restTime: z.string({
-        required_error: "O tempo de descanso é obrigatório",
-      }),
-      image: z
-        .string({
-          required_error: "A imagem em base64 é obrigatória",
-        })
-        .regex(
-          /^data:image\/(png|jpeg|jpg|webp);base64,/,
-          "Formato de imagem inválido"
-        ),
-      videoUrl: z
-        .string({ required_error: "A URL do vídeo é obrigatória" })
-        .url({ message: "A URL do vídeo deve ser válida" }),
-      instructions: z
-        .string({ required_error: "As instruções são obrigatórias" })
-        .min(3, {
-          message: "As instruções devem ter pelo menos 3 caracteres",
-        }),
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
     });
 
-    const validation = schemaBody.safeParse(request.body);
+    const validation = schemaParams.safeParse(request.params);
 
     if (!validation.success) {
       throw validation.error;
     }
 
-    const {
-      name,
-      muscleGroupId,
-      series,
-      repetitions,
-      weight,
-      restTime,
-      videoUrl,
-      image,
-      instructions,
-    } = validation.data;
+    const { id } = validation.data;
 
-    const exercise = await workoutService.postExercise(
-      name,
-      muscleGroupId,
-      series,
-      repetitions,
-      weight,
-      restTime,
-      videoUrl,
-      image,
-      instructions
-    );
+    const result = await workoutService.getWorkoutById(id);
 
-    reply.code(StatusCodes.CREATED).send(exercise);
+    if (!result || !result.data) {
+      return reply.code(StatusCodes.NOT_FOUND).send({
+        error: "Treino não encontrado"
+      });
+    }
+
+    // Sempre retornar dados do workout original com session (se existir)
+    const workout = result.type === "session" ? result.data.workout : result.data;
+    const session = result.type === "session" ? result.data : null;
+
+    const response = {
+      id: workout.id,
+      userId: workout.userId,
+      name: workout.name,
+      visibility: workout.visibility,
+      createdAt: workout.createdAt,
+      updatedAt: workout.updatedAt,
+      session: session ? {
+        id: session.id,
+        status: session.status,
+        startedAt: session.startedAt,
+        endedAt: session.endedAt,
+        createdAt: session.createdAt,
+        updatedAt: session.updatedAt,
+        exercises: session.WorkoutSessionExercises.map(sessionExercise => ({
+          id: sessionExercise.id,
+          status: sessionExercise.status,
+          createdAt: sessionExercise.createdAt,
+          updatedAt: sessionExercise.updatedAt,
+          series: sessionExercise.series,
+          repetitions: sessionExercise.repetitions,
+          weight: sessionExercise.weight,
+          restTime: sessionExercise.restTime,
+          name: sessionExercise.workoutExercise.exercise.name,
+          image: sessionExercise.workoutExercise.exercise.image,
+          videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+          description: sessionExercise.workoutExercise.exercise.description
+        }))
+      } : {},
+      exercises: workout.WorkoutExercises.map(workoutExercise => ({
+        id: workoutExercise.exercise.id,
+        name: workoutExercise.exercise.name,
+        image: workoutExercise.exercise.image,
+        videoUrl: workoutExercise.exercise.videoUrl,
+        description: workoutExercise.exercise.description,
+        series: workoutExercise.series,
+        repetitions: workoutExercise.repetitions,
+        weight: workoutExercise.weight,
+        restTime: workoutExercise.restTime,
+        muscleGroup: workoutExercise.exercise.muscleGroup
+      }))
+    };
+
+    reply.code(StatusCodes.OK).send(response);
   } catch (error) {
     handleErrorResponse(error, reply);
   }
 };
 
-const getExercises = async (request, reply) => {
+const startWorkout = async (request, reply) => {
   try {
-    const schemaQuery = z.object({
-      muscleGroupId: z.string().optional(),
-      muscleGroup: z.boolean().optional(),
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
     });
 
-    const validation = schemaQuery.safeParse({
-      ...request.query,
-      muscleGroup: request.query.muscleGroup === "true" || undefined
-    });
+    const validation = schemaParams.safeParse(request.params);
 
     if (!validation.success) {
-      return reply.status(400).send({
-        error: "Invalid query parameters",
-        details: validation.error.errors,
+      throw validation.error;
+    }
+
+    const { id } = validation.data;
+
+    const workout = await workoutService.startWorkout(id);
+
+    if (!workout) {
+      return reply.code(StatusCodes.NOT_FOUND).send({
+        error: "Treino não encontrado"
       });
     }
 
-    const { muscleGroupId, muscleGroup } = validation.data;
+    // Retornar dados do workout original com session
+    const response = {
+      id: workout.workout.id,
+      userId: workout.userId,
+      name: workout.workout.name,
+      visibility: workout.workout.visibility,
+      createdAt: workout.workout.createdAt,
+      updatedAt: workout.workout.updatedAt,
+      session: {
+        id: workout.id,
+        status: workout.status,
+        startedAt: workout.startedAt,
+        endedAt: workout.endedAt,
+        createdAt: workout.createdAt,
+        updatedAt: workout.updatedAt,
+        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+          id: sessionExercise.id,
+          status: sessionExercise.status,
+          createdAt: sessionExercise.createdAt,
+          updatedAt: sessionExercise.updatedAt,
+          series: sessionExercise.series,
+          repetitions: sessionExercise.repetitions,
+          weight: sessionExercise.weight,
+          restTime: sessionExercise.restTime,
+          name: sessionExercise.workoutExercise.exercise.name,
+          image: sessionExercise.workoutExercise.exercise.image,
+          videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+          description: sessionExercise.workoutExercise.exercise.description
+        }))
+      },
+      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+        id: workoutExercise.exercise.id,
+        name: workoutExercise.exercise.name,
+        image: workoutExercise.exercise.image,
+        videoUrl: workoutExercise.exercise.videoUrl,
+        description: workoutExercise.exercise.description,
+        series: workoutExercise.series,
+        repetitions: workoutExercise.repetitions,
+        weight: workoutExercise.weight,
+        restTime: workoutExercise.restTime,
+        muscleGroup: workoutExercise.exercise.muscleGroup
+      }))
+    };
 
-    const exercises = await workoutService.getExercises(muscleGroupId, muscleGroup);
+    reply.code(StatusCodes.OK).send(response);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
 
-    reply.send(exercises);
+const completeWorkout = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { id } = validation.data;
+
+    const workout = await workoutService.completeWorkout(id);
+
+    if (!workout) {
+      return reply.code(StatusCodes.NOT_FOUND).send({
+        error: "Treino não encontrado"
+      });
+    }
+
+    // Retornar dados do workout original com session
+    const response = {
+      id: workout.workout.id,
+      userId: workout.userId,
+      name: workout.workout.name,
+      visibility: workout.workout.visibility,
+      createdAt: workout.workout.createdAt,
+      updatedAt: workout.workout.updatedAt,
+      session: {
+        id: workout.id,
+        status: workout.status,
+        startedAt: workout.startedAt,
+        endedAt: workout.endedAt,
+        createdAt: workout.createdAt,
+        updatedAt: workout.updatedAt,
+        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+          id: sessionExercise.id,
+          status: sessionExercise.status,
+          createdAt: sessionExercise.createdAt,
+          updatedAt: sessionExercise.updatedAt,
+          series: sessionExercise.series,
+          repetitions: sessionExercise.repetitions,
+          weight: sessionExercise.weight,
+          restTime: sessionExercise.restTime,
+          name: sessionExercise.workoutExercise.exercise.name,
+          image: sessionExercise.workoutExercise.exercise.image,
+          videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+          description: sessionExercise.workoutExercise.exercise.description
+        }))
+      },
+      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+        id: workoutExercise.exercise.id,
+        name: workoutExercise.exercise.name,
+        image: workoutExercise.exercise.image,
+        videoUrl: workoutExercise.exercise.videoUrl,
+        description: workoutExercise.exercise.description,
+        series: workoutExercise.series,
+        repetitions: workoutExercise.repetitions,
+        weight: workoutExercise.weight,
+        restTime: workoutExercise.restTime,
+        muscleGroup: workoutExercise.exercise.muscleGroup
+      }))
+    };
+
+    reply.code(StatusCodes.OK).send(response);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const stopWorkout = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { id } = validation.data;
+
+    const workout = await workoutService.stopWorkout(id);
+
+    if (!workout) {
+      return reply.code(StatusCodes.NOT_FOUND).send({
+        error: "Treino não encontrado"
+      });
+    }
+
+    // Retornar dados do workout original com session (antes de deletar)
+    const response = {
+      id: workout.workout.id,
+      userId: workout.userId,
+      name: workout.workout.name,
+      visibility: workout.workout.visibility,
+      createdAt: workout.workout.createdAt,
+      updatedAt: workout.workout.updatedAt,
+      session: {
+        id: workout.id,
+        status: workout.status,
+        startedAt: workout.startedAt,
+        endedAt: workout.endedAt,
+        createdAt: workout.createdAt,
+        updatedAt: workout.updatedAt,
+        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+          id: sessionExercise.id,
+          status: sessionExercise.status,
+          createdAt: sessionExercise.createdAt,
+          updatedAt: sessionExercise.updatedAt,
+          series: sessionExercise.series,
+          repetitions: sessionExercise.repetitions,
+          weight: sessionExercise.weight,
+          restTime: sessionExercise.restTime,
+          name: sessionExercise.workoutExercise.exercise.name,
+          image: sessionExercise.workoutExercise.exercise.image,
+          videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+          description: sessionExercise.workoutExercise.exercise.description
+        }))
+      },
+      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+        id: workoutExercise.exercise.id,
+        name: workoutExercise.exercise.name,
+        image: workoutExercise.exercise.image,
+        videoUrl: workoutExercise.exercise.videoUrl,
+        description: workoutExercise.exercise.description,
+        series: workoutExercise.series,
+        repetitions: workoutExercise.repetitions,
+        weight: workoutExercise.weight,
+        restTime: workoutExercise.restTime,
+        muscleGroup: workoutExercise.exercise.muscleGroup
+      }))
+    };
+
+    reply.code(StatusCodes.OK).send(response);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const completeWorkoutSessionExercise = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
+      exerciseId: z.string({ required_error: "O ID do exercício é obrigatório" }),
+    });
+
+    const schemaBody = z.object({
+      series: z.string({ required_error: "O número de séries é obrigatório" }),
+      repetitions: z.string({ required_error: "O número de repetições é obrigatório" }),
+      weight: z.string({ required_error: "O peso é obrigatório" }),
+      restTime: z.string({ required_error: "O tempo de descanso é obrigatório" }),
+    });
+
+    const validationParams = schemaParams.safeParse(request.params);
+    const validationBody = schemaBody.safeParse(request.body);
+
+    if (!validationParams.success) {
+      throw validationParams.error;
+    }
+
+    if (!validationBody.success) {
+      throw validationBody.error;
+    }
+
+    const { exerciseId } = validationParams.data;
+    const exerciseData = validationBody.data;
+
+    const workout = await workoutService.completeWorkoutSessionExercise(exerciseId, exerciseData);
+
+    if (!workout) {
+      return reply.code(StatusCodes.NOT_FOUND).send({
+        error: "Exercício da sessão não encontrado"
+      });
+    }
+
+    // Retornar dados do workout original com session atualizada
+    const response = {
+      id: workout.workout.id,
+      userId: workout.userId,
+      name: workout.workout.name,
+      visibility: workout.workout.visibility,
+      createdAt: workout.workout.createdAt,
+      updatedAt: workout.workout.updatedAt,
+      session: {
+        id: workout.id,
+        status: workout.status,
+        startedAt: workout.startedAt,
+        endedAt: workout.endedAt,
+        createdAt: workout.createdAt,
+        updatedAt: workout.updatedAt,
+        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+          id: sessionExercise.id,
+          status: sessionExercise.status,
+          createdAt: sessionExercise.createdAt,
+          updatedAt: sessionExercise.updatedAt,
+          series: sessionExercise.series,
+          repetitions: sessionExercise.repetitions,
+          weight: sessionExercise.weight,
+          restTime: sessionExercise.restTime,
+          name: sessionExercise.workoutExercise.exercise.name,
+          image: sessionExercise.workoutExercise.exercise.image,
+          videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+          description: sessionExercise.workoutExercise.exercise.description
+        }))
+      },
+      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+        id: workoutExercise.exercise.id,
+        name: workoutExercise.exercise.name,
+        image: workoutExercise.exercise.image,
+        videoUrl: workoutExercise.exercise.videoUrl,
+        description: workoutExercise.exercise.description,
+        series: workoutExercise.series,
+        repetitions: workoutExercise.repetitions,
+        weight: workoutExercise.weight,
+        restTime: workoutExercise.restTime,
+        muscleGroup: workoutExercise.exercise.muscleGroup
+      }))
+    };
+
+    reply.code(StatusCodes.OK).send(response);
   } catch (error) {
     handleErrorResponse(error, reply);
   }
 };
 
 export default {
-  postWorkout,
+  createWorkout,
   getWorkouts,
-  postWorkoutAI,
-  postLikeWorkout,
-  deleteExercise,
-  copyWorkout,
-  deleteWorkout,
-  postWorkoutSession,
-  patchWorkoutSessionExercise,
-  getWorkoutSession,
-  getWorkoutSessionByWorkoutID,
-  postCompleteWorkoutSession,
-  getWorkoutHistory,
-  deleteWorkoutSession,
-  getWorkoutDashboard,
-  postExercise,
-  getExercises
+  getWorkoutById,
+  startWorkout,
+  completeWorkout,
+  stopWorkout,
+  completeWorkoutSessionExercise,
 };

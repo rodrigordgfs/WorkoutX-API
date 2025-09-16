@@ -15,6 +15,7 @@ const handleErrorResponse = (error, reply) => {
 
   const errorMessages = {
     "Grupo Muscular não encontrado": StatusCodes.NOT_FOUND,
+    "Não é possível excluir o grupo muscular pois existem exercícios vinculados a ele": StatusCodes.CONFLICT,
   };
 
   const statusCode =
@@ -65,7 +66,20 @@ const postMuscleGroup = async (request, reply) => {
 
 const getMuscleGroup = async (request, reply) => {
   try {
-    const muscleGroup = await muscleGroupService.getMuscleGroup();
+    const schemaParams = z.object({
+      name: z.string().optional(),
+    });
+    
+
+    const validation = schemaParams.safeParse(request.query);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { name } = validation.data;
+
+    const muscleGroup = await muscleGroupService.getMuscleGroup(name);
     reply.code(StatusCodes.OK).send(muscleGroup);
   } catch (error) {
     handleErrorResponse(error, reply);
@@ -89,6 +103,51 @@ const getMuscleGroupById = async (request, reply) => {
     const muscleGroup = await muscleGroupService.getMuscleGroupById(id);
 
     reply.send(muscleGroup);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
+const updateMuscleGroup = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do Grupo Muscular é obrigatório" }),
+    });
+
+    const schemaBody = z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      image: z
+        .string()
+        .regex(
+          /^data:image\/(png|jpeg|jpg);base64,/,
+          "Formato de imagem inválido"
+        )
+        .optional(),
+    });
+
+    const paramsValidation = schemaParams.safeParse(request.params);
+    const bodyValidation = schemaBody.safeParse(request.body);
+
+    if (!paramsValidation.success) {
+      throw paramsValidation.error;
+    }
+
+    if (!bodyValidation.success) {
+      throw bodyValidation.error;
+    }
+
+    const { id } = paramsValidation.data;
+    const { name, description, image } = bodyValidation.data;
+
+    const muscleGroup = await muscleGroupService.updateMuscleGroup(
+      id,
+      name,
+      description,
+      image
+    );
+
+    reply.code(StatusCodes.OK).send(muscleGroup);
   } catch (error) {
     handleErrorResponse(error, reply);
   }
@@ -120,5 +179,6 @@ export default {
   postMuscleGroup,
   getMuscleGroup,
   getMuscleGroupById,
+  updateMuscleGroup,
   deleteMuscleGroup,
 };
