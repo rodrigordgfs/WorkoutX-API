@@ -4,10 +4,10 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "docker-up": "docker-compose up -d",
-    "docker-down": "docker-compose down -v",
+    "docker-up": "docker compose up -d",
+    "docker-down": "docker compose down -v",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon --exec /home/rodrigo-shinoda/.asdf/shims/node server.js",
     "seed": "npx prisma migrate reset --force && node prisma/seed.js",
     "new-route": "node newRoute.js",
     "migrate": "npx prisma migrate dev"
