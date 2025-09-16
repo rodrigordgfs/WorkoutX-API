@@ -63,7 +63,7 @@ const startWorkout = async (workoutId) => {
   try {
     // Buscar o workout para obter o userId
     const workout = await workoutRepository.getWorkoutById(workoutId);
-    
+
     if (!workout) {
       throw new AppError("Treino não encontrado");
     }
