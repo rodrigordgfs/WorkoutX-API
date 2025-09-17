@@ -20,8 +20,8 @@ app.register(cors, {
 });
 
 app.register(clerkPlugin, {
-  secretKey: process.env.CLERK_SECRET_KEY,
-  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+  secretKey: environment.clerkSecretKey,
+  publishableKey: environment.clerkPublishableKey,
 });
 
 app.register(routes);

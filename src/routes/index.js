@@ -3,8 +3,10 @@ import auth from "./auth.route.js";
 import muscleGroup from "./muscleGroup.route.js";
 import exercise from "./exercise.route.js";
 import workout from "./workout.route.js";
+import environment from "../config/envs.js";
+
 const routes = async (fastify) => {
-  if (process.env.ENV !== "development") {
+  if (environment.env !== "development") {
     fastify.addHook("preHandler", clerkAuth);
   }
   fastify.register(auth);
