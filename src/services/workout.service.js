@@ -87,17 +87,22 @@ const startWorkout = async (workoutId) => {
   }
 };
 
-const completeWorkout = async (workoutId) => {
+const completeWorkout = async (workoutId, userId, observation) => {
   try {
-    // Buscar a sessão em progresso para este workout
-    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(workoutId);
+    // Buscar a sessão em progresso para este usuário
+    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(userId);
     
     if (!sessionInProgress) {
       throw new AppError("Nenhuma sessão em progresso encontrada para este treino");
     }
 
-    // Finalizar a sessão do treino
-    const completedSession = await workoutRepository.completeWorkoutSession(sessionInProgress.id);
+    // Verificar se a sessão pertence ao workout correto
+    if (sessionInProgress.workoutId !== workoutId) {
+      throw new AppError("Sessão em progresso não pertence a este treino");
+    }
+
+    // Finalizar a sessão do treino com observação
+    const completedSession = await workoutRepository.completeWorkoutSession(sessionInProgress.id, observation);
     
     return completedSession;
   } catch (error) {
@@ -105,13 +110,18 @@ const completeWorkout = async (workoutId) => {
   }
 };
 
-const stopWorkout = async (workoutId) => {
+const stopWorkout = async (workoutId, userId) => {
   try {
-    // Buscar a sessão em progresso para este workout
-    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(workoutId);
+    // Buscar a sessão em progresso para este usuário
+    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(userId);
     
     if (!sessionInProgress) {
       throw new AppError("Nenhuma sessão em progresso encontrada para este treino");
+    }
+
+    // Verificar se a sessão pertence ao workout correto
+    if (sessionInProgress.workoutId !== workoutId) {
+      throw new AppError("Sessão em progresso não pertence a este treino");
     }
 
     // Buscar a sessão completa antes de deletar
@@ -141,6 +151,67 @@ const completeWorkoutSessionExercise = async (sessionExerciseId, exerciseData) =
   }
 };
 
+const getWorkoutHistory = async (userId, filters = {}) => {
+  try {
+    const sessions = await workoutRepository.getWorkoutHistory(userId, filters);
+
+    // Processar cada sessão para calcular duração e percentual de conclusão
+    const processedSessions = sessions.map(session => {
+      // Calcular duração do treino
+      const startTime = new Date(session.startedAt);
+      const endTime = session.endedAt ? new Date(session.endedAt) : new Date();
+      const durationMs = endTime.getTime() - startTime.getTime();
+      const durationMinutes = Math.round(durationMs / (1000 * 60));
+
+      // Calcular percentual de exercícios concluídos
+      const totalExercises = session.WorkoutSessionExercises.length;
+      const completedExercises = session.WorkoutSessionExercises.filter(
+        exercise => exercise.status === 'COMPLETED'
+      ).length;
+      const completionPercentage = totalExercises > 0 
+        ? Math.round((completedExercises / totalExercises) * 100) 
+        : 0;
+
+      // Processar exercícios
+      const exercises = session.WorkoutSessionExercises.map(sessionExercise => ({
+        id: sessionExercise.id,
+        name: sessionExercise.workoutExercise.exercise.name,
+        image: sessionExercise.workoutExercise.exercise.image,
+        videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+        description: sessionExercise.workoutExercise.exercise.description,
+        muscleGroup: sessionExercise.workoutExercise.exercise.muscleGroup,
+        series: sessionExercise.series,
+        repetitions: sessionExercise.repetitions,
+        weight: sessionExercise.weight,
+        restTime: sessionExercise.restTime,
+        status: sessionExercise.status,
+        createdAt: sessionExercise.createdAt,
+        updatedAt: sessionExercise.updatedAt
+      }));
+
+      return {
+        id: session.id,
+        workoutId: session.workoutId,
+        workoutName: session.workout.name,
+        workoutVisibility: session.workout.visibility,
+        status: session.status,
+        startedAt: session.startedAt,
+        endedAt: session.endedAt,
+        duration: durationMinutes, // duração em minutos
+        completionPercentage: completionPercentage,
+        observation: session.observation,
+        createdAt: session.createdAt,
+        updatedAt: session.updatedAt,
+        exercises: exercises
+      };
+    });
+
+    return processedSessions;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   createWorkout,
   getWorkouts,
@@ -149,4 +220,5 @@ export default {
   completeWorkout,
   stopWorkout,
   completeWorkoutSessionExercise,
+  getWorkoutHistory,
 };

@@ -322,15 +322,26 @@ const completeWorkout = async (request, reply) => {
       id: z.string({ required_error: "O ID do treino é obrigatório" }),
     });
 
-    const validation = schemaParams.safeParse(request.params);
+    const schemaBody = z.object({
+      observation: z.string().optional(),
+    });
 
-    if (!validation.success) {
-      throw validation.error;
+    const validationParams = schemaParams.safeParse(request.params);
+    const validationBody = schemaBody.safeParse(request.body);
+
+    if (!validationParams.success) {
+      throw validationParams.error;
     }
 
-    const { id } = validation.data;
+    if (!validationBody.success) {
+      throw validationBody.error;
+    }
 
-    const workout = await workoutService.completeWorkout(id);
+    const { id } = validationParams.data;
+    const { observation } = validationBody.data;
+    const userId = request.userId;
+
+    const workout = await workoutService.completeWorkout(id, userId, observation);
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
@@ -351,6 +362,7 @@ const completeWorkout = async (request, reply) => {
         status: workout.status,
         startedAt: workout.startedAt,
         endedAt: workout.endedAt,
+        observation: workout.observation,
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
         exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
@@ -401,8 +413,9 @@ const stopWorkout = async (request, reply) => {
     }
 
     const { id } = validation.data;
+    const userId = request.userId;
 
-    const workout = await workoutService.stopWorkout(id);
+    const workout = await workoutService.stopWorkout(id, userId);
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
@@ -546,6 +559,32 @@ const completeWorkoutSessionExercise = async (request, reply) => {
   }
 };
 
+const getWorkoutHistory = async (request, reply) => {
+  try {
+    const schemaQuery = z.object({
+      workoutName: z.string().optional(),
+      status: z.enum(['COMPLETED', 'IN_PROGRESS', 'NOT_STARTED', 'UNCOMPLETED']).optional(),
+      startDate: z.string().datetime().optional(),
+      endDate: z.string().datetime().optional(),
+    });
+
+    const validation = schemaQuery.safeParse(request.query);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const filters = validation.data;
+    const userId = request.userId;
+
+    const history = await workoutService.getWorkoutHistory(userId, filters);
+
+    reply.code(StatusCodes.OK).send(history);
+  } catch (error) {
+    handleErrorResponse(error, reply);
+  }
+};
+
 export default {
   createWorkout,
   getWorkouts,
@@ -554,4 +593,5 @@ export default {
   completeWorkout,
   stopWorkout,
   completeWorkoutSessionExercise,
+  getWorkoutHistory,
 };

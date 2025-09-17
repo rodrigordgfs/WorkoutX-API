@@ -70,6 +70,7 @@ model WorkoutSession {
   status                  Status                    @default(NOT_STARTED)
   startedAt               DateTime                  @default(now())
   endedAt                 DateTime?
+  observation             String?
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
   WorkoutSessionExercises WorkoutSessionExercises[]

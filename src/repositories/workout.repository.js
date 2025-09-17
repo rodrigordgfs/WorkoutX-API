@@ -738,7 +738,7 @@ const getWorkoutSessionById = async (sessionId) => {
   }
 };
 
-const completeWorkoutSession = async (sessionId) => {
+const completeWorkoutSession = async (sessionId, observation) => {
   try {
     return await prisma.$transaction(async (tx) => {
       // Buscar a sessão com os exercícios
@@ -773,7 +773,7 @@ const completeWorkoutSession = async (sessionId) => {
         },
       });
 
-      // Atualizar status da sessão
+      // Atualizar status da sessão com observação
       return await tx.workoutSession.update({
         where: {
           id: sessionId,
@@ -781,6 +781,7 @@ const completeWorkoutSession = async (sessionId) => {
         data: {
           status: workoutStatus,
           endedAt: new Date(),
+          observation: observation,
         },
         select: {
           id: true,
@@ -789,6 +790,7 @@ const completeWorkoutSession = async (sessionId) => {
           status: true,
           startedAt: true,
           endedAt: true,
+          observation: true,
           createdAt: true,
           updatedAt: true,
           workout: {
@@ -1030,6 +1032,96 @@ const completeWorkoutSessionExercise = async (sessionExerciseId, exerciseData) =
   }
 };
 
+const getWorkoutHistory = async (userId, filters = {}) => {
+  try {
+    const {
+      workoutName,
+      status,
+      startDate,
+      endDate
+    } = filters;
+
+    // Construir filtros para a query
+    const whereClause = {
+      userId: userId,
+    };
+
+    // Filtro por nome do treino
+    if (workoutName) {
+      whereClause.workout = {
+        name: {
+          contains: workoutName,
+          mode: 'insensitive'
+        }
+      };
+    }
+
+    // Filtro por status
+    if (status) {
+      whereClause.status = status;
+    }
+
+    // Filtro por data de início
+    if (startDate || endDate) {
+      whereClause.startedAt = {};
+      if (startDate) {
+        whereClause.startedAt.gte = new Date(startDate);
+      }
+      if (endDate) {
+        whereClause.startedAt.lte = new Date(endDate);
+      }
+    }
+
+    const sessions = await prisma.workoutSession.findMany({
+      where: whereClause,
+      include: {
+        workout: {
+          select: {
+            id: true,
+            name: true,
+            visibility: true,
+            createdAt: true,
+            updatedAt: true,
+          }
+        },
+        WorkoutSessionExercises: {
+          include: {
+            workoutExercise: {
+              include: {
+                exercise: {
+                  select: {
+                    id: true,
+                    name: true,
+                    image: true,
+                    videoUrl: true,
+                    description: true,
+                    muscleGroup: {
+                      select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                        description: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        startedAt: 'desc'
+      }
+    });
+
+    return sessions;
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+};
+
 export default {
   getUserById,
   getExercisesByIds,
@@ -1047,4 +1139,5 @@ export default {
   deleteWorkoutSession,
   getWorkoutSessionInProgressByWorkoutId,
   completeWorkoutSessionExercise,
+  getWorkoutHistory,
 };
