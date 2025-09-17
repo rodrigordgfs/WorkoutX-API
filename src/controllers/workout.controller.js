@@ -36,7 +36,6 @@ const createWorkout = async (request, reply) => {
         required_error: "A privacidade é obrigatória",
         invalid_type_error: "Privacidade deve ser 'public' ou 'private'"
       }),
-      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
       exercises: z.array(
         z.object({
           id: z.string({ required_error: "O ID do exercício é obrigatório" }),
@@ -66,7 +65,8 @@ const createWorkout = async (request, reply) => {
       throw validation.error;
     }
 
-    const { name, privacy, exercises, userId } = validation.data;
+    const { name, privacy, exercises } = validation.data;
+    const userId = request.userId;
 
     const workout = await workoutService.createWorkout(userId, name, privacy, exercises);
 
