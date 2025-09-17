@@ -1,0 +1,1014 @@
+[
+    {
+        "name": "Adutores",
+        "id": "f29afcc3-077c-4821-a014-693e1f83d485",
+        "exercises": [
+            {
+                "name": "Addução de Quadril em Pé",
+                "description": "Em pé, cruze uma perna à frente da outra. Aplique pressão para aproximar as pernas, contraindo os músculos internos da coxa."
+            },
+            {
+                "name": "Addução com Elástico",
+                "description": "Coloque uma banda elástica ao redor das pernas, acima dos joelhos. Em pé, aproxime as pernas contra a resistência da banda. Retorne à posição inicial."
+            },
+            {
+                "name": "Agachamento Sumo",
+                "description": "Fique em pé com os pés mais afastados que os ombros e pontas dos pés voltadas para fora. Desça como um agachamento normal, mantendo os joelhos alinhados com os pés."
+            },
+            {
+                "name": "Addução Deitado de Lado",
+                "description": "Deite de lado com a perna inferior estendida e a superior dobrada sobre ela. Levante a perna inferior contraindo os músculos internos da coxa."
+            },
+            {
+                "name": "Agachamento Cossaco",
+                "description": "Fique em pé e desça lateralmente, transferindo o peso para uma perna enquanto a outra fica estendida. Mantenha o tronco ereto e retorne à posição inicial."
+            },
+            {
+                "name": "Afundo Lateral",
+                "description": "Dê um passo largo para o lado e desça, mantendo a perna de trás estendida. Empurre com a perna da frente para retornar à posição inicial."
+            },
+            {
+                "name": "Addução com Cabo",
+                "description": "Anexe um cabo na altura do tornozelo. Em pé, aproxime a perna da linha central do corpo contra a resistência do cabo. Retorne à posição inicial."
+            },
+            {
+                "name": "Compressão de Adutores Sentado",
+                "description": "Sente-se e coloque uma bola ou objeto entre os joelhos. Aperte o objeto contraindo os músculos internos da coxa. Mantenha a contração por alguns segundos."
+            },
+            {
+                "name": "Alongamento de Adutores em Pé",
+                "description": "Em pé, afaste as pernas e desça lateralmente, alongando os músculos internos da coxa. Mantenha a posição por 30 segundos de cada lado."
+            },
+            {
+                "name": "Prancha de Copenhague",
+                "description": "Deite de lado com o antebraço apoiado no chão e a perna superior apoiada em um banco. Mantenha o corpo em linha reta, contraindo o abdômen e os adutores."
+            }
+        ]
+    },
+    {
+        "name": "Bíceps",
+        "id": "cfc9d0d9-63ce-4765-92cd-7f856c27085b",
+        "exercises": [
+            {
+                "name": "Rosca Direta",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Flexione os cotovelos elevando os pesos em direção aos ombros. Desça controladamente."
+            },
+            {
+                "name": "Rosca Martelo",
+                "description": "Em pé, segure halteres com pegada neutra (polegares para cima). Flexione os cotovelos elevando os pesos, mantendo os punhos na mesma posição."
+            },
+            {
+                "name": "Rosca Concentrada",
+                "description": "Sente-se e apoie o cotovelo na parte interna da coxa. Flexione o braço elevando o peso em direção ao ombro. Desça controladamente."
+            },
+            {
+                "name": "Rosca com Barra",
+                "description": "Em pé, segure uma barra com pegada supinada. Flexione os cotovelos elevando a barra em direção ao peito. Desça controladamente."
+            },
+            {
+                "name": "Rosca 21",
+                "description": "Faça 7 repetições parciais da parte inferior do movimento, 7 da parte superior e 7 completas. Mantenha o controle durante todo o exercício."
+            },
+            {
+                "name": "Rosca Inversa",
+                "description": "Em pé, segure halteres com pegada pronada (palmas para baixo). Flexione os cotovelos elevando os pesos, trabalhando também o antebraço."
+            },
+            {
+                "name": "Rosca Scott",
+                "description": "Apoie o braço no banco Scott. Flexione o cotovelo elevando o peso em direção ao ombro, mantendo o braço apoiado. Desça controladamente."
+            },
+            {
+                "name": "Rosca Alternada",
+                "description": "Em pé, segure halteres e faça a rosca com um braço por vez, alternando entre eles. Mantenha o controle e a forma correta."
+            },
+            {
+                "name": "Rosca com Cabo",
+                "description": "Anexe uma barra ou corda no cabo baixo. Em pé, flexione os cotovelos puxando o cabo em direção ao peito. Desça controladamente."
+            },
+            {
+                "name": "Barra Fixa",
+                "description": "Segure uma barra fixa com pegada supinada. Puxe o corpo para cima até o queixo passar da barra. Desça controladamente."
+            },
+            {
+                "name": "Rosca Scott",
+                "description": "Apoie o braço no banco Scott. Flexione o cotovelo elevando o peso em direção ao ombro, mantendo o braço apoiado. Desça controladamente."
+            },
+            {
+                "name": "Rosca de Arrasto",
+                "description": "Em pé, segure halteres e faça a rosca mantendo os cotovelos próximos ao corpo, como se estivesse arrastando os pesos para cima."
+            }
+        ]
+    },
+    {
+        "name": "Peitoral",
+        "id": "ee38c9bd-1589-40c1-9917-2f4b248da52b",
+        "exercises": [
+            {
+                "name": "Supino Reto",
+                "description": "Deite no banco e segure a barra com pegada ligeiramente mais larga que os ombros. Desça a barra até o peito e empurre para cima."
+            },
+            {
+                "name": "Flexão de Braço",
+                "description": "Em posição de prancha, desça o corpo até quase tocar o chão e empurre para cima. Mantenha o corpo em linha reta durante todo o movimento."
+            },
+            {
+                "name": "Crucifixo com Halteres",
+                "description": "Deite no banco segurando halteres com braços estendidos. Abra os braços em arco até sentir alongamento no peito. Retorne à posição inicial."
+            },
+            {
+                "name": "Supino Inclinado",
+                "description": "Deite no banco inclinado e segure a barra. Desça a barra até o peito superior e empurre para cima, trabalhando a parte superior do peitoral."
+            },
+            {
+                "name": "Supino Declinado",
+                "description": "Deite no banco declinado e segure a barra. Desça a barra até o peito inferior e empurre para cima, trabalhando a parte inferior do peitoral."
+            },
+            {
+                "name": "Flexão Diamante",
+                "description": "Em posição de flexão, coloque as mãos próximas formando um diamante. Desça o corpo e empurre para cima, trabalhando o tríceps e peitoral interno."
+            },
+            {
+                "name": "Flexão Inclinada",
+                "description": "Coloque as mãos em um banco ou step e faça flexões. Isso facilita o movimento e trabalha a parte superior do peitoral."
+            },
+            {
+                "name": "Flexão Declinada",
+                "description": "Coloque os pés em um banco ou step e faça flexões. Isso aumenta a dificuldade e trabalha a parte inferior do peitoral."
+            },
+            {
+                "name": "Mergulho",
+                "description": "Segure as barras paralelas e desça o corpo até os ombros ficarem na altura dos cotovelos. Empurre para cima, trabalhando peitoral e tríceps."
+            },
+            {
+                "name": "Pullover",
+                "description": "Deite no banco segurando um haltere com ambas as mãos. Desça o peso atrás da cabeça em arco e retorne à posição inicial."
+            },
+            {
+                "name": "Crucifixo com Cabo",
+                "description": "Anexe cabos nas polias altas. Em pé, puxe os cabos em arco até as mãos se encontrarem na frente do peito. Retorne à posição inicial."
+            },
+            {
+                "name": "Flexão com Pausa",
+                "description": "Faça flexões normais, mas pause por 2-3 segundos na parte inferior do movimento. Isso aumenta a tensão no peitoral."
+            },
+            {
+                "name": "Flexão de Arqueiro",
+                "description": "Em posição de flexão, desça para um lado transferindo o peso para um braço. Retorne à posição inicial e alterne para o outro lado."
+            },
+            {
+                "name": "Flexão Pike",
+                "description": "Em posição de flexão, eleve os quadris formando um V invertido. Desça a cabeça em direção ao chão e empurre para cima."
+            }
+        ]
+    },
+    {
+        "name": "Antebraço",
+        "id": "00390cbe-cf6f-4a5e-850a-9bf3550d335f",
+        "exercises": [
+            {
+                "name": "Rosca de Punho",
+                "description": "Sente-se e apoie o antebraço em uma superfície. Segure um haltere e flexione o punho para cima, trabalhando os flexores do antebraço."
+            },
+            {
+                "name": "Extensão de Punho",
+                "description": "Sente-se e apoie o antebraço em uma superfície. Segure um haltere e estenda o punho para cima, trabalhando os extensores do antebraço."
+            },
+            {
+                "name": "Caminhada do Fazendeiro",
+                "description": "Segure halteres pesados em cada mão e caminhe por uma distância determinada. Mantenha o tronco ereto e os ombros para trás."
+            },
+            {
+                "name": "Grip com Elástico",
+                "description": "Coloque uma banda elástica ao redor dos dedos. Abra os dedos contra a resistência da banda, trabalhando a força de preensão."
+            },
+            {
+                "name": "Rosca de Punho",
+                "description": "Sente-se e apoie o antebraço em uma superfície. Segure um haltere e flexione o punho para cima, trabalhando os flexores do antebraço."
+            },
+            {
+                "name": "Rosca de Punho Inversa",
+                "description": "Sente-se e apoie o antebraço em uma superfície. Segure um haltere com pegada pronada e flexione o punho, trabalhando os extensores."
+            },
+            {
+                "name": "Pinça de Anilha",
+                "description": "Segure uma anilha entre os dedos polegar e indicador. Mantenha a posição por alguns segundos, trabalhando a força de pinça."
+            },
+            {
+                "name": "Barra com Toalha",
+                "description": "Envolva uma toalha na barra e faça barra fixa. Isso aumenta a dificuldade e trabalha a força de preensão e estabilidade."
+            },
+            {
+                "name": "Rolo de Pulso",
+                "description": "Segure um rolo de pulso com uma corda e peso. Gire o rolo para enrolar a corda, trabalhando os músculos do antebraço."
+            },
+            {
+                "name": "Extensão de Dedos",
+                "description": "Coloque uma banda elástica ao redor dos dedos. Estenda os dedos contra a resistência da banda, trabalhando os extensores."
+            },
+            {
+                "name": "Aperto de Grip",
+                "description": "Use um aparelho de grip ou bola de stress. Aperte com força por alguns segundos, trabalhando a força de preensão."
+            },
+            {
+                "name": "Suspensão Morta",
+                "description": "Segure uma barra fixa e fique suspenso pelo maior tempo possível. Isso trabalha a força de preensão e estabilidade do core."
+            }
+        ]
+    },
+    {
+        "name": "Glúteos",
+        "id": "802de8d5-4df6-4da1-94bf-22c92a0b4606",
+        "exercises": [
+            {
+                "name": "Agachamento",
+                "description": "Em pé, desça como se fosse sentar em uma cadeira, mantendo os joelhos alinhados com os pés. Desça até as coxas ficarem paralelas ao chão e suba."
+            },
+            {
+                "name": "Empurrão de Quadril",
+                "description": "Deite de costas com os ombros apoiados em um banco. Empurre os quadris para cima, contraindo os glúteos no topo do movimento."
+            },
+            {
+                "name": "Ponte de Glúteo",
+                "description": "Deite de costas com os joelhos dobrados. Empurre os quadris para cima contraindo os glúteos. Mantenha a posição por alguns segundos."
+            },
+            {
+                "name": "Levantamento Terra Pernas Rígidas",
+                "description": "Em pé, segure uma barra e desça mantendo as pernas quase estendidas. Sinta o alongamento nos isquiotibiais e glúteos."
+            },
+            {
+                "name": "Agachamento Búlgaro",
+                "description": "Coloque um pé atrás em um banco. Desça em um afundo, mantendo o joelho da frente alinhado com o pé. Empurre para cima."
+            },
+            {
+                "name": "Marcha da Ponte",
+                "description": "Em posição de ponte de glúteo, alterne levantando uma perna por vez, mantendo os quadris elevados e os glúteos contraídos."
+            },
+            {
+                "name": "Empurrão de Quadril Unilateral",
+                "description": "Apoie as costas em um banco e estenda uma perna. Empurre os quadris para cima com uma perna só, trabalhando cada glúteo separadamente."
+            },
+            {
+                "name": "Conchas",
+                "description": "Deite de lado com as pernas dobradas. Mantenha os pés juntos e levante o joelho superior, abrindo as pernas como uma concha."
+            },
+            {
+                "name": "Hidrantes",
+                "description": "Fique em quatro apoios. Levante uma perna lateralmente, mantendo o joelho dobrado em 90 graus. Retorne à posição inicial."
+            },
+            {
+                "name": "Chutes de Burro",
+                "description": "Fique em quatro apoios. Levante uma perna para trás, mantendo o joelho dobrado. Contraia o glúteo no topo do movimento."
+            },
+            {
+                "name": "Caminhada Lateral com Banda",
+                "description": "Coloque uma banda elástica ao redor das pernas. Caminhe lateralmente mantendo a banda tensionada, com passos pequenos e controlados."
+            },
+            {
+                "name": "Subida no Banco",
+                "description": "Fique em frente a um banco. Suba com uma perna, mantendo o controle. Desça e repita com a outra perna."
+            },
+            {
+                "name": "Afundos Caminhando",
+                "description": "Dê um passo largo para frente e desça em um afundo. Empurre com a perna da frente e continue caminhando, alternando as pernas."
+            },
+            {
+                "name": "Agachamento Goblet",
+                "description": "Segure um haltere ou kettlebell próximo ao peito. Faça um agachamento mantendo o peso próximo ao corpo e o tronco ereto."
+            }
+        ]
+    },
+    {
+        "name": "Isquiotibiais",
+        "id": "0c0541d9-e251-40ab-b9cb-65ed4b873c29",
+        "exercises": [
+            {
+                "name": "Levantamento Terra Pernas Rígidas",
+                "description": "Em pé, segure uma barra e desça mantendo as pernas quase estendidas. Sinta o alongamento nos isquiotibiais e glúteos."
+            },
+            {
+                "name": "Curl de Pernas",
+                "description": "Deite de bruços em uma máquina de curl. Flexione os joelhos puxando os calcanhares em direção aos glúteos. Desça controladamente."
+            },
+            {
+                "name": "Bom Dia",
+                "description": "Em pé, segure uma barra nos ombros. Desça o tronco para frente mantendo as pernas quase estendidas. Retorne à posição inicial."
+            },
+            {
+                "name": "Levantamento Terra Romeno",
+                "description": "Em pé, segure uma barra e desça mantendo as pernas ligeiramente flexionadas. Sinta o alongamento nos isquiotibiais."
+            },
+            {
+                "name": "Levantamento Terra Unilateral",
+                "description": "Em pé, estenda uma perna para trás e desça o tronco, mantendo o equilíbrio. Retorne à posição inicial e alterne as pernas."
+            },
+            {
+                "name": "Curls Nórdicos",
+                "description": "Ajoelhe-se e peça para alguém segurar seus tornozelos. Desça o tronco para frente controlando o movimento com os isquiotibiais."
+            },
+            {
+                "name": "Elevação Glúteo-Isquiotibial",
+                "description": "Use uma máquina GHR ou faça o movimento livre. Desça o tronco para frente e retorne à posição inicial usando os isquiotibiais."
+            },
+            {
+                "name": "Curl de Pernas na Bola",
+                "description": "Deite de costas com os pés em uma bola suíça. Eleve os quadris e flexione os joelhos puxando a bola em direção aos glúteos."
+            },
+            {
+                "name": "Curl de Pernas em Pé",
+                "description": "Em pé, use uma máquina de curl ou cabo. Flexione um joelho puxando o calcanhar em direção ao glúteo. Desça controladamente."
+            },
+            {
+                "name": "Curl de Pernas Sentado",
+                "description": "Sente-se em uma máquina de curl. Flexione os joelhos puxando os calcanhares em direção aos glúteos. Desça controladamente."
+            },
+            {
+                "name": "Balanço com Kettlebell",
+                "description": "Em pé, segure um kettlebell com ambas as mãos. Balance o peso entre as pernas e empurre os quadris para frente, balançando o peso."
+            },
+            {
+                "name": "Ponte de Glúteo Unilateral",
+                "description": "Deite de costas e estenda uma perna. Empurre os quadris para cima com uma perna só, trabalhando os isquiotibiais e glúteos."
+            }
+        ]
+    },
+    {
+        "name": "Flexores do Quadril",
+        "id": "b8dd87b7-39b6-4a66-843c-0f7f77eb143c",
+        "exercises": [
+            {
+                "name": "Elevação de Joelho",
+                "description": "Em pé, eleve um joelho em direção ao peito, mantendo o tronco ereto. Desça controladamente e alterne as pernas."
+            },
+            {
+                "name": "Escalador",
+                "description": "Em posição de prancha, alterne rapidamente os joelhos em direção ao peito, como se estivesse escalando uma montanha."
+            },
+            {
+                "name": "Joelhos Altos",
+                "description": "Corra no lugar elevando os joelhos o mais alto possível, mantendo o tronco ereto e os braços em movimento natural."
+            },
+            {
+                "name": "Elevação de Joelho Suspenso",
+                "description": "Segure uma barra fixa e eleve os joelhos em direção ao peito, contraindo os flexores do quadril. Desça controladamente."
+            },
+            {
+                "name": "Prancha L",
+                "description": "Sente-se no chão e eleve as pernas, mantendo-as estendidas. Segure a posição contraindo o abdômen e os flexores do quadril."
+            },
+            {
+                "name": "Alongamento de Flexor Unilateral",
+                "description": "Em pé, dê um passo largo para frente e desça, alongando o flexor do quadril da perna de trás. Mantenha a posição por 30 segundos."
+            },
+            {
+                "name": "Joelho ao Peito em Pé",
+                "description": "Em pé, puxe um joelho em direção ao peito com as mãos. Mantenha o tronco ereto e segure a posição por alguns segundos."
+            },
+            {
+                "name": "Joelhos ao Peito Sentado",
+                "description": "Sente-se e puxe os joelhos em direção ao peito, abraçando as pernas. Mantenha a posição contraindo os flexores do quadril."
+            },
+            {
+                "name": "Crunch Reverso",
+                "description": "Deite de costas com as pernas dobradas. Levante os quadris do chão, aproximando os joelhos do peito. Desça controladamente."
+            },
+            {
+                "name": "Chutes de Tesoura",
+                "description": "Deite de costas e levante as pernas alguns centímetros do chão. Alterne as pernas em movimento de tesoura, contraindo os flexores."
+            },
+            {
+                "name": "Crunch de Bicicleta",
+                "description": "Deite de costas e simule pedalar uma bicicleta no ar, alternando os joelhos e cotovelos. Mantenha os flexores contraídos."
+            },
+            {
+                "name": "Prancha V",
+                "description": "Sente-se e eleve as pernas e o tronco, formando um V. Mantenha a posição contraindo o abdômen e os flexores do quadril."
+            }
+        ]
+    },
+    {
+        "name": "Dorsais",
+        "id": "6beb2180-1553-4989-b3a8-b952b5a10494",
+        "exercises": [
+            {
+                "name": "Puxada Frontal",
+                "description": "Sente-se na máquina e segure a barra com pegada mais larga que os ombros. Puxe a barra em direção ao peito, contraindo os dorsais."
+            },
+            {
+                "name": "Remada Curvada",
+                "description": "Em pé, incline o tronco para frente e segure uma barra. Puxe a barra em direção ao abdômen, contraindo os dorsais e retraindo as escápulas."
+            },
+            {
+                "name": "Barra Fixa",
+                "description": "Segure uma barra fixa com pegada mais larga que os ombros. Puxe o corpo para cima até o peito passar da barra. Desça controladamente."
+            },
+            {
+                "name": "Remada com Halteres",
+                "description": "Incline o tronco para frente e segure halteres. Puxe os pesos em direção ao abdômen, contraindo os dorsais e retraindo as escápulas."
+            },
+            {
+                "name": "Puxada Frontal",
+                "description": "Sente-se na máquina e segure a barra com pegada supinada. Puxe a barra em direção ao peito, contraindo os dorsais."
+            },
+            {
+                "name": "Remada T",
+                "description": "Deite de bruços em um banco inclinado e segure uma barra T. Puxe a barra em direção ao peito, contraindo os dorsais."
+            },
+            {
+                "name": "Remada Unilateral",
+                "description": "Apoie um joelho e uma mão em um banco. Segure um haltere com a outra mão e puxe em direção ao abdômen, contraindo os dorsais."
+            },
+            {
+                "name": "Barra Fixa Pegada Aberta",
+                "description": "Segure uma barra fixa com pegada bem aberta. Puxe o corpo para cima até o peito passar da barra, trabalhando a parte externa dos dorsais."
+            },
+            {
+                "name": "Barra Fixa Pegada Fechada",
+                "description": "Segure uma barra fixa com pegada fechada. Puxe o corpo para cima até o peito passar da barra, trabalhando a parte interna dos dorsais."
+            },
+            {
+                "name": "Remada Invertida",
+                "description": "Deite de costas e segure uma barra fixa. Puxe o corpo para cima até o peito tocar a barra. Desça controladamente."
+            },
+            {
+                "name": "Remada com Apoio",
+                "description": "Apoie o peito em um banco inclinado e segure halteres. Puxe os pesos em direção ao abdômen, contraindo os dorsais."
+            },
+            {
+                "name": "Remada com Cabo",
+                "description": "Sente-se na máquina e segure a barra. Puxe a barra em direção ao abdômen, contraindo os dorsais e retraindo as escápulas."
+            },
+            {
+                "name": "Remada com Barra",
+                "description": "Em pé, incline o tronco para frente e segure uma barra. Puxe a barra em direção ao abdômen, contraindo os dorsais."
+            },
+            {
+                "name": "Remada Sentada com Cabo",
+                "description": "Sente-se na máquina e segure a barra. Puxe a barra em direção ao abdômen, contraindo os dorsais e retraindo as escápulas."
+            }
+        ]
+    },
+    {
+        "name": "Parte Inferior das Costas",
+        "id": "116ad9ec-fad6-4c38-8c37-9fb5f060ccbe",
+        "exercises": [
+            {
+                "name": "Hiperextensão",
+                "description": "Deite de bruços em um banco de hiperextensão. Desça o tronco e depois eleve-o contraindo os músculos da parte inferior das costas."
+            },
+            {
+                "name": "Super-homem",
+                "description": "Deite de bruços e estenda os braços e pernas. Levante simultaneamente os braços e pernas, contraindo os músculos das costas."
+            },
+            {
+                "name": "Levantamento Terra",
+                "description": "Em pé, segure uma barra e desça mantendo as costas retas. Empurre os quadris para frente e retorne à posição inicial."
+            },
+            {
+                "name": "Bom Dia",
+                "description": "Em pé, segure uma barra nos ombros. Desça o tronco para frente mantendo as pernas quase estendidas. Retorne à posição inicial."
+            },
+            {
+                "name": "Cão Pássaro",
+                "description": "Fique em quatro apoios. Estenda simultaneamente um braço e a perna oposta. Mantenha o equilíbrio e retorne à posição inicial."
+            },
+            {
+                "name": "Alongamento Gato-Vaca",
+                "description": "Fique em quatro apoios. Arqueie as costas para cima (gato) e depois para baixo (vaca). Repita o movimento suavemente."
+            },
+            {
+                "name": "Postura da Criança",
+                "description": "Ajoelhe-se e sente-se sobre os calcanhares. Estenda os braços para frente e relaxe, alongando a coluna vertebral."
+            },
+            {
+                "name": "Alongamento da Cobra",
+                "description": "Deite de bruços e apoie as mãos no chão. Empurre o tronco para cima, alongando a parte inferior das costas."
+            },
+            {
+                "name": "Hiperextensão Reversa",
+                "description": "Deite de bruços e eleve as pernas para trás, contraindo os músculos da parte inferior das costas. Desça controladamente."
+            },
+            {
+                "name": "Extensão de Costas",
+                "description": "Deite de bruços e coloque as mãos atrás da cabeça. Eleve o tronco contraindo os músculos das costas. Desça controladamente."
+            },
+            {
+                "name": "Y-T-W Prono",
+                "description": "Deite de bruços e eleve os braços formando as letras Y, T e W. Mantenha os ombros para trás e contraia os músculos das costas."
+            },
+            {
+                "name": "Levantamento Terra Unilateral",
+                "description": "Em pé, estenda uma perna para trás e desça o tronco, mantendo o equilíbrio. Retorne à posição inicial e alterne as pernas."
+            }
+        ]
+    },
+    {
+        "name": "Parte Superior das Costas",
+        "id": "14378703-be64-49b2-b434-e2317b3f179b",
+        "exercises": [
+            {
+                "name": "Remada Alta",
+                "description": "Em pé, segure uma barra com pegada fechada. Puxe a barra em direção ao queixo, elevando os cotovelos. Desça controladamente."
+            },
+            {
+                "name": "Puxada para o Rosto",
+                "description": "Anexe uma corda no cabo na altura dos olhos. Puxe a corda em direção ao rosto, separando as mãos. Retorne à posição inicial."
+            },
+            {
+                "name": "Retração de Escápulas",
+                "description": "Em pé, puxe os ombros para trás e para baixo, contraindo as escápulas. Mantenha a posição por alguns segundos e relaxe."
+            },
+            {
+                "name": "Remada com Barra T",
+                "description": "Deite de bruços em um banco inclinado e segure uma barra T. Puxe a barra em direção ao peito, contraindo os músculos superiores das costas."
+            },
+            {
+                "name": "Crucifixo Inverso",
+                "description": "Incline o tronco para frente e segure halteres. Abra os braços lateralmente, contraindo os músculos superiores das costas."
+            },
+            {
+                "name": "Puxada com Banda",
+                "description": "Segure uma banda elástica com as mãos afastadas. Puxe a banda separando as mãos, contraindo os músculos superiores das costas."
+            },
+            {
+                "name": "Deslizamento de Escápula na Parede",
+                "description": "Apoie as costas na parede e deslize os braços para cima e para baixo, mantendo as escápulas contraídas."
+            },
+            {
+                "name": "T-Y-W Prono",
+                "description": "Deite de bruços e eleve os braços formando as letras T, Y e W. Mantenha os ombros para trás e contraia os músculos superiores das costas."
+            },
+            {
+                "name": "Puxada para o Rosto com Cabo",
+                "description": "Anexe uma corda no cabo na altura dos olhos. Puxe a corda em direção ao rosto, separando as mãos. Retorne à posição inicial."
+            },
+            {
+                "name": "Rotação Externa",
+                "description": "Segure um haltere com o cotovelo dobrado em 90 graus. Gire o braço para fora contraindo os músculos posteriores do ombro."
+            },
+            {
+                "name": "Rotação Interna",
+                "description": "Segure um haltere com o cotovelo dobrado em 90 graus. Gire o braço para dentro contraindo os músculos anteriores do ombro."
+            },
+            {
+                "name": "Anjos na Parede",
+                "description": "Apoie as costas na parede e deslize os braços para cima e para baixo em movimento de anjo, mantendo as escápulas contraídas."
+            }
+        ]
+    },
+    {
+        "name": "Pescoço",
+        "id": "f4566ab9-c3bd-4e69-90ff-81e2ae093e44",
+        "exercises": [
+            {
+                "name": "Flexão de Pescoço",
+                "description": "Sente-se e incline a cabeça para frente, aproximando o queixo do peito. Mantenha a posição por alguns segundos e retorne."
+            },
+            {
+                "name": "Extensão de Pescoço",
+                "description": "Sente-se e incline a cabeça para trás, olhando para cima. Mantenha a posição por alguns segundos e retorne."
+            },
+            {
+                "name": "Rotação de Pescoço",
+                "description": "Sente-se e gire a cabeça suavemente de um lado para o outro, alongando os músculos laterais do pescoço."
+            },
+            {
+                "name": "Alongamento Lateral de Pescoço",
+                "description": "Sente-se e incline a cabeça para um lado, alongando o músculo lateral do pescoço. Mantenha por 30 segundos de cada lado."
+            },
+            {
+                "name": "Círculos de Pescoço",
+                "description": "Sente-se e faça círculos suaves com a cabeça, movendo-a em todas as direções. Mantenha o movimento lento e controlado."
+            },
+            {
+                "name": "Retração de Queixo",
+                "description": "Sente-se e puxe o queixo para trás, como se estivesse fazendo um queixo duplo. Mantenha a posição por alguns segundos."
+            },
+            {
+                "name": "Acenos de Cabeça",
+                "description": "Sente-se e faça movimentos de aceno com a cabeça, para cima e para baixo, alongando os músculos do pescoço."
+            },
+            {
+                "name": "Inclinação Lateral da Cabeça",
+                "description": "Sente-se e incline a cabeça suavemente de um lado para o outro, alongando os músculos laterais do pescoço."
+            },
+            {
+                "name": "Treino de Resistência do Pescoço",
+                "description": "Coloque a mão na testa e empurre contra ela, resistindo com os músculos do pescoço. Mantenha por alguns segundos."
+            },
+            {
+                "name": "Alongamento do Escaleno",
+                "description": "Sente-se e incline a cabeça para um lado, alongando o músculo escaleno. Mantenha por 30 segundos de cada lado."
+            },
+            {
+                "name": "Alongamento do Levantador da Escápula",
+                "description": "Sente-se e incline a cabeça para um lado, alongando o músculo levantador da escápula. Mantenha por 30 segundos de cada lado."
+            },
+            {
+                "name": "Alongamento do Trapézio Superior",
+                "description": "Sente-se e incline a cabeça para um lado, alongando o trapézio superior. Mantenha por 30 segundos de cada lado."
+            }
+        ]
+    },
+    {
+        "name": "Oblíquo",
+        "id": "cd249b03-61e4-4363-b7a7-c7689a4bf1ad",
+        "exercises": [
+            {
+                "name": "Torção Russa",
+                "description": "Sente-se com os joelhos dobrados e pés elevados. Gire o tronco de um lado para o outro, mantendo o abdômen contraído e os pés fora do chão."
+            },
+            {
+                "name": "Prancha Lateral",
+                "description": "Deite de lado apoiando-se no antebraço. Mantenha o corpo em linha reta, contraindo o abdômen. Segure a posição por 30-60 segundos de cada lado."
+            },
+            {
+                "name": "Crunch de Bicicleta",
+                "description": "Deite de costas e simule pedalar uma bicicleta no ar, alternando os joelhos e cotovelos. Mantenha o abdômen contraído durante todo o movimento."
+            },
+            {
+                "name": "Corte de Madeira",
+                "description": "Em pé, segure um haltere com ambas as mãos. Gire o tronco e desça o peso diagonalmente, como se estivesse cortando madeira."
+            },
+            {
+                "name": "Crunch Lateral",
+                "description": "Deite de lado e coloque a mão atrás da cabeça. Levante o tronco lateralmente, contraindo os oblíquos. Desça controladamente."
+            },
+            {
+                "name": "V-ups Oblíquos",
+                "description": "Deite de costas e levante simultaneamente o tronco e as pernas, tocando o joelho oposto com o cotovelo. Alterne os lados."
+            },
+            {
+                "name": "Prancha Lateral com Rotação",
+                "description": "Em posição de prancha lateral, gire o tronco levando o braço por baixo do corpo. Retorne à posição inicial e repita."
+            },
+            {
+                "name": "Crunch Oblíquo em Pé",
+                "description": "Em pé, coloque a mão atrás da cabeça. Levante o joelho e gire o tronco, aproximando o cotovelo do joelho oposto."
+            },
+            {
+                "name": "Torção Oblíqua Sentado",
+                "description": "Sente-se e segure um haltere com ambas as mãos. Gire o tronco de um lado para o outro, mantendo o abdômen contraído."
+            },
+            {
+                "name": "Escalador Cruzado",
+                "description": "Em posição de prancha, alterne os joelhos em direção ao cotovelo oposto, cruzando o corpo. Mantenha o abdômen contraído."
+            },
+            {
+                "name": "Prancha com Movimento de Quadril",
+                "description": "Em posição de prancha, mova os quadris de um lado para o outro, contraindo os oblíquos. Mantenha o tronco estável."
+            },
+            {
+                "name": "Flexão Lateral",
+                "description": "Em pé, segure um haltere em uma mão. Incline o tronco para o lado oposto, alongando os oblíquos. Retorne à posição inicial."
+            }
+        ]
+    },
+    {
+        "name": "Face Palmar",
+        "id": "e9419c8c-58e2-491d-b60b-bcfaccb24c3e",
+        "exercises": [
+            {
+                "name": "Grip com Halteres",
+                "description": "Segure halteres pesados em cada mão e caminhe por uma distância determinada. Mantenha o tronco ereto e os ombros para trás."
+            },
+            {
+                "name": "Caminhada do Fazendeiro",
+                "description": "Segure halteres pesados em cada mão e caminhe por uma distância determinada. Mantenha o tronco ereto e os ombros para trás."
+            },
+            {
+                "name": "Grip com Elástico",
+                "description": "Coloque uma banda elástica ao redor dos dedos. Abra os dedos contra a resistência da banda, trabalhando a força de preensão."
+            },
+            {
+                "name": "Grip de Pinça",
+                "description": "Segure uma anilha entre os dedos polegar e indicador. Mantenha a posição por alguns segundos, trabalhando a força de pinça."
+            },
+            {
+                "name": "Rosca de Punho",
+                "description": "Sente-se e apoie o antebraço em uma superfície. Segure um haltere e flexione o punho para cima, trabalhando os flexores do antebraço."
+            },
+            {
+                "name": "Segurar Anilha com Pinça",
+                "description": "Segure uma anilha entre os dedos polegar e indicador. Mantenha a posição por alguns segundos, trabalhando a força de pinça."
+            },
+            {
+                "name": "Exercícios com Toalha",
+                "description": "Envolva uma toalha na barra e faça barra fixa. Isso aumenta a dificuldade e trabalha a força de preensão e estabilidade."
+            },
+            {
+                "name": "Rolo de Pulso",
+                "description": "Segure um rolo de pulso com uma corda e peso. Gire o rolo para enrolar a corda, trabalhando os músculos do antebraço."
+            },
+            {
+                "name": "Extensão de Dedos",
+                "description": "Coloque uma banda elástica ao redor dos dedos. Estenda os dedos contra a resistência da banda, trabalhando os extensores."
+            },
+            {
+                "name": "Bola de Aperto",
+                "description": "Use um aparelho de grip ou bola de stress. Aperte com força por alguns segundos, trabalhando a força de preensão."
+            },
+            {
+                "name": "Suspensão Morta",
+                "description": "Segure uma barra fixa e fique suspenso pelo maior tempo possível. Isso trabalha a força de preensão e estabilidade do core."
+            },
+            {
+                "name": "Escalada de Corda",
+                "description": "Escale uma corda usando apenas os braços, trabalhando a força de preensão e estabilidade do core."
+            }
+        ]
+    },
+    {
+        "name": "Face Plantar",
+        "id": "b6576ec6-76b6-4d25-a04a-10259a20b842",
+        "exercises": [
+            {
+                "name": "Elevação de Panturrilha em Pé",
+                "description": "Em pé, eleve os calcanhares o mais alto possível, contraindo as panturrilhas. Desça controladamente e repita."
+            },
+            {
+                "name": "Elevação de Panturrilha Sentado",
+                "description": "Sente-se e coloque os pés em uma plataforma. Eleve os calcanhares contraindo as panturrilhas. Desça controladamente."
+            },
+            {
+                "name": "Elevação de Panturrilha Unilateral",
+                "description": "Em pé, eleve um calcanhar por vez, contraindo a panturrilha. Desça controladamente e alterne as pernas."
+            },
+            {
+                "name": "Agachamento com Salto",
+                "description": "Faça um agachamento normal e salte o mais alto possível, aterrissando suavemente. Repita o movimento."
+            },
+            {
+                "name": "Calf Raises na Escada",
+                "description": "Fique na ponta de um degrau com os calcanhares para fora. Eleve os calcanhares e desça abaixo do nível do degrau."
+            },
+            {
+                "name": "Elevação de Panturrilha Unilateral",
+                "description": "Em pé, eleve um calcanhar por vez, contraindo a panturrilha. Desça controladamente e alterne as pernas."
+            },
+            {
+                "name": "Elevação de Panturrilha Sentado",
+                "description": "Sente-se e coloque os pés em uma plataforma. Eleve os calcanhares contraindo as panturrilhas. Desça controladamente."
+            },
+            {
+                "name": "Elevação de Panturrilha de Burro",
+                "description": "Incline-se para frente e eleve os calcanhares, contraindo as panturrilhas. Desça controladamente."
+            },
+            {
+                "name": "Elevação de Panturrilha com Peso",
+                "description": "Em pé, segure halteres e eleve os calcanhares, contraindo as panturrilhas. Desça controladamente."
+            },
+            {
+                "name": "Pular Corda",
+                "description": "Pule corda mantendo os pés na ponta, trabalhando as panturrilhas. Mantenha um ritmo constante."
+            },
+            {
+                "name": "Salto no Caixote",
+                "description": "Salte em um caixote ou plataforma alta, aterrissando suavemente. Desça e repita o movimento."
+            },
+            {
+                "name": "Alongamento de Panturrilha",
+                "description": "Em pé, dê um passo largo para frente e desça, alongando a panturrilha da perna de trás. Mantenha por 30 segundos."
+            }
+        ]
+    },
+    {
+        "name": "Quadríceps",
+        "id": "d5f25ec2-3fb8-4839-8ea0-920ff7090299",
+        "exercises": [
+            {
+                "name": "Agachamento",
+                "description": "Em pé, desça como se fosse sentar em uma cadeira, mantendo os joelhos alinhados com os pés. Desça até as coxas ficarem paralelas ao chão e suba."
+            },
+            {
+                "name": "Leg Press",
+                "description": "Sente-se na máquina e coloque os pés na plataforma. Empurre a plataforma para frente, contraindo os quadríceps. Desça controladamente."
+            },
+            {
+                "name": "Afundos",
+                "description": "Dê um passo largo para frente e desça, mantendo o joelho da frente alinhado com o pé. Empurre com a perna da frente e retorne."
+            },
+            {
+                "name": "Sentar na Parede",
+                "description": "Apoie as costas na parede e desça como se fosse sentar em uma cadeira. Mantenha a posição por 30-60 segundos."
+            },
+            {
+                "name": "Subida no Banco",
+                "description": "Fique em frente a um banco. Suba com uma perna, mantendo o controle. Desça e repita com a outra perna."
+            },
+            {
+                "name": "Agachamento Búlgaro",
+                "description": "Coloque um pé atrás em um banco. Desça em um afundo, mantendo o joelho da frente alinhado com o pé. Empurre para cima."
+            },
+            {
+                "name": "Agachamento Frontal",
+                "description": "Em pé, segure uma barra na frente do peito. Desça como um agachamento normal, mantendo o tronco ereto."
+            },
+            {
+                "name": "Agachamento Goblet",
+                "description": "Segure um haltere ou kettlebell próximo ao peito. Faça um agachamento mantendo o peso próximo ao corpo e o tronco ereto."
+            },
+            {
+                "name": "Agachamentos com Salto",
+                "description": "Faça um agachamento normal e salte o mais alto possível, aterrissando suavemente. Repita o movimento."
+            },
+            {
+                "name": "Agachamento Pistola",
+                "description": "Em pé, estenda uma perna para frente e desça com a outra perna, mantendo o equilíbrio. Empurre para cima."
+            },
+            {
+                "name": "Hack Squat",
+                "description": "Use a máquina hack squat. Posicione os pés na plataforma e desça, contraindo os quadríceps. Empurre para cima."
+            },
+            {
+                "name": "Agachamento Sissy",
+                "description": "Em pé, incline o tronco para trás e desça, mantendo as pernas quase estendidas. Contraia os quadríceps e retorne."
+            },
+            {
+                "name": "Extensão de Pernas",
+                "description": "Sente-se na máquina e estenda as pernas, contraindo os quadríceps. Desça controladamente."
+            },
+            {
+                "name": "Afundos Caminhando",
+                "description": "Dê um passo largo para frente e desça em um afundo. Empurre com a perna da frente e continue caminhando, alternando as pernas."
+            }
+        ]
+    },
+    {
+        "name": "Ombros",
+        "id": "76325fb9-e74c-4f0b-872d-59b5c4b56101",
+        "exercises": [
+            {
+                "name": "Desenvolvimento",
+                "description": "Em pé, segure halteres na altura dos ombros. Empurre os pesos para cima até os braços ficarem estendidos. Desça controladamente."
+            },
+            {
+                "name": "Elevação Lateral",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Eleve os braços lateralmente até a altura dos ombros. Desça controladamente."
+            },
+            {
+                "name": "Elevação Frontal",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Eleve os braços para frente até a altura dos ombros. Desça controladamente."
+            },
+            {
+                "name": "Elevação Posterior",
+                "description": "Incline o tronco para frente e segure halteres. Eleve os braços lateralmente, contraindo os músculos posteriores do ombro."
+            },
+            {
+                "name": "Desenvolvimento Arnold",
+                "description": "Em pé, segure halteres com os braços dobrados e palmas voltadas para o corpo. Gire os braços e empurre para cima."
+            },
+            {
+                "name": "Desenvolvimento Militar",
+                "description": "Em pé, segure uma barra na altura dos ombros. Empurre a barra para cima até os braços ficarem estendidos. Desça controladamente."
+            },
+            {
+                "name": "Flexão Pike",
+                "description": "Em posição de flexão, eleve os quadris formando um V invertido. Desça a cabeça em direção ao chão e empurre para cima."
+            },
+            {
+                "name": "Flexão de Perna",
+                "description": "Faça uma parada de mão contra a parede e desça a cabeça em direção ao chão. Empurre para cima, trabalhando os ombros."
+            },
+            {
+                "name": "Elevação Lateral",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Eleve os braços lateralmente até a altura dos ombros. Desça controladamente."
+            },
+            {
+                "name": "Elevação Frontal",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Eleve os braços para frente até a altura dos ombros. Desça controladamente."
+            },
+            {
+                "name": "Crucifixo Posterior",
+                "description": "Incline o tronco para frente e segure halteres. Eleve os braços lateralmente, contraindo os músculos posteriores do ombro."
+            },
+            {
+                "name": "Remada Alta",
+                "description": "Em pé, segure uma barra com pegada fechada. Puxe a barra em direção ao queixo, elevando os cotovelos. Desça controladamente."
+            },
+            {
+                "name": "Puxada para o Rosto",
+                "description": "Anexe uma corda no cabo na altura dos olhos. Puxe a corda em direção ao rosto, separando as mãos. Retorne à posição inicial."
+            },
+            {
+                "name": "Desenvolvimento Cubano",
+                "description": "Em pé, segure halteres e faça uma rosca seguida de uma elevação lateral e desenvolvimento. Complete o movimento circular."
+            }
+        ]
+    },
+    {
+        "name": "Trapézio",
+        "id": "6feef40f-1f0c-4d5c-a5f4-89aa419fea9f",
+        "exercises": [
+            {
+                "name": "Encolhimento de Ombros",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Eleve os ombros o mais alto possível, contraindo o trapézio. Desça controladamente."
+            },
+            {
+                "name": "Encolhimento com Barra",
+                "description": "Em pé, segure uma barra com os braços ao lado do corpo. Eleve os ombros o mais alto possível, contraindo o trapézio. Desça controladamente."
+            },
+            {
+                "name": "Puxada para o Rosto",
+                "description": "Anexe uma corda no cabo na altura dos olhos. Puxe a corda em direção ao rosto, separando as mãos. Retorne à posição inicial."
+            },
+            {
+                "name": "Retração de Escápulas",
+                "description": "Em pé, puxe os ombros para trás e para baixo, contraindo as escápulas. Mantenha a posição por alguns segundos e relaxe."
+            },
+            {
+                "name": "Puxada Alta",
+                "description": "Em pé, segure uma barra com pegada fechada. Puxe a barra em direção ao queixo, elevando os cotovelos. Desça controladamente."
+            },
+            {
+                "name": "Remada Alta",
+                "description": "Em pé, segure uma barra com pegada fechada. Puxe a barra em direção ao queixo, elevando os cotovelos. Desça controladamente."
+            },
+            {
+                "name": "Crucifixo Inverso",
+                "description": "Incline o tronco para frente e segure halteres. Abra os braços lateralmente, contraindo os músculos superiores das costas."
+            },
+            {
+                "name": "Deslizamento de Escápula na Parede",
+                "description": "Apoie as costas na parede e deslize os braços para cima e para baixo, mantendo as escápulas contraídas."
+            },
+            {
+                "name": "T-Y-W Prono",
+                "description": "Deite de bruços e eleve os braços formando as letras T, Y e W. Mantenha os ombros para trás e contraia os músculos superiores das costas."
+            },
+            {
+                "name": "Encolhimento com Cabo",
+                "description": "Anexe uma barra no cabo baixo. Em pé, puxe a barra para cima, elevando os ombros e contraindo o trapézio."
+            },
+            {
+                "name": "Encolhimento com Halteres",
+                "description": "Em pé, segure halteres com os braços ao lado do corpo. Eleve os ombros o mais alto possível, contraindo o trapézio. Desça controladamente."
+            },
+            {
+                "name": "Caminhada do Fazendeiro",
+                "description": "Segure halteres pesados em cada mão e caminhe por uma distância determinada. Mantenha o tronco ereto e os ombros para trás."
+            }
+        ]
+    },
+    {
+        "name": "Tríceps",
+        "id": "6742531b-eb47-4bb7-b136-be92b2c38db8",
+        "exercises": [
+            {
+                "name": "Tríceps Pulley",
+                "description": "Anexe uma barra no cabo alto. Em pé, puxe a barra para baixo, contraindo os tríceps. Desça controladamente."
+            },
+            {
+                "name": "Tríceps Testa",
+                "description": "Deite de costas e segure halteres com os braços estendidos. Desça os pesos em direção à testa, contraindo os tríceps. Retorne à posição inicial."
+            },
+            {
+                "name": "Mergulho",
+                "description": "Segure as barras paralelas e desça o corpo até os ombros ficarem na altura dos cotovelos. Empurre para cima, trabalhando tríceps e peitoral."
+            },
+            {
+                "name": "Tríceps Coice",
+                "description": "Incline o tronco para frente e segure um haltere. Estenda o braço para trás, contraindo o tríceps. Desça controladamente."
+            },
+            {
+                "name": "Flexão Diamante",
+                "description": "Em posição de flexão, coloque as mãos próximas formando um diamante. Desça o corpo e empurre para cima, trabalhando o tríceps e peitoral interno."
+            },
+            {
+                "name": "Extensão de Tríceps por Cima",
+                "description": "Em pé, segure um haltere com ambas as mãos atrás da cabeça. Estenda os braços para cima, contraindo os tríceps. Desça controladamente."
+            },
+            {
+                "name": "Supino Pegada Fechada",
+                "description": "Deite no banco e segure a barra com pegada fechada. Desça a barra até o peito e empurre para cima, trabalhando os tríceps."
+            },
+            {
+                "name": "Flexão Diamante",
+                "description": "Em posição de flexão, coloque as mãos próximas formando um diamante. Desça o corpo e empurre para cima, trabalhando o tríceps e peitoral interno."
+            },
+            {
+                "name": "Tríceps Coice",
+                "description": "Incline o tronco para frente e segure um haltere. Estenda o braço para trás, contraindo o tríceps. Desça controladamente."
+            },
+            {
+                "name": "Mergulho no Banco",
+                "description": "Sente-se na borda de um banco e apoie as mãos ao lado do corpo. Desça o corpo e empurre para cima, trabalhando os tríceps."
+            },
+            {
+                "name": "Tríceps Pulley",
+                "description": "Anexe uma barra no cabo alto. Em pé, puxe a barra para baixo, contraindo os tríceps. Desça controladamente."
+            },
+            {
+                "name": "Tríceps Testa",
+                "description": "Deite de costas e segure halteres com os braços estendidos. Desça os pesos em direção à testa, contraindo os tríceps. Retorne à posição inicial."
+            },
+            {
+                "name": "Extensão de Tríceps Unilateral",
+                "description": "Em pé, segure um haltere com uma mão atrás da cabeça. Estenda o braço para cima, contraindo o tríceps. Desça controladamente."
+            },
+            {
+                "name": "Extensão de Tríceps com Corda",
+                "description": "Anexe uma corda no cabo alto. Em pé, puxe a corda para baixo, separando as mãos no final do movimento. Retorne à posição inicial."
+            }
+        ]
+    }
+]

@@ -29,8 +29,8 @@ const createExercise = async (request, reply) => {
     const schemaBody = z.object({
       name: z.string({ required_error: "O nome do exercício é obrigatório" }),
       description: z.string({ required_error: "A descrição é obrigatória" }),
-      image: z.string({ required_error: "A imagem é obrigatória" }),
-      videoUrl: z.string({ required_error: "A URL do vídeo é obrigatória" }),
+      image: z.string().optional(),
+      videoUrl: z.string().optional(),
       muscleGroupId: z.string({ required_error: "O ID do grupo muscular é obrigatório" }),
     });
 
@@ -110,8 +110,8 @@ const updateExercise = async (request, reply) => {
     const schemaBody = z.object({
       name: z.string({ required_error: "O nome do exercício é obrigatório" }),
       description: z.string({ required_error: "A descrição é obrigatória" }),
-      image: z.string({ required_error: "A imagem é obrigatória" }),
-      videoUrl: z.string({ required_error: "A URL do vídeo é obrigatória" }),
+      image: z.string().optional(),
+      videoUrl: z.string().optional(),
       muscleGroupId: z.string({ required_error: "O ID do grupo muscular é obrigatório" }),
     });
 

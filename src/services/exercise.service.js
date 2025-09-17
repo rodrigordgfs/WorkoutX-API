@@ -22,7 +22,13 @@ const getExerciseById = async (id) => {
 
 const createExercise = async (name, description, image, videoUrl, muscleGroupId) => {
   try {
-    return await exerciseRepository.createExercise(name, description, image, videoUrl, muscleGroupId);
+    return await exerciseRepository.createExercise(
+      name, 
+      description, 
+      image || null, 
+      videoUrl || null, 
+      muscleGroupId
+    );
   } catch (error) {
     throw new Error(error.message);
   }
@@ -34,7 +40,14 @@ const updateExercise = async (id, name, description, image, videoUrl, muscleGrou
     if (!exercise) {
       throw new Error("Exercício não encontrado");
     }
-    return await exerciseRepository.updateExercise(id, name, description, image, videoUrl, muscleGroupId);
+    return await exerciseRepository.updateExercise(
+      id, 
+      name, 
+      description, 
+      image || null, 
+      videoUrl || null, 
+      muscleGroupId
+    );
   } catch (error) {
     throw new Error(error.message);
   }
