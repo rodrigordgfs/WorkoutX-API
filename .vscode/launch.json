@@ -9,9 +9,9 @@
           "<node_internals>/**"
         ],
         "envFile": "${workspaceFolder}/.env",
-        "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/nodemon",
-        "program": "${workspaceFolder}/server.js",
-        "runtimeArgs": ["--exec", "/home/rodrigo-shinoda/.asdf/shims/node"]
+        "runtimeExecutable": "/home/rodrigo-shinoda/.asdf/shims/node",
+        "program": "${workspaceFolder}/node_modules/nodemon/bin/nodemon.js",
+        "args": ["${workspaceFolder}/server.js"]
       }
     ]
   }

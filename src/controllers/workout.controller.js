@@ -32,31 +32,41 @@ const createWorkout = async (request, reply) => {
   try {
     const schemaBody = z.object({
       name: z.string({ required_error: "O nome do treino é obrigatório" }),
-      privacy: z.nativeEnum(Visibility, { 
+      privacy: z.nativeEnum(Visibility, {
         required_error: "A privacidade é obrigatória",
-        invalid_type_error: "Privacidade deve ser 'public' ou 'private'"
+        invalid_type_error: "Privacidade deve ser 'public' ou 'private'",
       }),
-      exercises: z.array(
-        z.object({
-          id: z.string({ required_error: "O ID do exercício é obrigatório" }),
-          series: z.number({ 
-            required_error: "O número de séries é obrigatório",
-            invalid_type_error: "Séries deve ser um número"
-          }).min(1, "Séries deve ser pelo menos 1"),
-          repetitions: z.number({ 
-            required_error: "O número de repetições é obrigatório",
-            invalid_type_error: "Repetições deve ser um número"
-          }).min(1, "Repetições deve ser pelo menos 1"),
-          weight: z.number({ 
-            required_error: "O peso é obrigatório",
-            invalid_type_error: "Peso deve ser um número"
-          }).min(0, "Peso deve ser maior ou igual a 0"),
-          rest: z.number({ 
-            required_error: "O tempo de descanso é obrigatório",
-            invalid_type_error: "Tempo de descanso deve ser um número"
-          }).min(0, "Tempo de descanso deve ser maior ou igual a 0"),
-        })
-      ).min(1, "Pelo menos um exercício é obrigatório"),
+      exercises: z
+        .array(
+          z.object({
+            id: z.string({ required_error: "O ID do exercício é obrigatório" }),
+            series: z
+              .number({
+                required_error: "O número de séries é obrigatório",
+                invalid_type_error: "Séries deve ser um número",
+              })
+              .min(1, "Séries deve ser pelo menos 1"),
+            repetitions: z
+              .number({
+                required_error: "O número de repetições é obrigatório",
+                invalid_type_error: "Repetições deve ser um número",
+              })
+              .min(1, "Repetições deve ser pelo menos 1"),
+            weight: z
+              .number({
+                required_error: "O peso é obrigatório",
+                invalid_type_error: "Peso deve ser um número",
+              })
+              .min(0, "Peso deve ser maior ou igual a 0"),
+            rest: z
+              .number({
+                required_error: "O tempo de descanso é obrigatório",
+                invalid_type_error: "Tempo de descanso deve ser um número",
+              })
+              .min(0, "Tempo de descanso deve ser maior ou igual a 0"),
+          })
+        )
+        .min(1, "Pelo menos um exercício é obrigatório"),
     });
 
     const validation = schemaBody.safeParse(request.body);
@@ -68,7 +78,12 @@ const createWorkout = async (request, reply) => {
     const { name, privacy, exercises } = validation.data;
     const userId = request.userId;
 
-    const workout = await workoutService.createWorkout(userId, name, privacy, exercises);
+    const workout = await workoutService.createWorkout(
+      userId,
+      name,
+      privacy,
+      exercises
+    );
 
     // Transformar WorkoutExercises para exercises na resposta com a estrutura desejada
     const response = {
@@ -78,7 +93,7 @@ const createWorkout = async (request, reply) => {
       visibility: workout.visibility,
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,
-      exercises: workout.WorkoutExercises.map(workoutExercise => ({
+      exercises: workout.WorkoutExercises.map((workoutExercise) => ({
         id: workoutExercise.exercise.id,
         name: workoutExercise.exercise.name,
         image: workoutExercise.exercise.image,
@@ -88,8 +103,8 @@ const createWorkout = async (request, reply) => {
         repetitions: workoutExercise.repetitions,
         weight: workoutExercise.weight,
         restTime: workoutExercise.restTime,
-        muscleGroup: workoutExercise.exercise.muscleGroup
-      }))
+        muscleGroup: workoutExercise.exercise.muscleGroup,
+      })),
     };
 
     reply.code(StatusCodes.CREATED).send(response);
@@ -115,10 +130,13 @@ const getWorkouts = async (request, reply) => {
     const workouts = await workoutService.getWorkouts(userId);
 
     // Mapear array de workouts para a estrutura desejada
-    const response = workouts.map(workout => {
+    const response = workouts.map((workout) => {
       // Verificar se existe sessão em progresso
-      const sessionInProgress = workout.WorkoutSessions && workout.WorkoutSessions.length > 0 ? workout.WorkoutSessions[0] : null;
-      
+      const sessionInProgress =
+        workout.WorkoutSessions && workout.WorkoutSessions.length > 0
+          ? workout.WorkoutSessions[0]
+          : null;
+
       return {
         id: workout.id,
         userId: workout.userId,
@@ -126,29 +144,34 @@ const getWorkouts = async (request, reply) => {
         visibility: workout.visibility,
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
-        session: sessionInProgress ? {
-          id: sessionInProgress.id,
-          status: sessionInProgress.status,
-          startedAt: sessionInProgress.startedAt,
-          endedAt: sessionInProgress.endedAt,
-          createdAt: sessionInProgress.createdAt,
-          updatedAt: sessionInProgress.updatedAt,
-               exercises: sessionInProgress.WorkoutSessionExercises.map(sessionExercise => ({
-                 id: sessionExercise.id,
-                 status: sessionExercise.status,
-                 createdAt: sessionExercise.createdAt,
-                 updatedAt: sessionExercise.updatedAt,
-                 series: sessionExercise.series,
-                 repetitions: sessionExercise.repetitions,
-                 weight: sessionExercise.weight,
-                 restTime: sessionExercise.restTime,
-                 name: sessionExercise.workoutExercise.exercise.name,
-                 image: sessionExercise.workoutExercise.exercise.image,
-                 videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
-                 description: sessionExercise.workoutExercise.exercise.description
-               }))
-        } : {},
-        exercises: workout.WorkoutExercises.map(workoutExercise => ({
+        session: sessionInProgress
+          ? {
+              id: sessionInProgress.id,
+              status: sessionInProgress.status,
+              startedAt: sessionInProgress.startedAt,
+              endedAt: sessionInProgress.endedAt,
+              createdAt: sessionInProgress.createdAt,
+              updatedAt: sessionInProgress.updatedAt,
+              exercises: sessionInProgress.WorkoutSessionExercises.map(
+                (sessionExercise) => ({
+                  id: sessionExercise.id,
+                  status: sessionExercise.status,
+                  createdAt: sessionExercise.createdAt,
+                  updatedAt: sessionExercise.updatedAt,
+                  series: sessionExercise.series,
+                  repetitions: sessionExercise.repetitions,
+                  weight: sessionExercise.weight,
+                  restTime: sessionExercise.restTime,
+                  name: sessionExercise.workoutExercise.exercise.name,
+                  image: sessionExercise.workoutExercise.exercise.image,
+                  videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+                  description:
+                    sessionExercise.workoutExercise.exercise.description,
+                })
+              ),
+            }
+          : {},
+        exercises: workout.WorkoutExercises.map((workoutExercise) => ({
           id: workoutExercise.exercise.id,
           name: workoutExercise.exercise.name,
           image: workoutExercise.exercise.image,
@@ -158,8 +181,8 @@ const getWorkouts = async (request, reply) => {
           repetitions: workoutExercise.repetitions,
           weight: workoutExercise.weight,
           restTime: workoutExercise.restTime,
-          muscleGroup: workoutExercise.exercise.muscleGroup
-        }))
+          muscleGroup: workoutExercise.exercise.muscleGroup,
+        })),
       };
     });
 
@@ -187,12 +210,13 @@ const getWorkoutById = async (request, reply) => {
 
     if (!result || !result.data) {
       return reply.code(StatusCodes.NOT_FOUND).send({
-        error: "Treino não encontrado"
+        error: "Treino não encontrado",
       });
     }
 
     // Sempre retornar dados do workout original com session (se existir)
-    const workout = result.type === "session" ? result.data.workout : result.data;
+    const workout =
+      result.type === "session" ? result.data.workout : result.data;
     const session = result.type === "session" ? result.data : null;
 
     const response = {
@@ -202,29 +226,34 @@ const getWorkoutById = async (request, reply) => {
       visibility: workout.visibility,
       createdAt: workout.createdAt,
       updatedAt: workout.updatedAt,
-      session: session ? {
-        id: session.id,
-        status: session.status,
-        startedAt: session.startedAt,
-        endedAt: session.endedAt,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-        exercises: session.WorkoutSessionExercises.map(sessionExercise => ({
-          id: sessionExercise.id,
-          status: sessionExercise.status,
-          createdAt: sessionExercise.createdAt,
-          updatedAt: sessionExercise.updatedAt,
-          series: sessionExercise.series,
-          repetitions: sessionExercise.repetitions,
-          weight: sessionExercise.weight,
-          restTime: sessionExercise.restTime,
-          name: sessionExercise.workoutExercise.exercise.name,
-          image: sessionExercise.workoutExercise.exercise.image,
-          videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
-          description: sessionExercise.workoutExercise.exercise.description
-        }))
-      } : {},
-      exercises: workout.WorkoutExercises.map(workoutExercise => ({
+      session: session
+        ? {
+            id: session.id,
+            status: session.status,
+            startedAt: session.startedAt,
+            endedAt: session.endedAt,
+            createdAt: session.createdAt,
+            updatedAt: session.updatedAt,
+            exercises: session.WorkoutSessionExercises.map(
+              (sessionExercise) => ({
+                id: sessionExercise.id,
+                status: sessionExercise.status,
+                createdAt: sessionExercise.createdAt,
+                updatedAt: sessionExercise.updatedAt,
+                series: sessionExercise.series,
+                repetitions: sessionExercise.repetitions,
+                weight: sessionExercise.weight,
+                restTime: sessionExercise.restTime,
+                name: sessionExercise.workoutExercise.exercise.name,
+                image: sessionExercise.workoutExercise.exercise.image,
+                videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
+                description:
+                  sessionExercise.workoutExercise.exercise.description,
+              })
+            ),
+          }
+        : {},
+      exercises: workout.WorkoutExercises.map((workoutExercise) => ({
         id: workoutExercise.exercise.id,
         name: workoutExercise.exercise.name,
         image: workoutExercise.exercise.image,
@@ -234,8 +263,8 @@ const getWorkoutById = async (request, reply) => {
         repetitions: workoutExercise.repetitions,
         weight: workoutExercise.weight,
         restTime: workoutExercise.restTime,
-        muscleGroup: workoutExercise.exercise.muscleGroup
-      }))
+        muscleGroup: workoutExercise.exercise.muscleGroup,
+      })),
     };
 
     reply.code(StatusCodes.OK).send(response);
@@ -262,7 +291,7 @@ const startWorkout = async (request, reply) => {
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
-        error: "Treino não encontrado"
+        error: "Treino não encontrado",
       });
     }
 
@@ -281,7 +310,7 @@ const startWorkout = async (request, reply) => {
         endedAt: workout.endedAt,
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
-        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+        exercises: workout.WorkoutSessionExercises.map((sessionExercise) => ({
           id: sessionExercise.id,
           status: sessionExercise.status,
           createdAt: sessionExercise.createdAt,
@@ -293,10 +322,10 @@ const startWorkout = async (request, reply) => {
           name: sessionExercise.workoutExercise.exercise.name,
           image: sessionExercise.workoutExercise.exercise.image,
           videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
-          description: sessionExercise.workoutExercise.exercise.description
-        }))
+          description: sessionExercise.workoutExercise.exercise.description,
+        })),
       },
-      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+      exercises: workout.workout.WorkoutExercises.map((workoutExercise) => ({
         id: workoutExercise.exercise.id,
         name: workoutExercise.exercise.name,
         image: workoutExercise.exercise.image,
@@ -306,8 +335,8 @@ const startWorkout = async (request, reply) => {
         repetitions: workoutExercise.repetitions,
         weight: workoutExercise.weight,
         restTime: workoutExercise.restTime,
-        muscleGroup: workoutExercise.exercise.muscleGroup
-      }))
+        muscleGroup: workoutExercise.exercise.muscleGroup,
+      })),
     };
 
     reply.code(StatusCodes.OK).send(response);
@@ -327,25 +356,36 @@ const completeWorkout = async (request, reply) => {
     });
 
     const validationParams = schemaParams.safeParse(request.params);
-    const validationBody = schemaBody.safeParse(request.body);
 
     if (!validationParams.success) {
       throw validationParams.error;
     }
 
-    if (!validationBody.success) {
-      throw validationBody.error;
+    // Validar body somente se observation for enviado
+    let observation;
+    const hasObservation =
+      request.body &&
+      Object.prototype.hasOwnProperty.call(request.body, "observation");
+    if (hasObservation) {
+      const validationBody = schemaBody.safeParse(request.body);
+      if (!validationBody.success) {
+        throw validationBody.error;
+      }
+      observation = validationBody.data.observation;
     }
 
     const { id } = validationParams.data;
-    const { observation } = validationBody.data;
     const userId = request.userId;
 
-    const workout = await workoutService.completeWorkout(id, userId, observation);
+    const workout = await workoutService.completeWorkout(
+      id,
+      userId,
+      observation
+    );
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
-        error: "Treino não encontrado"
+        error: "Treino não encontrado",
       });
     }
 
@@ -365,7 +405,7 @@ const completeWorkout = async (request, reply) => {
         observation: workout.observation,
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
-        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+        exercises: workout.WorkoutSessionExercises.map((sessionExercise) => ({
           id: sessionExercise.id,
           status: sessionExercise.status,
           createdAt: sessionExercise.createdAt,
@@ -377,10 +417,10 @@ const completeWorkout = async (request, reply) => {
           name: sessionExercise.workoutExercise.exercise.name,
           image: sessionExercise.workoutExercise.exercise.image,
           videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
-          description: sessionExercise.workoutExercise.exercise.description
-        }))
+          description: sessionExercise.workoutExercise.exercise.description,
+        })),
       },
-      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+      exercises: workout.workout.WorkoutExercises.map((workoutExercise) => ({
         id: workoutExercise.exercise.id,
         name: workoutExercise.exercise.name,
         image: workoutExercise.exercise.image,
@@ -390,8 +430,8 @@ const completeWorkout = async (request, reply) => {
         repetitions: workoutExercise.repetitions,
         weight: workoutExercise.weight,
         restTime: workoutExercise.restTime,
-        muscleGroup: workoutExercise.exercise.muscleGroup
-      }))
+        muscleGroup: workoutExercise.exercise.muscleGroup,
+      })),
     };
 
     reply.code(StatusCodes.OK).send(response);
@@ -419,7 +459,7 @@ const stopWorkout = async (request, reply) => {
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
-        error: "Treino não encontrado"
+        error: "Treino não encontrado",
       });
     }
 
@@ -438,7 +478,7 @@ const stopWorkout = async (request, reply) => {
         endedAt: workout.endedAt,
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
-        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+        exercises: workout.WorkoutSessionExercises.map((sessionExercise) => ({
           id: sessionExercise.id,
           status: sessionExercise.status,
           createdAt: sessionExercise.createdAt,
@@ -450,10 +490,10 @@ const stopWorkout = async (request, reply) => {
           name: sessionExercise.workoutExercise.exercise.name,
           image: sessionExercise.workoutExercise.exercise.image,
           videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
-          description: sessionExercise.workoutExercise.exercise.description
-        }))
+          description: sessionExercise.workoutExercise.exercise.description,
+        })),
       },
-      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+      exercises: workout.workout.WorkoutExercises.map((workoutExercise) => ({
         id: workoutExercise.exercise.id,
         name: workoutExercise.exercise.name,
         image: workoutExercise.exercise.image,
@@ -463,8 +503,8 @@ const stopWorkout = async (request, reply) => {
         repetitions: workoutExercise.repetitions,
         weight: workoutExercise.weight,
         restTime: workoutExercise.restTime,
-        muscleGroup: workoutExercise.exercise.muscleGroup
-      }))
+        muscleGroup: workoutExercise.exercise.muscleGroup,
+      })),
     };
 
     reply.code(StatusCodes.OK).send(response);
@@ -477,14 +517,20 @@ const completeWorkoutSessionExercise = async (request, reply) => {
   try {
     const schemaParams = z.object({
       id: z.string({ required_error: "O ID do treino é obrigatório" }),
-      exerciseId: z.string({ required_error: "O ID do exercício é obrigatório" }),
+      exerciseId: z.string({
+        required_error: "O ID do exercício é obrigatório",
+      }),
     });
 
     const schemaBody = z.object({
       series: z.string({ required_error: "O número de séries é obrigatório" }),
-      repetitions: z.string({ required_error: "O número de repetições é obrigatório" }),
+      repetitions: z.string({
+        required_error: "O número de repetições é obrigatório",
+      }),
       weight: z.string({ required_error: "O peso é obrigatório" }),
-      restTime: z.string({ required_error: "O tempo de descanso é obrigatório" }),
+      restTime: z.string({
+        required_error: "O tempo de descanso é obrigatório",
+      }),
     });
 
     const validationParams = schemaParams.safeParse(request.params);
@@ -501,11 +547,14 @@ const completeWorkoutSessionExercise = async (request, reply) => {
     const { exerciseId } = validationParams.data;
     const exerciseData = validationBody.data;
 
-    const workout = await workoutService.completeWorkoutSessionExercise(exerciseId, exerciseData);
+    const workout = await workoutService.completeWorkoutSessionExercise(
+      exerciseId,
+      exerciseData
+    );
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
-        error: "Exercício da sessão não encontrado"
+        error: "Exercício da sessão não encontrado",
       });
     }
 
@@ -524,7 +573,7 @@ const completeWorkoutSessionExercise = async (request, reply) => {
         endedAt: workout.endedAt,
         createdAt: workout.createdAt,
         updatedAt: workout.updatedAt,
-        exercises: workout.WorkoutSessionExercises.map(sessionExercise => ({
+        exercises: workout.WorkoutSessionExercises.map((sessionExercise) => ({
           id: sessionExercise.id,
           status: sessionExercise.status,
           createdAt: sessionExercise.createdAt,
@@ -536,10 +585,10 @@ const completeWorkoutSessionExercise = async (request, reply) => {
           name: sessionExercise.workoutExercise.exercise.name,
           image: sessionExercise.workoutExercise.exercise.image,
           videoUrl: sessionExercise.workoutExercise.exercise.videoUrl,
-          description: sessionExercise.workoutExercise.exercise.description
-        }))
+          description: sessionExercise.workoutExercise.exercise.description,
+        })),
       },
-      exercises: workout.workout.WorkoutExercises.map(workoutExercise => ({
+      exercises: workout.workout.WorkoutExercises.map((workoutExercise) => ({
         id: workoutExercise.exercise.id,
         name: workoutExercise.exercise.name,
         image: workoutExercise.exercise.image,
@@ -549,8 +598,8 @@ const completeWorkoutSessionExercise = async (request, reply) => {
         repetitions: workoutExercise.repetitions,
         weight: workoutExercise.weight,
         restTime: workoutExercise.restTime,
-        muscleGroup: workoutExercise.exercise.muscleGroup
-      }))
+        muscleGroup: workoutExercise.exercise.muscleGroup,
+      })),
     };
 
     reply.code(StatusCodes.OK).send(response);
@@ -563,7 +612,9 @@ const getWorkoutHistory = async (request, reply) => {
   try {
     const schemaQuery = z.object({
       workoutName: z.string().optional(),
-      status: z.enum(['COMPLETED', 'IN_PROGRESS', 'NOT_STARTED', 'UNCOMPLETED']).optional(),
+      status: z
+        .enum(["COMPLETED", "IN_PROGRESS", "NOT_STARTED", "UNCOMPLETED"])
+        .optional(),
       startDate: z.string().datetime().optional(),
       endDate: z.string().datetime().optional(),
     });
@@ -594,4 +645,13 @@ export default {
   stopWorkout,
   completeWorkoutSessionExercise,
   getWorkoutHistory,
+  async getDashboard(request, reply) {
+    try {
+      const userId = request.userId;
+      const data = await workoutService.getDashboard(userId);
+      reply.code(StatusCodes.OK).send(data);
+    } catch (error) {
+      handleErrorResponse(error, reply);
+    }
+  },
 };

@@ -1122,6 +1122,161 @@ const getWorkoutHistory = async (userId, filters = {}) => {
   }
 };
 
+// Dashboard helpers
+const getWorkoutSessionsByUserBetween = async (userId, startDate, endDate) => {
+  try {
+    return await prisma.workoutSession.findMany({
+      where: {
+        userId,
+        startedAt: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: {
+        id: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+      },
+      orderBy: { startedAt: 'asc' },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getLastWorkoutSessionsByUser = async (userId, limit = 5) => {
+  try {
+    return await prisma.workoutSession.findMany({
+      where: { userId },
+      include: {
+        workout: {
+          select: {
+            id: true,
+            name: true,
+          }
+        },
+        WorkoutSessionExercises: {
+          select: { id: true },
+        }
+      },
+      orderBy: { startedAt: 'desc' },
+      take: limit,
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWeeklyExerciseVolume = async (userId, startOfWeek, endOfWeek) => {
+  try {
+    const sessions = await prisma.workoutSession.findMany({
+      where: {
+        userId,
+        status: 'COMPLETED',
+        startedAt: {
+          gte: startOfWeek,
+          lte: endOfWeek,
+        },
+      },
+      select: {
+        startedAt: true,
+        WorkoutSessionExercises: {
+          select: {
+            id: true,
+            status: true,
+            workoutExercise: {
+              select: {
+                id: true,
+                exercise: { select: { id: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Agrupar por dia da semana (0 = domingo, 1 = segunda, etc.)
+    const weeklyData = {
+      sunday: 0,
+      monday: 0,
+      tuesday: 0,
+      wednesday: 0,
+      thursday: 0,
+      friday: 0,
+      saturday: 0,
+    };
+
+    sessions.forEach(session => {
+      const dayOfWeek = session.startedAt.getDay();
+      const exerciseCount = session.WorkoutSessionExercises.filter(e => e.status === 'COMPLETED').length;
+      
+      switch (dayOfWeek) {
+        case 0: weeklyData.sunday += exerciseCount; break;
+        case 1: weeklyData.monday += exerciseCount; break;
+        case 2: weeklyData.tuesday += exerciseCount; break;
+        case 3: weeklyData.wednesday += exerciseCount; break;
+        case 4: weeklyData.thursday += exerciseCount; break;
+        case 5: weeklyData.friday += exerciseCount; break;
+        case 6: weeklyData.saturday += exerciseCount; break;
+      }
+    });
+
+    return weeklyData;
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+};
+
+const getTopExercises = async (userId, limit = 10) => {
+  try {
+    // Contar diretamente a partir de WorkoutSessionExercises (apenas COMPLETED)
+    const sessionExercises = await prisma.workoutSessionExercises.findMany({
+      where: {
+        status: 'COMPLETED',
+        workoutSession: {
+          userId,
+          status: 'COMPLETED',
+        },
+      },
+      select: {
+        workoutExercise: {
+          select: {
+            exercise: { select: { id: true, name: true } },
+          },
+        },
+      },
+    });
+
+    if (sessionExercises.length === 0) return [];
+
+    const countByExerciseId = new Map();
+    const nameByExerciseId = new Map();
+
+    for (const se of sessionExercises) {
+      const ex = se.workoutExercise.exercise;
+      if (!ex) continue;
+      const exId = ex.id;
+      nameByExerciseId.set(exId, ex.name);
+      countByExerciseId.set(exId, (countByExerciseId.get(exId) || 0) + 1);
+    }
+
+    const list = Array.from(countByExerciseId.entries()).map(([exerciseId, count]) => ({
+      name: nameByExerciseId.get(exerciseId) || 'Exercício não encontrado',
+      count,
+    }));
+
+    // Ordenar por count desc e limitar
+    list.sort((a, b) => b.count - a.count);
+    return list.slice(0, limit);
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+};
+
 export default {
   getUserById,
   getExercisesByIds,
@@ -1140,4 +1295,8 @@ export default {
   getWorkoutSessionInProgressByWorkoutId,
   completeWorkoutSessionExercise,
   getWorkoutHistory,
+  getWorkoutSessionsByUserBetween,
+  getLastWorkoutSessionsByUser,
+  getWeeklyExerciseVolume,
+  getTopExercises,
 };
