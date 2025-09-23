@@ -645,6 +645,112 @@ export default {
   stopWorkout,
   completeWorkoutSessionExercise,
   getWorkoutHistory,
+  async deleteWorkout(request, reply) {
+    try {
+      const schemaParams = z.object({
+        id: z.string({ required_error: "O ID do treino é obrigatório" }),
+      });
+
+      const validation = schemaParams.safeParse(request.params);
+      if (!validation.success) {
+        throw validation.error;
+      }
+
+      const { id } = validation.data;
+      const result = await workoutService.deleteWorkout(id);
+      return reply.code(StatusCodes.OK).send(result);
+    } catch (error) {
+      handleErrorResponse(error, reply);
+    }
+  },
+  async updateWorkout(request, reply) {
+    try {
+      const schemaParams = z.object({
+        id: z.string({ required_error: "O ID do treino é obrigatório" }),
+      });
+
+      const schemaBody = z.object({
+        name: z.string({ required_error: "O nome do treino é obrigatório" }),
+        privacy: z.nativeEnum(Visibility, {
+          required_error: "A privacidade é obrigatória",
+          invalid_type_error: "Privacidade deve ser 'public' ou 'private'",
+        }),
+        exercises: z
+          .array(
+            z.object({
+              id: z.string({ required_error: "O ID do exercício é obrigatório" }),
+              series: z
+                .number({
+                  required_error: "O número de séries é obrigatório",
+                  invalid_type_error: "Séries deve ser um número",
+                })
+                .min(1, "Séries deve ser pelo menos 1"),
+              repetitions: z
+                .number({
+                  required_error: "O número de repetições é obrigatório",
+                  invalid_type_error: "Repetições deve ser um número",
+                })
+                .min(1, "Repetições deve ser pelo menos 1"),
+              weight: z
+                .number({
+                  required_error: "O peso é obrigatório",
+                  invalid_type_error: "Peso deve ser um número",
+                })
+                .min(0, "Peso deve ser maior ou igual a 0"),
+              rest: z
+                .number({
+                  required_error: "O tempo de descanso é obrigatório",
+                  invalid_type_error: "Tempo de descanso deve ser um número",
+                })
+                .min(0, "Tempo de descanso deve ser maior ou igual a 0"),
+            })
+          )
+          .min(1, "Pelo menos um exercício é obrigatório"),
+      });
+
+      const validationParams = schemaParams.safeParse(request.params);
+      const validationBody = schemaBody.safeParse(request.body);
+
+      if (!validationParams.success) {
+        throw validationParams.error;
+      }
+
+      if (!validationBody.success) {
+        throw validationBody.error;
+      }
+
+      const { id } = validationParams.data;
+      const { name, privacy, exercises } = validationBody.data;
+
+      const workout = await workoutService.updateWorkout(id, name, privacy, exercises);
+
+      // Transformar WorkoutExercises para exercises na resposta
+      const response = {
+        id: workout.id,
+        userId: workout.userId,
+        name: workout.name,
+        visibility: workout.visibility,
+        createdAt: workout.createdAt,
+        updatedAt: workout.updatedAt,
+        exercises: workout.WorkoutExercises.map((workoutExercise) => ({
+          id: workoutExercise.exercise.id,
+          name: workoutExercise.exercise.name,
+          image: workoutExercise.exercise.image,
+          videoUrl: workoutExercise.exercise.videoUrl,
+          description: workoutExercise.exercise.description,
+          series: workoutExercise.series,
+          repetitions: workoutExercise.repetitions,
+          weight: workoutExercise.weight,
+          restTime: workoutExercise.restTime,
+          muscleGroup: workoutExercise.exercise.muscleGroup,
+        })),
+      };
+
+      reply.code(StatusCodes.OK).send(response);
+    } catch (error) {
+      handleErrorResponse(error, reply);
+    }
+  },
   async getDashboard(request, reply) {
     try {
       const userId = request.userId;

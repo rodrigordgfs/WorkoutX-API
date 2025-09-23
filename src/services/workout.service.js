@@ -221,6 +221,48 @@ export default {
   stopWorkout,
   completeWorkoutSessionExercise,
   getWorkoutHistory,
+  async deleteWorkout(workoutId) {
+    try {
+      const workout = await workoutRepository.getWorkoutById(workoutId);
+      if (!workout) {
+        throw new AppError("Treino não encontrado");
+      }
+
+      const { hasExercises, hasSessions } = await workoutRepository.canDeleteWorkout(workoutId);
+      if (hasExercises || hasSessions) {
+        throw new AppError("Não é possível deletar: treino possui vínculos");
+      }
+
+      await workoutRepository.deleteWorkout(workoutId);
+      return { success: true };
+    } catch (error) {
+      throw new AppError(error.message);
+    }
+  },
+  async updateWorkout(workoutId, name, privacy, exercises) {
+    try {
+      // Verificar se o treino existe
+      const existingWorkout = await workoutRepository.getWorkoutById(workoutId);
+      if (!existingWorkout) {
+        throw new AppError("Treino não encontrado");
+      }
+
+      // Verificar se todos os exercícios existem
+      const exerciseIds = exercises.map(ex => ex.id);
+      const existingExercises = await workoutRepository.getExercisesByIds(exerciseIds);
+      
+      if (existingExercises.length !== exerciseIds.length) {
+        throw new AppError("Um ou mais exercícios não foram encontrados");
+      }
+
+      // Atualizar o treino
+      const updatedWorkout = await workoutRepository.updateWorkout(workoutId, name, privacy, exercises);
+
+      return updatedWorkout;
+    } catch (error) {
+      throw new AppError(error.message);
+    }
+  },
   async getDashboard(userId) {
     try {
       const now = new Date();

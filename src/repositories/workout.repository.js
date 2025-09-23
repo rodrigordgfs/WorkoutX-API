@@ -1277,6 +1277,92 @@ const getTopExercises = async (userId, limit = 10) => {
   }
 };
 
+// Delete workout helpers
+const canDeleteWorkout = async (workoutId) => {
+  try {
+    const [exerciseCount, sessionCount] = await Promise.all([
+      prisma.workoutExercises.count({ where: { workoutId } }),
+      prisma.workoutSession.count({ where: { workoutId } }),
+    ]);
+    return { hasExercises: exerciseCount > 0, hasSessions: sessionCount > 0 };
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const deleteWorkout = async (workoutId) => {
+  try {
+    return await prisma.workout.delete({ where: { id: workoutId } });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const updateWorkout = async (workoutId, name, privacy, exercises) => {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      // Deletar exercícios existentes
+      await tx.workoutExercises.deleteMany({
+        where: { workoutId }
+      });
+
+      // Atualizar o treino
+      const updatedWorkout = await tx.workout.update({
+        where: { id: workoutId },
+        data: {
+          name,
+          visibility: privacy,
+          WorkoutExercises: {
+            create: exercises.map((exercise) => ({
+              exerciseId: exercise.id,
+              series: exercise.series.toString(),
+              repetitions: exercise.repetitions.toString(),
+              weight: exercise.weight.toString(),
+              restTime: exercise.rest.toString(),
+            })),
+          },
+        },
+        select: {
+          id: true,
+          userId: true,
+          name: true,
+          visibility: true,
+          createdAt: true,
+          updatedAt: true,
+          WorkoutExercises: {
+            select: {
+              id: true,
+              series: true,
+              repetitions: true,
+              weight: true,
+              restTime: true,
+              exercise: {
+                select: {
+                  id: true,
+                  name: true,
+                  image: true,
+                  videoUrl: true,
+                  description: true,
+                  muscleGroup: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return updatedWorkout;
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
 export default {
   getUserById,
   getExercisesByIds,
@@ -1299,4 +1385,7 @@ export default {
   getLastWorkoutSessionsByUser,
   getWeeklyExerciseVolume,
   getTopExercises,
+  canDeleteWorkout,
+  deleteWorkout,
+  updateWorkout,
 };

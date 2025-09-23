@@ -10,6 +10,8 @@ const workout = async (fastify) => {
   fastify.patch("/workout/:id/complete", workoutController.completeWorkout);
   fastify.patch("/workout/:id/stop", workoutController.stopWorkout);
   fastify.patch("/workout/:id/exercise/:exerciseId/complete", workoutController.completeWorkoutSessionExercise);
+  fastify.patch("/workout/:id", workoutController.updateWorkout);
+  fastify.delete("/workout/:id", workoutController.deleteWorkout);
 };
 
 export default workout;
