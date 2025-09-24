@@ -11,11 +11,13 @@ model Workout {
   id               String             @id @default(uuid())
   userId           String
   name             String
+  description      String?
   visibility       Visibility         @default(PRIVATE)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
   WorkoutExercises WorkoutExercises[]
   WorkoutSessions  WorkoutSession[]
+  WorkoutLikes     WorkoutLike[]
   user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("workouts")
@@ -59,6 +61,7 @@ model User {
   avatar          String
   WorkoutSessions WorkoutSession[]
   Workout         Workout[]
+  WorkoutLikes    WorkoutLike[]
 
   @@map("users")
 }
@@ -119,4 +122,17 @@ enum Status {
   IN_PROGRESS
   NOT_STARTED
   UNCOMPLETED
+}
+
+model WorkoutLike {
+  id        String   @id @default(uuid())
+  userId    String
+  workoutId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workoutId])
+  @@map("workout_likes")
 }

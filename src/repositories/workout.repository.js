@@ -40,12 +40,13 @@ const getExercisesByIds = async (exerciseIds) => {
   }
 };
 
-const createWorkout = async (userId, name, privacy, exercises) => {
+const createWorkout = async (userId, name, privacy, exercises, description) => {
   try {
     return await prisma.workout.create({
       data: {
         userId,
         name,
+        description,
         visibility: privacy,
         WorkoutExercises: {
           create: exercises.map((exercise) => ({
@@ -61,6 +62,7 @@ const createWorkout = async (userId, name, privacy, exercises) => {
         id: true,
         userId: true,
         name: true,
+        description: true,
         visibility: true,
         createdAt: true,
         updatedAt: true,
@@ -105,6 +107,7 @@ const getWorkoutsByUserId = async (userId) => {
         id: true,
         userId: true,
         name: true,
+        description: true,
         visibility: true,
         createdAt: true,
         updatedAt: true,
@@ -213,6 +216,7 @@ const getWorkoutById = async (workoutId) => {
         id: true,
         userId: true,
         name: true,
+        description: true,
         visibility: true,
         createdAt: true,
         updatedAt: true,
@@ -1277,6 +1281,130 @@ const getTopExercises = async (userId, limit = 10) => {
   }
 };
 
+// Community
+const getPublicWorkouts = async ({ muscleGroupId, orderBy, userId, name } = {}) => {
+  try {
+    // Construir where
+    const whereClause = {
+      visibility: 'PUBLIC',
+    };
+
+    // Filtrar por nome do treino
+    if (name) {
+      whereClause.name = {
+        contains: name,
+        mode: 'insensitive',
+      };
+    }
+
+    // Filtrar por grupo muscular via relação WorkoutExercises -> Exercise
+    if (muscleGroupId) {
+      whereClause.WorkoutExercises = {
+        some: {
+          exercise: {
+            muscleGroupId: muscleGroupId,
+          },
+        },
+      };
+    }
+
+    // Ordenação
+    // 'most_liked' (mais curtido), 'most_recent' (mais recente - default)
+    let orderByClause = [{ createdAt: 'desc' }];
+    if (orderBy === 'most_liked') {
+      orderByClause = [
+        { WorkoutLikes: { _count: 'desc' } },
+        { createdAt: 'desc' },
+      ];
+    } else if (orderBy === 'most_recent') {
+      orderByClause = [{ createdAt: 'desc' }];
+    }
+
+    return await prisma.workout.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        createdAt: true,
+        user: { select: { id: true, name: true, avatar: true } },
+        WorkoutExercises: {
+          select: {
+            id: true,
+            series: true,
+            repetitions: true,
+            weight: true,
+            restTime: true,
+            exercise: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+                videoUrl: true,
+                description: true,
+                muscleGroup: { select: { id: true, name: true } },
+              },
+            },
+          },
+          orderBy: {
+            exercise: { name: 'asc' },
+          },
+        },
+        _count: { select: { WorkoutLikes: true } },
+        WorkoutLikes: userId ? {
+          where: { userId },
+          select: { id: true },
+        } : false,
+      },
+      orderBy: orderByClause,
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+// Like helpers
+const likeWorkout = async (userId, workoutId) => {
+  try {
+    return await prisma.workoutLike.create({
+      data: { userId, workoutId },
+      select: { id: true },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const unlikeWorkout = async (userId, workoutId) => {
+  try {
+    return await prisma.workoutLike.delete({
+      where: { userId_workoutId: { userId, workoutId } },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const isWorkoutLikedByUser = async (userId, workoutId) => {
+  try {
+    const like = await prisma.workoutLike.findUnique({
+      where: { userId_workoutId: { userId, workoutId } },
+      select: { id: true },
+    });
+    return !!like;
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const countWorkoutLikes = async (workoutId) => {
+  try {
+    return await prisma.workoutLike.count({ where: { workoutId } });
+  } catch (error) {
+    logError(error);
+  }
+};
+
 // Delete workout helpers
 const canDeleteWorkout = async (workoutId) => {
   try {
@@ -1298,7 +1426,7 @@ const deleteWorkout = async (workoutId) => {
   }
 };
 
-const updateWorkout = async (workoutId, name, privacy, exercises) => {
+const updateWorkout = async (workoutId, name, description, privacy, exercises) => {
   try {
     return await prisma.$transaction(async (tx) => {
       // Deletar exercícios existentes
@@ -1311,6 +1439,7 @@ const updateWorkout = async (workoutId, name, privacy, exercises) => {
         where: { id: workoutId },
         data: {
           name,
+          description,
           visibility: privacy,
           WorkoutExercises: {
             create: exercises.map((exercise) => ({
@@ -1326,6 +1455,7 @@ const updateWorkout = async (workoutId, name, privacy, exercises) => {
           id: true,
           userId: true,
           name: true,
+          description: true,
           visibility: true,
           createdAt: true,
           updatedAt: true,
@@ -1385,7 +1515,12 @@ export default {
   getLastWorkoutSessionsByUser,
   getWeeklyExerciseVolume,
   getTopExercises,
+  getPublicWorkouts,
   canDeleteWorkout,
   deleteWorkout,
   updateWorkout,
+  likeWorkout,
+  unlikeWorkout,
+  isWorkoutLikedByUser,
+  countWorkoutLikes,
 };

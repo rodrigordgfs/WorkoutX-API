@@ -1,7 +1,7 @@
 import workoutRepository from "../repositories/workout.repository.js";
 import AppError from "../utils/error.js";
 
-const createWorkout = async (userId, name, privacy, exercises) => {
+const createWorkout = async (userId, name, privacy, exercises, description) => {
   try {
     // Verificar se o usuário existe
     const user = await workoutRepository.getUserById(userId);
@@ -18,7 +18,7 @@ const createWorkout = async (userId, name, privacy, exercises) => {
     }
 
     // Criar o treino
-    const workout = await workoutRepository.createWorkout(userId, name, privacy, exercises);
+    const workout = await workoutRepository.createWorkout(userId, name, privacy, exercises, description);
 
     return workout;
   } catch (error) {
@@ -212,6 +212,204 @@ const getWorkoutHistory = async (userId, filters = {}) => {
   }
 };
 
+const getCommunityWorkouts = async (filters = {}, userId = null) => {
+  try {
+    const { muscleGroupId, order, name } = filters;
+    const items = await workoutRepository.getPublicWorkouts({
+      muscleGroupId,
+      orderBy: order === 'most_liked' ? 'most_liked' : 'most_recent',
+      userId,
+      name,
+    });
+
+    // Mapear para o formato solicitado
+    return items.map(w => ({
+      id: w.id,
+      name: w.name,
+      description: w.description,
+      createdAt: w.createdAt,
+      user: {
+        id: w.user?.id,
+        name: w.user?.name,
+        avatar: w.user?.avatar,
+      },
+      exercises: w.WorkoutExercises.map(we => ({
+        id: we.exercise.id,
+        name: we.exercise.name,
+        image: we.exercise.image,
+        videoUrl: we.exercise.videoUrl,
+        description: we.exercise.description,
+        series: we.series,
+        repetitions: we.repetitions,
+        weight: we.weight,
+        restTime: we.restTime,
+        muscleGroup: we.exercise.muscleGroup,
+      })),
+      muscleGroups: Array.from(new Map(
+        w.WorkoutExercises
+          .map(we => we.exercise.muscleGroup)
+          .filter(Boolean)
+          .map(mg => [mg.id, mg])
+      ).values()),
+      likesCount: w._count?.WorkoutLikes || 0,
+      isLiked: userId ? (w.WorkoutLikes && w.WorkoutLikes.length > 0) : false,
+    }));
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const likeWorkout = async (workoutId, userId) => {
+    try {
+      const workout = await workoutRepository.getWorkoutById(workoutId);
+      if (!workout) throw new AppError("Treino não encontrado");
+
+      const alreadyLiked = await workoutRepository.isWorkoutLikedByUser(userId, workoutId);
+      if (alreadyLiked) throw new AppError("Usuário já curtiu este treino");
+
+      await workoutRepository.likeWorkout(userId, workoutId);
+      const likes = await workoutRepository.countWorkoutLikes(workoutId);
+      return { likesCount: likes, isLiked: true };
+    } catch (error) {
+      throw new AppError(error.message);
+    }
+};
+
+const unlikeWorkout = async (workoutId, userId) => {
+    try {
+      const workout = await workoutRepository.getWorkoutById(workoutId);
+      if (!workout) throw new AppError("Treino não encontrado");
+
+      const alreadyLiked = await workoutRepository.isWorkoutLikedByUser(userId, workoutId);
+      if (!alreadyLiked) throw new AppError("Curtida não encontrado para este usuário");
+
+      await workoutRepository.unlikeWorkout(userId, workoutId);
+      const likes = await workoutRepository.countWorkoutLikes(workoutId);
+      return { likesCount: likes, isLiked: false };
+    } catch (error) {
+      throw new AppError(error.message);
+    }
+};
+
+const deleteWorkout = async (workoutId) => {
+  try {
+    const workout = await workoutRepository.getWorkoutById(workoutId);
+    if (!workout) {
+      throw new AppError("Treino não encontrado");
+    }
+
+    const { hasExercises, hasSessions } = await workoutRepository.canDeleteWorkout(workoutId);
+    if (hasExercises || hasSessions) {
+      throw new AppError("Não é possível deletar: treino possui vínculos");
+    }
+
+    await workoutRepository.deleteWorkout(workoutId);
+    return { success: true };
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const updateWorkout = async (workoutId, name, description, privacy, exercises) => {
+  try {
+    // Verificar se o treino existe
+    const existingWorkout = await workoutRepository.getWorkoutById(workoutId);
+    if (!existingWorkout) {
+      throw new AppError("Treino não encontrado");
+    }
+
+    // Verificar se todos os exercícios existem
+    const exerciseIds = exercises.map(ex => ex.id);
+    const existingExercises = await workoutRepository.getExercisesByIds(exerciseIds);
+    
+    if (existingExercises.length !== exerciseIds.length) {
+      throw new AppError("Um ou mais exercícios não foram encontrados");
+    }
+
+    // Atualizar o treino
+    const updatedWorkout = await workoutRepository.updateWorkout(workoutId, name, description, privacy, exercises);
+
+    return updatedWorkout;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
+const getDashboard = async (userId) => {
+  try {
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const [thisMonthSessions, lastMonthSessions] = await Promise.all([
+      workoutRepository.getWorkoutSessionsByUserBetween(userId, startOfThisMonth, startOfNextMonth),
+      workoutRepository.getWorkoutSessionsByUserBetween(userId, startOfLastMonth, startOfThisMonth),
+    ]);
+
+    const thisCount = thisMonthSessions.length;
+    const lastCount = lastMonthSessions.length;
+    const monthVariation = lastCount === 0 ? (thisCount > 0 ? 100 : 0) : Math.round(((thisCount - lastCount) / lastCount) * 100);
+
+    const dates = Array.from(new Set(thisMonthSessions.map(s => new Date(s.startedAt.getFullYear(), s.startedAt.getMonth(), s.startedAt.getDate()).getTime()))).sort((a, b) => a - b);
+    let bestStreak = 0;
+    let currentStreak = 0;
+    for (let i = 0; i < dates.length; i++) {
+      if (i === 0) { currentStreak = 1; bestStreak = 1; continue; }
+      const prev = dates[i - 1];
+      const curr = dates[i];
+      const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) currentStreak += 1; else if (diffDays > 1) currentStreak = 1;
+      if (currentStreak > bestStreak) bestStreak = currentStreak;
+    }
+
+    const durations = thisMonthSessions.filter(s => s.endedAt).map(s => (s.endedAt.getTime() - s.startedAt.getTime()) / (1000 * 60));
+    const avgDuration = durations.length > 0 ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+
+    const completedCount = thisMonthSessions.filter(s => s.status === 'COMPLETED').length;
+    const completionRate = thisCount > 0 ? Math.round((completedCount / thisCount) * 100) : 0;
+
+    // Atividades recentes (últimos 5 treinos)
+    const lastSessions = await workoutRepository.getLastWorkoutSessionsByUser(userId, 5);
+    const activities = lastSessions.map(s => ({
+      id: s.id,
+      title: s.workout?.name,
+      exercises: s.WorkoutSessionExercises.length,
+      durationMinutes: s.endedAt ? Math.round((s.endedAt.getTime() - s.startedAt.getTime()) / (1000 * 60)) : 0,
+      status: s.status,
+      startedAt: s.startedAt,
+    }));
+
+    // Volume semanal de exercícios (semana atual)
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay(); // 0 = domingo, 1 = segunda, etc.
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDay);
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const weeklyVolume = await workoutRepository.getWeeklyExerciseVolume(userId, startOfWeek, endOfWeek);
+
+    // Exercícios mais realizados
+    const topExercises = await workoutRepository.getTopExercises(userId, 10);
+
+    return {
+      month: { count: thisCount, variation: monthVariation },
+      streak: bestStreak,
+      averageDurationMinutes: avgDuration,
+      completionRate,
+      activities,
+      weeklyVolume,
+      topExercises,
+    };
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 export default {
   createWorkout,
   getWorkouts,
@@ -221,120 +419,10 @@ export default {
   stopWorkout,
   completeWorkoutSessionExercise,
   getWorkoutHistory,
-  async deleteWorkout(workoutId) {
-    try {
-      const workout = await workoutRepository.getWorkoutById(workoutId);
-      if (!workout) {
-        throw new AppError("Treino não encontrado");
-      }
-
-      const { hasExercises, hasSessions } = await workoutRepository.canDeleteWorkout(workoutId);
-      if (hasExercises || hasSessions) {
-        throw new AppError("Não é possível deletar: treino possui vínculos");
-      }
-
-      await workoutRepository.deleteWorkout(workoutId);
-      return { success: true };
-    } catch (error) {
-      throw new AppError(error.message);
-    }
-  },
-  async updateWorkout(workoutId, name, privacy, exercises) {
-    try {
-      // Verificar se o treino existe
-      const existingWorkout = await workoutRepository.getWorkoutById(workoutId);
-      if (!existingWorkout) {
-        throw new AppError("Treino não encontrado");
-      }
-
-      // Verificar se todos os exercícios existem
-      const exerciseIds = exercises.map(ex => ex.id);
-      const existingExercises = await workoutRepository.getExercisesByIds(exerciseIds);
-      
-      if (existingExercises.length !== exerciseIds.length) {
-        throw new AppError("Um ou mais exercícios não foram encontrados");
-      }
-
-      // Atualizar o treino
-      const updatedWorkout = await workoutRepository.updateWorkout(workoutId, name, privacy, exercises);
-
-      return updatedWorkout;
-    } catch (error) {
-      throw new AppError(error.message);
-    }
-  },
-  async getDashboard(userId) {
-    try {
-      const now = new Date();
-      const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
-      const [thisMonthSessions, lastMonthSessions] = await Promise.all([
-        workoutRepository.getWorkoutSessionsByUserBetween(userId, startOfThisMonth, startOfNextMonth),
-        workoutRepository.getWorkoutSessionsByUserBetween(userId, startOfLastMonth, startOfThisMonth),
-      ]);
-
-      const thisCount = thisMonthSessions.length;
-      const lastCount = lastMonthSessions.length;
-      const monthVariation = lastCount === 0 ? (thisCount > 0 ? 100 : 0) : Math.round(((thisCount - lastCount) / lastCount) * 100);
-
-      const dates = Array.from(new Set(thisMonthSessions.map(s => new Date(s.startedAt.getFullYear(), s.startedAt.getMonth(), s.startedAt.getDate()).getTime()))).sort((a, b) => a - b);
-      let bestStreak = 0;
-      let currentStreak = 0;
-      for (let i = 0; i < dates.length; i++) {
-        if (i === 0) { currentStreak = 1; bestStreak = 1; continue; }
-        const prev = dates[i - 1];
-        const curr = dates[i];
-        const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) currentStreak += 1; else if (diffDays > 1) currentStreak = 1;
-        if (currentStreak > bestStreak) bestStreak = currentStreak;
-      }
-
-      const durations = thisMonthSessions.filter(s => s.endedAt).map(s => (s.endedAt.getTime() - s.startedAt.getTime()) / (1000 * 60));
-      const avgDuration = durations.length > 0 ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
-
-      const completedCount = thisMonthSessions.filter(s => s.status === 'COMPLETED').length;
-      const completionRate = thisCount > 0 ? Math.round((completedCount / thisCount) * 100) : 0;
-
-      // Atividades recentes (últimos 5 treinos)
-      const lastSessions = await workoutRepository.getLastWorkoutSessionsByUser(userId, 5);
-      const activities = lastSessions.map(s => ({
-        id: s.id,
-        title: s.workout?.name,
-        exercises: s.WorkoutSessionExercises.length,
-        durationMinutes: s.endedAt ? Math.round((s.endedAt.getTime() - s.startedAt.getTime()) / (1000 * 60)) : 0,
-        status: s.status,
-        startedAt: s.startedAt,
-      }));
-
-      // Volume semanal de exercícios (semana atual)
-      const currentDate = new Date();
-      const currentDay = currentDate.getDay(); // 0 = domingo, 1 = segunda, etc.
-      const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate(currentDate.getDate() - currentDay);
-      startOfWeek.setHours(0, 0, 0, 0);
-      
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
-
-      const weeklyVolume = await workoutRepository.getWeeklyExerciseVolume(userId, startOfWeek, endOfWeek);
-
-      // Exercícios mais realizados
-      const topExercises = await workoutRepository.getTopExercises(userId, 10);
-
-      return {
-        month: { count: thisCount, variation: monthVariation },
-        streak: bestStreak,
-        averageDurationMinutes: avgDuration,
-        completionRate,
-        activities,
-        weeklyVolume,
-        topExercises,
-      };
-    } catch (error) {
-      throw new AppError(error.message);
-    }
-  },
+  getCommunityWorkouts,
+  likeWorkout,
+  unlikeWorkout,
+  deleteWorkout,
+  updateWorkout,
+  getDashboard,
 };
