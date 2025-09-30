@@ -26,28 +26,28 @@ const createWorkout = async (userId, name, privacy, exercises, description) => {
   }
 };
 
-const getWorkouts = async (userId) => {
+const getWorkouts = async (userId, status = null) => {
   try {
-    const workouts = await workoutRepository.getWorkoutsByUserId(userId);
+    const workouts = await workoutRepository.getWorkoutsByUserId(userId, status);
     return workouts;
   } catch (error) {
     throw new AppError(error.message);
   }
 };
 
-const getWorkoutById = async (workoutId) => {
+const getWorkoutById = async (workoutId, userId) => {
   try {
-    // Primeiro verificar se existe uma sessão em progresso para este workout
-    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByWorkoutId(workoutId);
+    // Primeiro verificar se existe uma sessão ativa (em progresso ou pausada) para este workout
+    const sessionActive = await workoutRepository.getWorkoutSessionActiveByWorkoutId(workoutId, userId);
     
-    if (sessionInProgress) {
-      // Se existe sessão em progresso, retornar os dados da sessão
+    if (sessionActive) {
+      // Se existe sessão ativa (em progresso ou pausada), retornar os dados da sessão
       return {
         type: "session",
-        data: sessionInProgress
+        data: sessionActive
       };
     } else {
-      // Se não existe sessão em progresso, retornar os dados do workout original
+      // Se não existe sessão ativa, retornar os dados do workout original
       const workout = await workoutRepository.getWorkoutById(workoutId);
       return {
         type: "workout",
@@ -59,7 +59,7 @@ const getWorkoutById = async (workoutId) => {
   }
 };
 
-const startWorkout = async (workoutId) => {
+const startWorkout = async (workoutId, userId) => {
   try {
     // Buscar o workout para obter o userId
     const workout = await workoutRepository.getWorkoutById(workoutId);
@@ -69,14 +69,24 @@ const startWorkout = async (workoutId) => {
     }
 
     // Verificar se o usuário já tem uma sessão em progresso
-    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(workout.userId);
+    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(userId);
     
     if (sessionInProgress) {
       throw new AppError("Usuário já possui um treino em progresso");
     }
 
+    // Verificar se existe uma sessão pausada para este treino
+    const pausedSession = await workoutRepository.getWorkoutSessionPausedByWorkoutId(workoutId, userId);
+    
+    if (pausedSession) {
+      // Continuar sessão pausada
+      const resumedSession = await workoutRepository.resumeWorkoutSession(pausedSession.id);
+      const fullSession = await workoutRepository.getWorkoutSessionById(resumedSession.id);
+      return fullSession;
+    }
+
     // Criar uma nova sessão do treino
-    const workoutSession = await workoutRepository.createWorkoutSession(workout.userId, workoutId);
+    const workoutSession = await workoutRepository.createWorkoutSession(userId, workoutId);
     
     // Buscar a sessão completa com os exercícios
     const fullSession = await workoutRepository.getWorkoutSessionById(workoutSession.id);
@@ -335,6 +345,32 @@ const updateWorkout = async (workoutId, name, description, privacy, exercises) =
   }
 };
 
+const pauseWorkout = async (workoutId, userId) => {
+  try {
+    // Buscar a sessão em progresso para este usuário
+    const sessionInProgress = await workoutRepository.getWorkoutSessionInProgressByUserId(userId);
+    
+    if (!sessionInProgress) {
+      throw new AppError("Nenhuma sessão em progresso encontrada");
+    }
+
+    // Verificar se a sessão pertence ao workout correto
+    if (sessionInProgress.workoutId !== workoutId) {
+      throw new AppError("Sessão em progresso não pertence a este treino");
+    }
+
+    // Pausar a sessão do treino
+    const pausedSession = await workoutRepository.pauseWorkoutSession(sessionInProgress.id);
+    
+    // Buscar a sessão completa com os exercícios
+    const fullSession = await workoutRepository.getWorkoutSessionById(pausedSession.id);
+    
+    return fullSession;
+  } catch (error) {
+    throw new AppError(error.message);
+  }
+};
+
 const getDashboard = async (userId) => {
   try {
     const now = new Date();
@@ -415,6 +451,7 @@ export default {
   getWorkouts,
   getWorkoutById,
   startWorkout,
+  pauseWorkout,
   completeWorkout,
   stopWorkout,
   completeWorkoutSessionExercise,

@@ -97,12 +97,23 @@ const createWorkout = async (userId, name, privacy, exercises, description) => {
   }
 };
 
-const getWorkoutsByUserId = async (userId) => {
+const getWorkoutsByUserId = async (userId, status = null) => {
   try {
+    const whereClause = {
+      userId: userId,
+    };
+
+    // Se status for fornecido, adicionar filtro por status das sessões
+    if (status) {
+      whereClause.WorkoutSessions = {
+        some: {
+          status: status
+        }
+      };
+    }
+
     return await prisma.workout.findMany({
-      where: {
-        userId: userId,
-      },
+      where: whereClause,
       select: {
         id: true,
         userId: true,
@@ -256,12 +267,15 @@ const getWorkoutById = async (workoutId) => {
   }
 };
 
-const getWorkoutSessionInProgressByWorkoutId = async (workoutId) => {
+const getWorkoutSessionActiveByWorkoutId = async (workoutId, userId) => {
   try {
     return await prisma.workoutSession.findFirst({
       where: {
         workoutId: workoutId,
-        status: "IN_PROGRESS",
+        userId: userId,
+        status: {
+          in: ["IN_PROGRESS", "PAUSED"]
+        },
       },
       select: {
         id: true,
@@ -626,6 +640,80 @@ const getWorkoutSessionInProgressByUserId = async (userId) => {
     return await prisma.workoutSession.findFirst({
       where: {
         userId: userId,
+        status: "IN_PROGRESS",
+      },
+      select: {
+        id: true,
+        userId: true,
+        workoutId: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const getWorkoutSessionPausedByWorkoutId = async (workoutId, userId) => {
+  try {
+    return await prisma.workoutSession.findFirst({
+      where: {
+        workoutId: workoutId,
+        userId: userId,
+        status: "PAUSED",
+      },
+      select: {
+        id: true,
+        userId: true,
+        workoutId: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const pauseWorkoutSession = async (sessionId) => {
+  try {
+    return await prisma.workoutSession.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
+        status: "PAUSED",
+      },
+      select: {
+        id: true,
+        userId: true,
+        workoutId: true,
+        status: true,
+        startedAt: true,
+        endedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    logError(error);
+  }
+};
+
+const resumeWorkoutSession = async (sessionId) => {
+  try {
+    return await prisma.workoutSession.update({
+      where: {
+        id: sessionId,
+      },
+      data: {
         status: "IN_PROGRESS",
       },
       select: {
@@ -1505,10 +1593,13 @@ export default {
   stopWorkout,
   createWorkoutSession,
   getWorkoutSessionInProgressByUserId,
+  getWorkoutSessionPausedByWorkoutId,
+  pauseWorkoutSession,
+  resumeWorkoutSession,
   getWorkoutSessionById,
   completeWorkoutSession,
   deleteWorkoutSession,
-  getWorkoutSessionInProgressByWorkoutId,
+  getWorkoutSessionActiveByWorkoutId,
   completeWorkoutSessionExercise,
   getWorkoutHistory,
   getWorkoutSessionsByUserBetween,

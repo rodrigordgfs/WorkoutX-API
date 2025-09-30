@@ -120,7 +120,7 @@ const createWorkout = async (request, reply) => {
 const getWorkouts = async (request, reply) => {
   try {
     const schemaQuery = z.object({
-      userId: z.string({ required_error: "O ID do usuário é obrigatório" }),
+      status: z.enum(["IN_PROGRESS", "PAUSED", "COMPLETED", "UNCOMPLETED", "NOT_STARTED"]).optional(),
     });
 
     const validation = schemaQuery.safeParse(request.query);
@@ -129,10 +129,10 @@ const getWorkouts = async (request, reply) => {
       throw validation.error;
     }
 
-    const { userId } = validation.data;
-    const requesterId = request.userId;
+    const { status } = validation.data;
+    const userId = request.userId;
 
-    const workouts = await workoutService.getWorkouts(userId);
+    const workouts = await workoutService.getWorkouts(userId, status);
 
     // Mapear array de workouts para a estrutura desejada
     const response = await Promise.all(workouts.map(async (workout) => {
@@ -144,7 +144,7 @@ const getWorkouts = async (request, reply) => {
 
       const [likesCount, isLiked] = await Promise.all([
         workoutRepository.countWorkoutLikes(workout.id),
-        workoutRepository.isWorkoutLikedByUser(requesterId, workout.id),
+        workoutRepository.isWorkoutLikedByUser(userId, workout.id),
       ]);
 
       return {
@@ -218,8 +218,9 @@ const getWorkoutById = async (request, reply) => {
     }
 
     const { id } = validation.data;
+    const userId = request.userId;
 
-    const result = await workoutService.getWorkoutById(id);
+    const result = await workoutService.getWorkoutById(id, userId);
 
     if (!result || !result.data) {
       return reply.code(StatusCodes.NOT_FOUND).send({
@@ -309,8 +310,9 @@ const startWorkout = async (request, reply) => {
     }
 
     const { id } = validation.data;
+    const userId = request.userId;
 
-    const workout = await workoutService.startWorkout(id);
+    const workout = await workoutService.startWorkout(id, userId);
 
     if (!workout) {
       return reply.code(StatusCodes.NOT_FOUND).send({
@@ -830,6 +832,29 @@ const updateWorkoutHandler = async (request, reply) => {
   }
 };
 
+const pauseWorkout = async (request, reply) => {
+  try {
+    const schemaParams = z.object({
+      id: z.string({ required_error: "O ID do treino é obrigatório" }),
+    });
+
+    const validation = schemaParams.safeParse(request.params);
+
+    if (!validation.success) {
+      throw validation.error;
+    }
+
+    const { id } = validation.data;
+    const userId = request.userId;
+
+    const workoutSession = await workoutService.pauseWorkout(id, userId);
+
+    return reply.status(200).send(workoutSession);
+  } catch (error) {
+    return handleErrorResponse(error, reply);
+  }
+};
+
 const getDashboard = async (request, reply) => {
   try {
     const userId = request.userId;
@@ -845,6 +870,7 @@ export default {
   getWorkouts,
   getWorkoutById,
   startWorkout,
+  pauseWorkout,
   completeWorkout,
   stopWorkout,
   completeWorkoutSessionExercise,

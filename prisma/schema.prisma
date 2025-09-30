@@ -122,6 +122,7 @@ enum Status {
   IN_PROGRESS
   NOT_STARTED
   UNCOMPLETED
+  PAUSED
 }
 
 model WorkoutLike {
